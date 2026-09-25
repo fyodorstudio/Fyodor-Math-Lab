@@ -11,11 +11,14 @@ import os
 from src.ism_reconciliation import (
     audit_ism_headline,
     audit_headline_prices_paid_matrix,
+    audit_multi_component_concordance,
     audit_sp_global,
     audit_foreign_currency_collisions,
     audit_calendar_metadata,
     validate_h1_path_transitions,
     audit_candle_paths_from_timestamps,
+    load_pre2023_releases,
+    DEFAULT_DATA_DIR,
     SECONDS_IN_H1,
     SPLIT_TIMESTAMP,
 )
@@ -92,6 +95,99 @@ class TestIsmReconciliation(unittest.TestCase):
         self.assertEqual(matrix["NEG/NEG"], 1)
         self.assertEqual(matrix["ZERO/POS"], 1)
         self.assertEqual(matrix["POS/ZERO"], 0)
+
+    def test_audit_multi_component_concordance(self):
+        # Synthetic releases across:
+        # 840040001: Headline
+        # 840040002: Prices Paid
+        # 840040004: Employment
+        # 840040006: New Orders
+        #
+        # Cases:
+        # 1000: All 4 POS (HEN pos, HPE pos, C4 pos)
+        # 2000: All 4 NEG (HEN neg, HPE neg, C4 neg)
+        # 3000: PP is NEG, others POS (HEN pos, HPE disc, C4 disc)
+        # 4000: NO is POS, others NEG (HEN disc, HPE neg, C4 disc)
+        # 5000: Emp is NEG, others POS (HEN disc, HPE disc, C4 disc)
+        # 6000: NO missing forecast, others POS (HEN incomp, HPE pos, C4 incomp)
+        # 7000: Headline surprise == 0 (not in actionable_timestamps, excluded from all)
+        by_event = {
+            "840040001": [
+                {"timestamp": "1000", "actual_raw_scaled_1e6": "60", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "2000", "actual_raw_scaled_1e6": "40", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "3000", "actual_raw_scaled_1e6": "60", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "4000", "actual_raw_scaled_1e6": "40", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "5000", "actual_raw_scaled_1e6": "60", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "6000", "actual_raw_scaled_1e6": "60", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "7000", "actual_raw_scaled_1e6": "50", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "8000", "actual_raw_scaled_1e6": "60", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+            ],
+            "840040002": [
+                {"timestamp": "1000", "actual_raw_scaled_1e6": "70", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "2000", "actual_raw_scaled_1e6": "50", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "3000", "actual_raw_scaled_1e6": "50", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "4000", "actual_raw_scaled_1e6": "50", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "5000", "actual_raw_scaled_1e6": "70", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "6000", "actual_raw_scaled_1e6": "70", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "7000", "actual_raw_scaled_1e6": "70", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "8000", "actual_raw_scaled_1e6": "70", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+            ],
+            "840040004": [
+                {"timestamp": "1000", "actual_raw_scaled_1e6": "55", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "2000", "actual_raw_scaled_1e6": "45", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "3000", "actual_raw_scaled_1e6": "55", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "4000", "actual_raw_scaled_1e6": "45", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "5000", "actual_raw_scaled_1e6": "45", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "6000", "actual_raw_scaled_1e6": "55", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "7000", "actual_raw_scaled_1e6": "55", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+                {"timestamp": "8000", "actual_raw_scaled_1e6": "55", "forecast_raw_scaled_1e6": "50", "previous_raw_scaled_1e6": "50"},
+            ],
+            "840040006": [
+                {"timestamp": "1000", "actual_raw_scaled_1e6": "65", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "2000", "actual_raw_scaled_1e6": "55", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "3000", "actual_raw_scaled_1e6": "65", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "4000", "actual_raw_scaled_1e6": "65", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "5000", "actual_raw_scaled_1e6": "65", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "6000", "actual_raw_scaled_1e6": "65", "forecast_raw_scaled_1e6": "", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "7000", "actual_raw_scaled_1e6": "65", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+                {"timestamp": "8000", "actual_raw_scaled_1e6": "60", "forecast_raw_scaled_1e6": "60", "previous_raw_scaled_1e6": "60"},
+            ],
+        }
+        ism_audit = {
+            "actionable_timestamps": {1000, 2000, 3000, 4000, 5000, 6000, 8000}
+        }
+
+        mc = audit_multi_component_concordance(by_event, ism_audit)
+
+        # 1. Headline + Employment + New Orders
+        hen = mc["headline_emp_neworders"]
+        self.assertEqual(hen["complete_packages"], 6)
+        self.assertEqual(hen["concordant_total"], 3)
+        self.assertEqual(hen["concordant_positive"], 2)
+        self.assertEqual(hen["concordant_negative"], 1)
+        self.assertEqual(hen["discordant_total"], 3)
+        self.assertEqual(hen["opposite_sign_total"], 2)
+        self.assertEqual(hen["neutral_component_total"], 1)
+
+        # 2. Headline + Prices Paid + Employment
+        hpe = mc["headline_prices_paid_emp"]
+        self.assertEqual(hpe["complete_packages"], 7)
+        self.assertEqual(hpe["concordant_total"], 5)
+        self.assertEqual(hpe["concordant_positive"], 3)
+        self.assertEqual(hpe["concordant_negative"], 2)
+        self.assertEqual(hpe["discordant_total"], 2)
+        self.assertEqual(hpe["opposite_sign_total"], 2)
+        self.assertEqual(hpe["neutral_component_total"], 0)
+
+        # 3. All Four Components
+        c4 = mc["all_four_components"]
+        self.assertEqual(c4["complete_packages"], 6)
+        self.assertEqual(c4["concordant_total"], 2)
+        self.assertEqual(c4["concordant_positive"], 1)
+        self.assertEqual(c4["concordant_negative"], 1)
+        self.assertEqual(c4["discordant_total"], 4)
+        self.assertEqual(c4["opposite_sign_total"], 3)
+        self.assertEqual(c4["neutral_component_total"], 1)
 
     def test_audit_sp_global_timing(self):
         ism_releases = [
@@ -193,6 +289,44 @@ class TestIsmReconciliation(unittest.TestCase):
         self.assertFalse(is_valid)
         self.assertIn("at or beyond split", reason)
 
+    def test_split_boundary_exit_close(self):
+        # Case 1: Valid 24-bar H1 path where all bars are H1-aligned (ts % 3600 == 0).
+        # Final bar opens at SPLIT_TIMESTAMP - 3600 (1672527600, 2022-12-31 23:00:00).
+        # Its close is (SPLIT_TIMESTAMP - 3600) + 3600 = SPLIT_TIMESTAMP (1672531200).
+        # Under exit_close_ts <= SPLIT_TIMESTAMP, this strictly satisfies the holdout seal.
+        t_start_valid = SPLIT_TIMESTAMP - 24 * SECONDS_IN_H1
+        bars_valid = [t_start_valid + i * SECONDS_IN_H1 for i in range(24)]
+        self.assertTrue(all(ts % SECONDS_IN_H1 == 0 for ts in bars_valid))
+        self.assertEqual(bars_valid[-1], SPLIT_TIMESTAMP - SECONDS_IN_H1)
+        is_valid, _, reason = validate_h1_path_transitions(bars_valid, split_timestamp=SPLIT_TIMESTAMP)
+        self.assertTrue(is_valid)
+        self.assertEqual(reason, "Valid path")
+
+        # Case 2: H1-aligned 24-bar path starting 1 hour later (at SPLIT_TIMESTAMP - 23 * 3600).
+        # Bar 0 opens before the split (1672448400 < SPLIT_TIMESTAMP).
+        # All bars are exact multiples of 3600.
+        # But final bar (bar 23) opens at SPLIT_TIMESTAMP (1672531200) and closes at
+        # SPLIT_TIMESTAMP + 3600 (1672534800, 2023-01-01 01:00:00).
+        # validate_h1_path_transitions must reject this path.
+        t_start_cross = SPLIT_TIMESTAMP - 23 * SECONDS_IN_H1
+        bars_cross = [t_start_cross + i * SECONDS_IN_H1 for i in range(24)]
+        self.assertTrue(all(ts % SECONDS_IN_H1 == 0 for ts in bars_cross))
+        self.assertLess(bars_cross[0], SPLIT_TIMESTAMP)
+        self.assertEqual(bars_cross[-1], SPLIT_TIMESTAMP)
+        is_valid_cross, _, reason_cross = validate_h1_path_transitions(bars_cross, split_timestamp=SPLIT_TIMESTAMP)
+        self.assertFalse(is_valid_cross)
+        self.assertIn("at or beyond split", reason_cross)
+
+        # Case 3: Single H1-aligned bar opening at SPLIT_TIMESTAMP (1672531200).
+        # Exact multiple of 3600; closes at SPLIT_TIMESTAMP + 3600 (1672534800).
+        bars_at_split = [SPLIT_TIMESTAMP]
+        self.assertEqual(bars_at_split[0] % SECONDS_IN_H1, 0)
+        is_valid_single, _, reason_single = validate_h1_path_transitions(
+            bars_at_split, split_timestamp=SPLIT_TIMESTAMP
+        )
+        self.assertFalse(is_valid_single)
+        self.assertIn("at or beyond split", reason_single)
+
     def test_duplicate_or_unsorted_timestamps(self):
         t0 = 1600000000
         # Duplicate bar
@@ -250,6 +384,45 @@ class TestIsmReconciliation(unittest.TestCase):
         finally:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
+
+    def test_pinned_calendar_multi_component_reconciliation(self):
+        cal_path = os.path.join(DEFAULT_DATA_DIR, "calendar_releases.csv")
+        if not os.path.exists(cal_path):
+            self.skipTest(f"Pinned calendar not found at {cal_path}")
+
+        _, by_event = load_pre2023_releases(cal_path)
+        ism_audit = audit_ism_headline(by_event)
+        mc = audit_multi_component_concordance(by_event, ism_audit)
+
+        # 1. Headline + Employment + New Orders
+        hen = mc["headline_emp_neworders"]
+        self.assertEqual(hen["complete_packages"], 63)
+        self.assertEqual(hen["concordant_total"], 23)
+        self.assertEqual(hen["concordant_positive"], 12)
+        self.assertEqual(hen["concordant_negative"], 11)
+        self.assertEqual(hen["discordant_total"], 40)
+        self.assertEqual(hen["opposite_sign_total"], 38)
+        self.assertEqual(hen["neutral_component_total"], 2)
+
+        # 2. Headline + Prices Paid + Employment
+        hpe = mc["headline_prices_paid_emp"]
+        self.assertEqual(hpe["complete_packages"], 63)
+        self.assertEqual(hpe["concordant_total"], 20)
+        self.assertEqual(hpe["concordant_positive"], 9)
+        self.assertEqual(hpe["concordant_negative"], 11)
+        self.assertEqual(hpe["discordant_total"], 43)
+        self.assertEqual(hpe["opposite_sign_total"], 43)
+        self.assertEqual(hpe["neutral_component_total"], 0)
+
+        # 3. All Four Components (Headline + Prices Paid + Employment + New Orders)
+        c4 = mc["all_four_components"]
+        self.assertEqual(c4["complete_packages"], 63)
+        self.assertEqual(c4["concordant_total"], 10)
+        self.assertEqual(c4["concordant_positive"], 6)
+        self.assertEqual(c4["concordant_negative"], 4)
+        self.assertEqual(c4["discordant_total"], 53)
+        self.assertEqual(c4["opposite_sign_total"], 51)
+        self.assertEqual(c4["neutral_component_total"], 2)
 
 
 if __name__ == "__main__":

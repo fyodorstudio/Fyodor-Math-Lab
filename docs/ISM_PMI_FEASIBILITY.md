@@ -179,6 +179,15 @@ Releases occur on the first business day of the month:
 - **48-H1 Horizon**: Exactly **22 of 67 paths (32.8%)** cross a weekend boundary.
 - Relative to Retail Sales (where 32.4% crossed weekends for 24 hours), ISM has **half the weekend gap exposure** because first-of-month releases cluster earlier in the trading week.
 
+### 5.3 Split-Boundary Exit Close Validation & Holdout Seal
+- **Exit Close Boundary Condition**: Under the laboratory's strict holdout seal, trade evaluations must not extend into or sample prices from the post-2022 holdout window (`timestamp >= 1672531200`).
+- Because an H1 candle opening at timestamp $T_{\text{bar}}$ spans $[T_{\text{bar}}, T_{\text{bar}} + 3600)$, its close timestamp is $T_{\text{exit\_close}} = \text{bar}_{H-1} + 3600$. In an H1 candle series, all bar timestamps align to exact hour boundaries (`timestamp % 3600 == 0`), where `SPLIT_TIMESTAMP = 1672531200` represents `2023-01-01 00:00:00`.
+- If an unrigorous engine only checked whether the trade *entry* opened before 2023 ($T_{\text{entry}} < 1672531200$), a trade entering on `2022-12-31 01:00:00` (`1672448400`, which is `SPLIT_TIMESTAMP - 23 * 3600`) would have its 24th active holding bar opening at `2023-01-01 00:00:00` (`1672531200`) and closing at `2023-01-01 01:00:00` (`1672534800`)—leaking directly into holdout data.
+- Under the exit-close convention, the final active H1 bar must satisfy:
+  $$T_{\text{exit\_close}} = \text{bar}_{H-1} + 3600 \le 1672531200$$
+  which means on the H1 grid, the latest valid pre-2023 bar must open at or before `1672527600` (`2022-12-31 23:00:00`, closing at `1672531200`). Any bar opening at `1672531200` or later has its close strictly exceeding `1672531200` and is rejected.
+- **Preflight Result**: For ISM Manufacturing on EURUSD, the latest pre-2023 release occurred on `2022-12-01 17:00:00` server open (`timestamp = 1669914000`). Its 24-H1 holding horizon exits at `2022-12-02 18:00:00` (bar close) and its 48-H1 holding horizon exits at `2022-12-05 18:00:00` (bar close, `timestamp = 1670263200`), over 26 days before `1672531200`. Exactly **67 of 67 paths (100.0%)** strictly satisfy the exit-close split-boundary constraint.
+
 ---
 
 ## 6. Confounder Audit: S&P Global (Markit) 15-Minute Preceding Release
@@ -245,6 +254,11 @@ $$\text{Direction} = \begin{cases} \text{SHORT EURUSD} & \text{if } S_H > 0 \qua
   - *Active Bar Stepping*: When holding spans a Friday–Sunday weekend market closure, bar indexing steps over the closed period and resumes on Sunday/Monday open. Wall-clock holding time extends past $H \times 3600$, and the exit timestamp is **not** a universal $T_{\text{entry}} + H \times 3600$.
   - **Primary Horizon ($H = 24$)**: Close at the close of the 24th active H1 bar (1 full trading day).
   - **Descriptive Horizon ($H = 48$)**: Close at the close of the 48th active H1 bar (2 full trading days).
+- **Split-Boundary Exit Close Specification & Holdout Seal**:
+  - To preserve the integrity of the post-2022 holdout seal, the exit execution timestamp at the close of the final active H1 bar must strictly satisfy:
+    $$T_{\text{exit\_close}} = \text{bar}_{H-1} + 3600 \le 1672531200$$
+  - In an H1 candle series, all bar timestamps align to exact hour boundaries (`timestamp % 3600 == 0`). If an evaluation rule merely checked that the trade entry opened before the split ($T_{\text{entry}} < 1672531200$), a trade entering on `2022-12-31 01:00:00` (`1672448400`) would have its 24th bar opening at `2023-01-01 00:00:00` (`1672531200`) and closing at `2023-01-01 01:00:00` (`1672534800`), breaching the holdout boundary.
+  - On the H1 grid, the latest allowable pre-2023 bar must open at or before `1672527600` (`2022-12-31 23:00:00`, closing at `1672531200`). Any bar opening at `1672531200` or later has its close strictly exceeding `1672531200`, and any candidate trade path crossing this threshold must be excluded as invalid.
 
 ### 7.4 Transaction Friction Model (Identical to Retail Sales)
 Performance must be evaluated across the identical 5 standardized friction scenarios:
@@ -262,8 +276,13 @@ To eliminate hindsight bias, we formally record why alternative design choices w
 
 1. **Rejection of Multi-Component Concordance (Headline + Prices Paid)**:
    - *Rationale*: As demonstrated in Section 3.3, Prices Paid is an inflation survey, not a growth survey. Concordance is only 55.2%. Forcing agreement would drop 29 of 66 actionable releases, slashing power and misrepresenting economic reality during stagflationary regimes. Prices Paid is relegated to diagnostic attribution.
-2. **Rejection of Multi-Component Concordance (Headline + Employment / New Orders)**:
-   - *Rationale*: Employment and New Orders lack consensus forecasts prior to September 2017 in MetaQuotes data (32 missing forecasts). A complete-case audit reveals that across the 63 pre-2023 releases where all three series have consensus forecasts, 3-way surprise concordance holds in **exactly 23 packages** (15 all positive, 8 all negative). If Prices Paid is also required to agree (4-way concordance), the sample collapses to **only 20 packages** (10 all positive, 10 all negative). Restricting to multi-component concordance would discard over 65% of the data ($N = 23$ vs $N = 66$), severely degrading statistical test power. Component series are preserved strictly as post-unblinding attribution diagnostics.
+2. **Rejection of Multi-Component Concordance (Headline + Employment / New Orders / Prices Paid)**:
+   - *Rationale*: Employment (`USD:US:840040004:r0`) and New Orders (`USD:US:840040006:r0`) lack consensus forecasts prior to September 2017 in MetaQuotes data (32 missing forecasts across pre-2023 releases; Prices Paid `840040002` has 29 missing).
+   - Across the 63 pre-2023 releases where all component series have complete A/F/P packages and non-zero headline surprise ($S_H \neq 0$):
+     - **Headline + Employment + New Orders (3-Way Growth Concordance)**: Exactly **23 concordant packages** (12 all positive, 11 all negative) and **40 non-concordant packages** (**38 opposite-sign**, **2 neutral-component** where New Orders surprise was zero: `1536080400` and `1583172000`).
+     - **Headline + Prices Paid + Employment (3-Way Hybrid Concordance)**: Exactly **20 concordant packages** (9 all positive, 11 all negative) and **43 non-concordant packages** (all **43 opposite-sign**, 0 neutral-component). *(Note: this 20-package count reflects Headline + Prices Paid + Employment, not the four-way combination).*
+     - **All Four Components (4-Way Full Concordance: Headline + Prices Paid + Employment + New Orders)**: Exactly **10 concordant packages** (6 all positive, 4 all negative) and **53 non-concordant packages** (**51 opposite-sign**, **2 neutral-component** where New Orders surprise was zero).
+   - Restricting trade entry to multi-component concordance would discard the vast majority of the actionable sample: collapsing from $N = 66$ to $N = 23$ (65.2% sample loss for Headline+Emp+NO) or to $N = 10$ (84.8% sample loss for All Four). This collapses statistical test power to negligible levels. Therefore, component series are rejected as entry filters and preserved strictly as post-unblinding attribution diagnostics.
 3. **Rejection of Delayed H4 Entry (20:00 Server Open)**:
    - *Rationale*: Introduces seasonal distortion (180 min wait in summer vs 120 min in winter) and an unneeded 2- to 3-hour delay under the hypothesis of rapid market absorption, whereas the uniform 60-minute H1 entry provides a seasonally consistent baseline.
 4. **Rejection of S&P Global PMI Pooling**:

@@ -1,7 +1,7 @@
 """
 Price-Blind Reconciliation Engine for US ISM Manufacturing PMI (USD:US:840040001:r0)
 Verifies calendar inventory, component relationships, S&P Global preceding releases,
-co-release collisions, and EURUSD H1 candle path continuity.
+co-release collisions, multi-component concordance, and EURUSD H1 candle path continuity.
 
 STRICT CONSTRAINTS:
 - Price-Blind: Only reads calendar fields and candle timestamps (column 0).
@@ -9,6 +9,7 @@ STRICT CONSTRAINTS:
 - Zero access to or tokenization of Bid/Ask OHLC prices, tick volumes, or spreads.
 - Strictly stops before the 2023 chronological boundary (timestamp < 1672531200).
 - Validates every adjacent transition: exactly 1 hour or a valid weekend market closure.
+- Enforces conservative holdout seal: exit at close of final bar must not exceed split boundary.
 - Rejects arbitrary weekday gaps, duplicate/unsorted timestamps, and split boundary crossings.
 - No silent default value substitutions for calendar metadata.
 """
@@ -147,6 +148,133 @@ def audit_headline_prices_paid_matrix(
             matrix[f"{h_sign}/{p_sign}"] += 1
 
     return matrix
+
+
+def audit_multi_component_concordance(
+    by_event: Dict[str, List[Dict[str, Any]]],
+    ism_audit: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Reconciles multi-component surprise signs across Headline (840040001),
+    Employment (840040004), New Orders (840040006), and Prices Paid (840040002).
+
+    Requirements:
+    - Complete A/F/P for each series included in the comparison.
+    - Nonzero headline surprise (S_H != 0).
+    """
+    h_map = {int(r["timestamp"]): r for r in by_event.get("840040001", [])}
+    pp_map = {int(r["timestamp"]): r for r in by_event.get("840040002", [])}
+    emp_map = {int(r["timestamp"]): r for r in by_event.get("840040004", [])}
+    no_map = {int(r["timestamp"]): r for r in by_event.get("840040006", [])}
+
+    def is_afp(r: Optional[Dict[str, Any]]) -> bool:
+        return (
+            r is not None and
+            r.get("actual_raw_scaled_1e6") not in (None, "") and
+            r.get("forecast_raw_scaled_1e6") not in (None, "") and
+            r.get("previous_raw_scaled_1e6") not in (None, "")
+        )
+
+    def get_surp(r: Dict[str, Any]) -> int:
+        return int(r["actual_raw_scaled_1e6"]) - int(r["forecast_raw_scaled_1e6"])
+
+    actionable_ts = ism_audit.get("actionable_timestamps", set())
+
+    # 1. Headline + Employment + New Orders
+    hen_packages: List[int] = []
+    hen_pos: List[int] = []
+    hen_neg: List[int] = []
+    hen_opposite: List[int] = []
+    hen_neutral: List[int] = []
+    for ts in sorted(actionable_ts):
+        h, e, n = h_map.get(ts), emp_map.get(ts), no_map.get(ts)
+        if is_afp(h) and is_afp(e) and is_afp(n):
+            hs, es, ns = get_surp(h), get_surp(e), get_surp(n)
+            is_pos = (hs > 0 and es > 0 and ns > 0)
+            is_neg = (hs < 0 and es < 0 and ns < 0)
+            hen_packages.append(ts)
+            if is_pos:
+                hen_pos.append(ts)
+            elif is_neg:
+                hen_neg.append(ts)
+            elif (es == 0 or ns == 0):
+                hen_neutral.append(ts)
+            else:
+                hen_opposite.append(ts)
+
+    # 2. Headline + Prices Paid + Employment
+    hpe_packages: List[int] = []
+    hpe_pos: List[int] = []
+    hpe_neg: List[int] = []
+    hpe_opposite: List[int] = []
+    hpe_neutral: List[int] = []
+    for ts in sorted(actionable_ts):
+        h, p, e = h_map.get(ts), pp_map.get(ts), emp_map.get(ts)
+        if is_afp(h) and is_afp(p) and is_afp(e):
+            hs, ps, es = get_surp(h), get_surp(p), get_surp(e)
+            is_pos = (hs > 0 and ps > 0 and es > 0)
+            is_neg = (hs < 0 and ps < 0 and es < 0)
+            hpe_packages.append(ts)
+            if is_pos:
+                hpe_pos.append(ts)
+            elif is_neg:
+                hpe_neg.append(ts)
+            elif (ps == 0 or es == 0):
+                hpe_neutral.append(ts)
+            else:
+                hpe_opposite.append(ts)
+
+    # 3. All Four Components (Headline + Prices Paid + Employment + New Orders)
+    c4_packages: List[int] = []
+    c4_pos: List[int] = []
+    c4_neg: List[int] = []
+    c4_opposite: List[int] = []
+    c4_neutral: List[int] = []
+    for ts in sorted(actionable_ts):
+        h, p, e, n = h_map.get(ts), pp_map.get(ts), emp_map.get(ts), no_map.get(ts)
+        if is_afp(h) and is_afp(p) and is_afp(e) and is_afp(n):
+            hs, ps, es, ns = get_surp(h), get_surp(p), get_surp(e), get_surp(n)
+            is_pos = (hs > 0 and ps > 0 and es > 0 and ns > 0)
+            is_neg = (hs < 0 and ps < 0 and es < 0 and ns < 0)
+            c4_packages.append(ts)
+            if is_pos:
+                c4_pos.append(ts)
+            elif is_neg:
+                c4_neg.append(ts)
+            elif (ps == 0 or es == 0 or ns == 0):
+                c4_neutral.append(ts)
+            else:
+                c4_opposite.append(ts)
+
+    return {
+        "headline_emp_neworders": {
+            "complete_packages": len(hen_packages),
+            "concordant_total": len(hen_pos) + len(hen_neg),
+            "concordant_positive": len(hen_pos),
+            "concordant_negative": len(hen_neg),
+            "discordant_total": len(hen_opposite) + len(hen_neutral),
+            "opposite_sign_total": len(hen_opposite),
+            "neutral_component_total": len(hen_neutral),
+        },
+        "headline_prices_paid_emp": {
+            "complete_packages": len(hpe_packages),
+            "concordant_total": len(hpe_pos) + len(hpe_neg),
+            "concordant_positive": len(hpe_pos),
+            "concordant_negative": len(hpe_neg),
+            "discordant_total": len(hpe_opposite) + len(hpe_neutral),
+            "opposite_sign_total": len(hpe_opposite),
+            "neutral_component_total": len(hpe_neutral),
+        },
+        "all_four_components": {
+            "complete_packages": len(c4_packages),
+            "concordant_total": len(c4_pos) + len(c4_neg),
+            "concordant_positive": len(c4_pos),
+            "concordant_negative": len(c4_neg),
+            "discordant_total": len(c4_opposite) + len(c4_neutral),
+            "opposite_sign_total": len(c4_opposite),
+            "neutral_component_total": len(c4_neutral),
+        },
+    }
 
 
 def audit_sp_global(
@@ -306,12 +434,18 @@ def validate_h1_path_transitions(
     Returns (is_valid, crosses_weekend, failure_reason).
 
     Requirements:
-    1. Every bar must be strictly before split_timestamp.
+    1. Every bar must open strictly before split_timestamp.
     2. Timestamps must be strictly monotonic (no duplicates, no unsorted pairs).
     3. Every transition must be:
        - Exactly 3600 seconds (1 active trading hour), OR
        - A legitimate weekend market closure verified by is_valid_weekend_market_closure.
     4. Arbitrary weekday gaps are rejected.
+    5. Split-boundary convention for exit at close of final H1 bar:
+       An active H1 bar that opens at path_bars[-1] spans [path_bars[-1], path_bars[-1] + 3600).
+       Its close timestamp is exit_close_ts = path_bars[-1] + SECONDS_IN_H1.
+       Under the conservative holdout seal, the exit execution must not extend beyond split_timestamp
+       (exit_close_ts <= split_timestamp). If exit_close_ts > split_timestamp, the trade's holding
+       period extends into the post-2022 holdout.
     """
     if not path_bars:
         return False, False, "Empty path bars"
@@ -322,6 +456,11 @@ def validate_h1_path_transitions(
         ts = path_bars[i]
         if ts >= split_timestamp:
             return False, False, f"Bar at index {i} (timestamp {ts}) is at or beyond split {split_timestamp}"
+
+    # Split-boundary convention for exit at the close of the final H1 bar
+    exit_close_ts = path_bars[-1] + SECONDS_IN_H1
+    if exit_close_ts > split_timestamp:
+        return False, False, f"Exit close timestamp {exit_close_ts} extends beyond split boundary {split_timestamp}"
 
     for i in range(len(path_bars) - 1):
         t1, t2 = path_bars[i], path_bars[i + 1]
@@ -407,6 +546,7 @@ def audit_candle_paths_from_timestamps(
         is_24_ok = False
         cross_24 = False
         exit_bar_24_open = None
+        exit_bar_24_close = None
         if idx + 24 <= len(candle_timestamps):
             bars_24 = candle_timestamps[idx:idx + 24]
             valid_24, cross_24, reason_24 = validate_h1_path_transitions(bars_24, split_timestamp=split_timestamp)
@@ -416,11 +556,13 @@ def audit_candle_paths_from_timestamps(
                 if cross_24:
                     weekend_cross_24 += 1
                 exit_bar_24_open = bars_24[-1]
+                exit_bar_24_close = bars_24[-1] + SECONDS_IN_H1
 
         # 48 active bars
         is_48_ok = False
         cross_48 = False
         exit_bar_48_open = None
+        exit_bar_48_close = None
         if idx + 48 <= len(candle_timestamps):
             bars_48 = candle_timestamps[idx:idx + 48]
             valid_48, cross_48, reason_48 = validate_h1_path_transitions(bars_48, split_timestamp=split_timestamp)
@@ -430,6 +572,7 @@ def audit_candle_paths_from_timestamps(
                 if cross_48:
                     weekend_cross_48 += 1
                 exit_bar_48_open = bars_48[-1]
+                exit_bar_48_close = bars_48[-1] + SECONDS_IN_H1
 
         path_details.append({
             "release_ts": r_ts,
@@ -437,9 +580,11 @@ def audit_candle_paths_from_timestamps(
             "is_24_complete": is_24_ok,
             "crosses_weekend_24": cross_24,
             "final_bar_open_24": exit_bar_24_open,
+            "final_bar_close_24": exit_bar_24_close,
             "is_48_complete": is_48_ok,
             "crosses_weekend_48": cross_48,
             "final_bar_open_48": exit_bar_48_open,
+            "final_bar_close_48": exit_bar_48_close,
         })
 
     return {
@@ -465,6 +610,7 @@ def run_full_reconciliation(data_dir: str = DEFAULT_DATA_DIR) -> Dict[str, Any]:
     all_releases, by_event = load_pre2023_releases(cal_releases_path)
     ism_audit = audit_ism_headline(by_event)
     pp_matrix = audit_headline_prices_paid_matrix(by_event, ism_audit["complete_afp_releases"])
+    multi_comp = audit_multi_component_concordance(by_event, ism_audit)
     sp_audit = audit_sp_global(by_event, by_event.get("840040001", []), ism_audit["actionable_timestamps"])
     cs_audit = audit_construction_spending(by_event, by_event.get("840040001", []))
     collisions = audit_foreign_currency_collisions(all_releases, by_event.get("840040001", []), ism_audit["actionable_timestamps"])
@@ -484,6 +630,7 @@ def run_full_reconciliation(data_dir: str = DEFAULT_DATA_DIR) -> Dict[str, Any]:
     return {
         "ism_audit": ism_audit,
         "pp_matrix": pp_matrix,
+        "multi_component_concordance": multi_comp,
         "sp_audit": sp_audit,
         "cs_audit": cs_audit,
         "collisions": collisions,
@@ -496,6 +643,7 @@ def main():
     report = run_full_reconciliation()
     ism = report["ism_audit"]
     pp = report["pp_matrix"]
+    mc = report["multi_component_concordance"]
     sp = report["sp_audit"]
     cs = report["cs_audit"]
     collisions = report["collisions"]
@@ -517,6 +665,25 @@ def main():
     for k in ["POS/POS", "POS/NEG", "POS/ZERO", "NEG/POS", "NEG/NEG", "NEG/ZERO", "ZERO/POS", "ZERO/NEG", "ZERO/ZERO"]:
         if pp.get(k, 0) > 0:
             print(f"  {k}: {pp[k]}")
+
+    print("\n--- MULTI-COMPONENT CONCORDANCE AUDIT (COMPLETE A/F/P & NONZERO S_H) ---")
+    hen = mc["headline_emp_neworders"]
+    print(f"  Headline + Employment + New Orders:")
+    print(f"    Complete Packages: {hen['complete_packages']}")
+    print(f"    Concordant: {hen['concordant_total']} (Positive: {hen['concordant_positive']}, Negative: {hen['concordant_negative']})")
+    print(f"    Discordant / Non-Concordant: {hen['discordant_total']} (Opposite Sign: {hen['opposite_sign_total']}, Neutral Component: {hen['neutral_component_total']})")
+
+    hpe = mc["headline_prices_paid_emp"]
+    print(f"  Headline + Prices Paid + Employment:")
+    print(f"    Complete Packages: {hpe['complete_packages']}")
+    print(f"    Concordant: {hpe['concordant_total']} (Positive: {hpe['concordant_positive']}, Negative: {hpe['concordant_negative']})")
+    print(f"    Discordant / Non-Concordant: {hpe['discordant_total']} (Opposite Sign: {hpe['opposite_sign_total']}, Neutral Component: {hpe['neutral_component_total']})")
+
+    c4 = mc["all_four_components"]
+    print(f"  All Four Components (Headline + Prices Paid + Employment + New Orders):")
+    print(f"    Complete Packages: {c4['complete_packages']}")
+    print(f"    Concordant: {c4['concordant_total']} (Positive: {c4['concordant_positive']}, Negative: {c4['concordant_negative']})")
+    print(f"    Discordant / Non-Concordant: {c4['discordant_total']} (Opposite Sign: {c4['opposite_sign_total']}, Neutral Component: {c4['neutral_component_total']})")
 
     print("\n--- S&P GLOBAL MANUFACTURING PMI (840500001) AUDIT ---")
     print(f"  Revision 1: Total Pre-2023 Rows: {sp['rev1_total']}, Populated Forecasts: {sp['rev1_forecasts_populated']}")
