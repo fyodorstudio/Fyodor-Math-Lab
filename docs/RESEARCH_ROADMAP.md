@@ -2,9 +2,9 @@
 
 > [!IMPORTANT]
 > **GOVERNANCE STATUS: RESEARCH IN PROGRESS (NO VERIFIED PROFITABLE SETUP)**
-> **No registered setup, profitable edge, or executable trading recommendation exists in this repository.**  
-> Prior trials (Phase 1 CPI/NFP and the German Ifo pilot trial with $p = 0.9575$) yielded no actionable trading setups.  
-> The current candidate investigation (US Retail Sales on EURUSD) is strictly in pre-price feasibility and protocol audit. Candidate prices, win rates, and post-2022 holdout outcomes remain completely uninspected and sealed.
+> **No registered setup, profitable edge, or executable trading recommendation exists in this repository.**
+> Prior trials (Phase 1 CPI/NFP, German Ifo pilot trial with $p = 0.9575$, and US Retail Sales discovery trial with mean -2.63 pips and $p = 0.6513$) yielded no actionable trading setups.
+> The active candidate investigation is advancing to US ISM Manufacturing PMI (`USD:US:840040001:r0`) in price-blind feasibility. Candidate prices, spreads, and holdout outcomes remain completely uninspected and sealed.
 
 ---
 
@@ -20,42 +20,30 @@ The repository executes a strictly staged, unidirectional research pipeline:
                       v
 [2] US Retail Sales Price-Blind Feasibility                   [COMPLETE]
     - Co-release coherence: Headline (840020010) + Core (840020011)
-    - 68/68 forward H4 path completeness verified on EURUSD
     - 49 strict-concordance packages (sign(S_H) * sign(S_C) > 0)
-    - Confounder audits: 30/49 collisions, 15/49 Fridays, 65.3% control contamination
+    - Confounder audits: 30/49 collisions, 15/49 Fridays
                       |
                       v
-[3] Pre-Price Protocol Audit & Freeze                         [PENDING REVIEW]
-    - Primary question: directional strategy viability under Scenario C (10 pts / 1.0 pip)
-    - 1-sample Student's t-test (p < 0.05, win rate >= 53%, Friday/non-Friday positive)
-    - Decision truth table and classify_discovery_outcome() 100% equivalent
-    - Predeclared post-2022 holdout decision gates in classify_holdout_outcome()
+[3] Pre-Price Protocol Audit & Freeze                         [COMPLETE]
+    - Protocol v0.5 frozen byte-for-byte; schema 1.1.0 authorized
+    - 43 synthetic unit tests passing; source hashes verified
                       |
                       v
-[4] Pre-2023 Directional Strategy Viability Discovery         [AWAITING FREEZE]
-    - Run unblinded calculation on N = 49 pre-2023 strict packages ONLY
-    - If adverse (mean <= 0) -> DISCONFIRMED_ADVERSE; investigation terminated
-    - If underpowered/fragile -> INCONCLUSIVE; investigation terminated
-    - If meets all hurdles -> PROMISING_DISCOVERY_CANDIDATE (NOT a registered setup)
+[4] Pre-2023 Retail Sales Discovery Execution                 [COMPLETE: DISCONFIRMED]
+    - Unblinded run on N = 49 pre-2023 strict packages (commit 2e2f3ff)
+    - Scenario C mean net return = -2.63 pips (-2.45 bps), p = 0.6513, 25/49 wins
+    - Frictionless Scenario A mean net return = -1.63 pips (-1.57 bps)
+    - Disposition: DISCONFIRMED_ADVERSE; investigation terminated
                       |
                       v
-[5] Conditional Post-2022 Historical Holdout Validation       [SEALED]
-    - Evaluated ONLY if Step 4 yields PROMISING_DISCOVERY_CANDIDATE
-    - N_holdout < 15 -> HOLDOUT_SAMPLE_DEFICIENT (prespecified minimum unmet; descriptive only)
-    - N_holdout >= 15 & mean <= 0 -> HOLDOUT_FAIL (candidate permanently terminated)
-    - N_holdout >= 15 & mean > 0 & (p >= 0.05 | W < 50%) -> HOLDOUT_INCONCLUSIVE
-    - N_holdout >= 15 & mean > 0 & p < 0.05 & W >= 50% -> HOLDOUT_PASS_ELIGIBLE_FOR_DEMO
+[5] Conditional Post-2022 Historical Holdout Validation       [PERMANENTLY SEALED]
+    - Terminated without unsealing due to adverse discovery point estimate
+    - Post-2022 partition (timestamp >= 1672531200) remains untouched
                       |
                       v
-[6] Prospective Demo Ledger (Forward Execution Tracking)      [PROSPECTIVE ONLY]
-    - First-seen live demo-account forward observation
-    - Real-time timestamped capture of calendar values, spreads, slippage, and swaps
-    - Evaluates forward viability on genuinely unseen market regimes
-                      |
-                      v
-[7] Later Canvas Integration (C:\dev\NO-AI\canvas)            [FUTURE MILESTONE]
-    - Terminal frontend integration permitted ONLY after substantial demo track record
-    - Research lab remains strictly isolated from production terminal
+[6] Next Candidate: US ISM Manufacturing PMI Feasibility      [ACTIVE SCREENING]
+    - Price-blind feasibility pass on USD:US:840040001:r0
+    - Calendar fields and candle timestamps only; zero OHLC/returns parsed
 ```
 
 ---
@@ -119,5 +107,7 @@ This repository maintains an unbroken forensic record of all prior candidate tri
 | **Phase 1 Exploration** | USD CPI & NFP on EURUSD / USDJPY | Completed; no reliable delayed drift found | [`evidence/trials/phase1/PHASE1_EXPLORATION.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/phase1/PHASE1_EXPLORATION.md) |
 | **Ifo Pilot Trial** | German Ifo Business Climate on EURUSD | Completed; **State 3: No Convincing Evidence** ($p = 0.9575$) | [`evidence/trials/ifo/ifo_pre2023_exploration_report.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/ifo/ifo_pre2023_exploration_report.md) |
 | **Retail Sales Feasibility** | US Retail Sales m/m + Core on EURUSD | Completed; 49 strict-concordance packages, 68/68 paths clean | [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md) |
-| **Retail Sales Protocol** | Directional Strategy Viability on EURUSD | Pre-price design v0.5 pending Codex freeze review | [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md) |
+| **Retail Sales Protocol & Freeze Packet** | Directional Strategy Viability on EURUSD | Frozen at commit `b674a0c`; authorized for pre-2023 discovery only | [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md) & [`docs/RETAIL_SALES_FREEZE_PACKET.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FREEZE_PACKET.md) |
+| **Retail Sales Discovery Trial** | Pre-2023 Discovery Execution on EURUSD | **DISCONFIRMED_ADVERSE** (Scenario C mean -2.63 pips, $p=0.6513$, 25/49 wins). Closed; holdout sealed. | [`docs/RETAIL_SALES_CLOSURE_NOTE.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_CLOSURE_NOTE.md) & [`evidence/trials/retail_sales/retail_sales_pre2023_discovery.json`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/retail_sales/retail_sales_pre2023_discovery.json) |
+| **ISM Manufacturing Feasibility** | US ISM Manufacturing PMI on EURUSD | Active price-blind feasibility screening ($N=66$ actionable packages); zero prices read | [`docs/ISM_PMI_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/ISM_PMI_FEASIBILITY.md) |
 | **Historical Planning Archive** | Legacy FMS Roadmap (2026-09-24) | Archived reference snapshot | [`reference/planning-history/FMS_RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/planning-history/FMS_RESEARCH_ROADMAP.md) |

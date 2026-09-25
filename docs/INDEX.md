@@ -11,11 +11,12 @@ These documents define current research boundaries, protocols under active revie
 - [`README.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/README.md): Repository entrance, governance rules, directory classification, and provenance manifest.
 - [`docs/INDEX.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/INDEX.md): This classification index.
 - [`docs/RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md): Active maintained macro research roadmap, decision sequence, and parked state signature question.
-- [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md): Comprehensive price-blind feasibility investigation of US Retail Sales m/m (`USD:US:840020010:r0`) and Core Retail Sales m/m (`USD:US:840020011:r0`) on EURUSD.
-- [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md): Proposed draft frozen protocol for Codex review prior to any price inspection.
-- [`docs/RETAIL_SALES_FREEZE_PACKET.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FREEZE_PACKET.md): Pre-price research freeze record marked PENDING CODEX/OWNER APPROVAL, anchoring the 6-H4 rule, 49 strict packages, Scenario C one-pip friction, decision gates, and 43 passing tests.
+- [`docs/ISM_PMI_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/ISM_PMI_FEASIBILITY.md): Comprehensive price-blind feasibility investigation and pre-price architecture design for US ISM Manufacturing PMI (`USD:US:840040001:r0`) on EURUSD.
 - [`docs/NEXT_FAMILY_PRICE_BLIND_SHORTLIST.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/NEXT_FAMILY_PRICE_BLIND_SHORTLIST.md): Price-blind data suitability evaluation of US GDP vs US ISM Manufacturing PMI; ranks ISM conditionally suitable ($N=67$) and parks GDP due to unpooled sample deficiency ($N=22$).
-- [`src/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/): Core Python research modules (parsers, calendar reconciliation, candle coverage, package ledger).
+- [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md): Historical price-blind feasibility investigation of US Retail Sales m/m (`USD:US:840020010:r0`) and Core Retail Sales m/m (`USD:US:840020011:r0`) on EURUSD.
+- [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md): Pre-price design protocol v0.5 for US Retail Sales (executed and concluded).
+- [`docs/RETAIL_SALES_FREEZE_PACKET.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FREEZE_PACKET.md): Pre-price research freeze record anchoring the 6-H4 rule, 49 strict packages, and decision gates (authorized for pre-2023 discovery only).
+- [`src/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/): Core Python research modules (parsers, calendar reconciliation, candle coverage, package ledger, calculation runner).
 - [`tests/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/tests/): Focused synthetic unit tests covering parser edge cases, timestamp boundary enforcement, package joins, and count reconciliation.
 
 ---
@@ -41,6 +42,11 @@ These files are preserved byte-for-byte from previous research phases. They serv
 - [`evidence/trials/phase1/PHASE1_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/phase1/PHASE1_PROTOCOL.md): Protocol governing initial exploratory tests.
 - [`evidence/trials/phase1/PHASE1_EXPLORATION.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/phase1/PHASE1_EXPLORATION.md): Outcome record of narrow exploratory tests on USD CPI and NFP.
 - [`evidence/trials/phase1/phase1_exploration.json`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/phase1/phase1_exploration.json) & [`phase1_preflight.json`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/phase1/phase1_preflight.json): Machine-readable Phase 1 artifacts.
+
+### D. US Retail Sales EURUSD Discovery Trial (Disconfirmed / Closed)
+- [`docs/RETAIL_SALES_CLOSURE_NOTE.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_CLOSURE_NOTE.md): Formal forensic audit and closure note recording trial disconfirmation, negative zero-cost mean, primary 6-H4 subgroup reconciliation, and permanent sealing of the 2023+ holdout.
+- [`evidence/trials/retail_sales/retail_sales_pre2023_discovery.json`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/retail_sales/retail_sales_pre2023_discovery.json): Complete, immutable raw JSON execution record of the pre-2023 unblinded discovery calculation across 49 strict-concordance packages (`SHA-256 = 125aa3cf...`).
+
 
 ---
 
