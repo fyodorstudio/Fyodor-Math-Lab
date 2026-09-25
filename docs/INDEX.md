@@ -16,8 +16,8 @@ These documents define current research boundaries, protocols under active revie
 - [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md): Historical price-blind feasibility investigation of US Retail Sales m/m (`USD:US:840020010:r0`) and Core Retail Sales m/m (`USD:US:840020011:r0`) on EURUSD.
 - [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md): Pre-price design protocol v0.5 for US Retail Sales (executed and concluded).
 - [`docs/RETAIL_SALES_FREEZE_PACKET.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FREEZE_PACKET.md): Pre-price research freeze record anchoring the 6-H4 rule, 49 strict packages, and decision gates (authorized for pre-2023 discovery only).
-- [`src/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/): Core Python research modules (parsers, calendar reconciliation, candle coverage, package ledger, calculation runner).
-- [`tests/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/tests/): Focused synthetic unit tests covering parser edge cases, timestamp boundary enforcement, package joins, and count reconciliation.
+- [`src/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/): Core Python research modules (parsers, calendar reconciliation, candle coverage, package ledger, calculation runner, ISM reconciliation engine).
+- [`tests/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/tests/): Focused synthetic unit tests covering parser edge cases, timestamp boundary enforcement, package joins, count reconciliation, and ISM reconciliation.
 
 ---
 

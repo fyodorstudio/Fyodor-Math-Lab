@@ -38,7 +38,7 @@ The repository executes a strictly staged, unidirectional research pipeline:
                       v
 [5] Conditional Post-2022 Historical Holdout Validation       [PERMANENTLY SEALED]
     - Terminated without unsealing due to adverse discovery point estimate
-    - Post-2022 partition (timestamp >= 1672531200) remains untouched
+    - Post-2022 historical outcomes were not evaluated and remain sealed (full-file hashing and calendar scanning occurred)
                       |
                       v
 [6] Next Candidate: US ISM Manufacturing PMI Feasibility      [ACTIVE SCREENING]
