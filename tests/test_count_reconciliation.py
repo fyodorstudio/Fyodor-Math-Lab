@@ -1,6 +1,7 @@
 """
 Synthetic & Empirical Unit Tests for Count Reconciliation
-Verifies exact counts, completeness numbers, and joint package identities against pinned data.
+Verifies exact counts, completeness numbers, joint package identities,
+and forward-path coverage against pinned data.
 """
 
 import unittest
@@ -62,7 +63,7 @@ class TestCountReconciliation(unittest.TestCase):
         self.assertEqual(j["joint_complete_afp"], 68)
         self.assertEqual(j["joint_missing_forecast"], 28)
 
-    def test_package_ledger_concordance_and_collisions(self):
+    def test_package_ledger_forward_coverage_and_collisions(self):
         ledger = build_retail_sales_package_ledger(
             PINNED_CALENDAR_PATH,
             PINNED_EURUSD_PATH if os.path.exists(PINNED_EURUSD_PATH) else None
@@ -83,12 +84,29 @@ class TestCountReconciliation(unittest.TestCase):
         total_complete = sum(signs[k] for k in ["STRICT_AGREE_POS", "STRICT_AGREE_NEG", "ACTIVE_CONFLICT", "ONE_ZERO", "BOTH_ZERO"])
         self.assertEqual(total_complete, 68)
 
-        # Collision counts
+        # Collision counts and denominators
         colls = ledger["cross_currency_collisions"]
         self.assertEqual(colls["all_pre2023"]["count"], 45)
         self.assertAlmostEqual(colls["all_pre2023"]["pct"], 45 / 96, places=4)
         self.assertEqual(colls["complete_afp"]["count"], 39)
         self.assertAlmostEqual(colls["complete_afp"]["pct"], 39 / 68, places=4)
+
+        # Forward path coverage on complete AFP: 100% complete for both horizons!
+        if os.path.exists(PINNED_EURUSD_PATH):
+            fwd = ledger["forward_coverage_complete_afp"]
+            self.assertEqual(fwd["h6_clean_count"], 68)
+            self.assertEqual(fwd["h6_clean_pct"], 1.0)
+            self.assertEqual(fwd["h6_weekend_crossings"], 22)
+            self.assertAlmostEqual(fwd["h6_weekend_pct"], 22 / 68, places=4)
+
+            self.assertEqual(fwd["h12_clean_count"], 68)
+            self.assertEqual(fwd["h12_clean_pct"], 1.0)
+            self.assertEqual(fwd["h12_weekend_crossings"], 35)
+            self.assertAlmostEqual(fwd["h12_weekend_pct"], 35 / 68, places=4)
+
+            # Audit pre-entry lookback attrition: 16 releases occur on Mon/Tue and fail intra-week 14 lookback
+            mon_tue_count = sum(1 for p in ledger["packages"] if p["joint_afp_complete"] and p["weekday"] in ("Monday", "Tuesday"))
+            self.assertEqual(mon_tue_count, 16)  # 5 Monday + 11 Tuesday
 
 
 if __name__ == "__main__":

@@ -19,9 +19,11 @@ This repository is dedicated strictly to **rigorous, price-blind macroeconomic r
 1. **Strict Chronological Boundary (`1672531200`)**:
    - The historical discovery period ends strictly at `2023-01-01 00:00:00` broker trade-server time (`timestamp = 1672531200`).
    - All observations on or after `1672531200` remain strictly sealed as a future holdout. Candle timestamps on or after this boundary are never evaluated during discovery.
-2. **Candle Inspection Policy**:
-   - During feasibility and eligibility audits, candle data is accessed **strictly for column 0 (`time`)** to verify bar continuity and timestamp coverage.
-   - Price columns (`open`, `high`, `low`, `close`, `tick_volume`, `spread`) remain completely unread and uninspected prior to formal protocol pre-registration.
+2. **Candle Inspection Policy & Audit Disclosure**:
+   - **Prior Inspection Disclosure**: During initial schema verification, lines 1–5 of `candles_EURUSD_H1.csv` were inspected via tool to verify column headers and confirm that column 0 corresponds to `time`.
+   - **Zero Price-Outcome Computation**: No price returns, directional drift, win rates, MFE/MAE, or backtest metrics have ever been read or calculated.
+   - **Field-0 Streaming**: Candidate candle processing strictly consumes the field-0 substring before the first comma (`line.split(',', 1)[0]`), ensuring columns 1..N (OHLC prices, volumes, spreads) are never tokenized or parsed.
+   - Price columns remain completely uninspected for outcomes prior to formal protocol pre-registration.
 3. **Data Integrity Covenant**:
    - Zero synthetic, mock, or pseudo-random data is used for empirical analysis.
    - Every metric, count, and sign is deterministically computed from verified raw source files on disk.

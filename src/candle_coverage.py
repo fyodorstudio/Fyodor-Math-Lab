@@ -6,6 +6,7 @@ Enforces the chronological split boundary at 1672531200.
 """
 
 from typing import Dict, List, Set, Optional, Tuple, Any
+import bisect
 from .parsers import stream_candle_timestamps_only, SPLIT_TIMESTAMP
 
 SECONDS_IN_H1 = 3600
@@ -35,7 +36,7 @@ class CandleTimestampIndex:
 
     def check_h4_block(self, h4_start_ts: int) -> Tuple[bool, List[int]]:
         """
-        An H4 block starting at h4_start_ts requires 4 consecutive H1 bars:
+        An H4 block starting at h4_start_ts requires 4 consecutive constituent H1 bars:
         [h4_start_ts, h4_start_ts + 3600, h4_start_ts + 7200, h4_start_ts + 10800].
         Returns (is_complete, missing_offsets).
         """
@@ -52,15 +53,15 @@ class CandleTimestampIndex:
 
         return (len(missing) == 0, missing)
 
-    def evaluate_holding_horizon(
+    def evaluate_forward_horizon(
         self,
         entry_ts: int,
         horizon_h4: int
     ) -> Dict[str, Any]:
         """
-        Evaluates forward completion for horizon_h4 blocks starting at entry_ts.
+        Evaluates pure forward path completion for horizon_h4 blocks starting at entry_ts.
         Steps through consecutive active H4 blocks until horizon_h4 completed blocks are accumulated,
-        or fails closed on missing bars, gaps, or split boundary crossings.
+        or fails closed on missing bars, weekday gaps, or split boundary crossings.
         """
         if entry_ts % SECONDS_IN_H4 != 0:
             raise ValueError(f"Entry timestamp {entry_ts} is not on an H4 boundary")
@@ -72,56 +73,38 @@ class CandleTimestampIndex:
         has_missing_h1 = False
         missing_ts: List[int] = []
 
-        # Iterate active market bars
-        # A 6 H4 horizon requires 6 completed H4 blocks = 24 active hours
-        # A 12 H4 horizon requires 12 completed H4 blocks = 48 active hours
-        # In FX, weekend closure is between Friday ~23:00/24:00 and Sunday ~23:00/00:00 (approx 48h wall clock gap)
-        max_search_h4 = horizon_h4 * 4  # safety limit to prevent infinite loops
+        max_search_h4 = horizon_h4 * 4  # safety limit
 
         for _ in range(max_search_h4):
             if completed_blocks == horizon_h4:
                 break
 
-            # If current_h4 reaches or exceeds split, mark violation
             if current_h4 >= self.split_timestamp:
                 crosses_split = True
                 break
 
-            # Check if this H4 block is present
             is_complete, missing = self.check_h4_block(current_h4)
 
             if is_complete:
                 completed_blocks += 1
-                # Next contiguous H4
                 current_h4 += SECONDS_IN_H4
             else:
-                # If block is missing, check if it's a weekend closure or a missing bar
-                # Friday close to Sunday/Monday open is typically a gap of ~48 hours
-                # Check if first H1 bar exists
                 if current_h4 not in self.timestamps_set:
-                    # Let's see if this is a weekend jump: find next available bar in timestamps_list
-                    # Binary search or scan
-                    import bisect
                     idx = bisect.bisect_right(self.timestamps_list, current_h4)
                     if idx >= len(self.timestamps_list):
-                        # End of data reached
                         has_missing_h1 = True
                         break
                     next_avail_ts = self.timestamps_list[idx]
                     gap_hours = (next_avail_ts - current_h4) / SECONDS_IN_H1
 
                     if 24 <= gap_hours <= 72:
-                        # Typical weekend closure gap
                         crosses_weekend = True
-                        # Advance current_h4 to the H4 block of next_avail_ts
                         current_h4 = (next_avail_ts // SECONDS_IN_H4) * SECONDS_IN_H4
                     else:
-                        # Weekday missing bar or irregular gap
                         has_missing_h1 = True
                         missing_ts.append(current_h4)
                         break
                 else:
-                    # Block had some constituent H1 missing
                     has_missing_h1 = True
                     missing_ts.extend([current_h4 + off for off in missing])
                     break
@@ -143,4 +126,49 @@ class CandleTimestampIndex:
             "crosses_split": crosses_split,
             "has_missing_h1": has_missing_h1,
             "missing_timestamps": missing_ts
+        }
+
+    def audit_pre_entry_lookback(
+        self,
+        entry_ts: int,
+        target_h4_blocks: int = 14
+    ) -> Dict[str, Any]:
+        """
+        Audits pre-entry history availability prior to entry_ts.
+        Evaluates both:
+        1. Strict intra-week lookback: H4 blocks completed within current calendar week.
+        2. Bridged active lookback: H4 blocks stepping backwards across the weekend closure.
+        """
+        if entry_ts % SECONDS_IN_H4 != 0:
+            raise ValueError(f"Entry timestamp {entry_ts} is not on an H4 boundary")
+
+        # 1. Measure intra-week lookback (stop at preceding weekend gap)
+        intra_week_blocks = 0
+        curr_back = entry_ts - SECONDS_IN_H4
+        hit_weekend_backwards = False
+
+        while curr_back >= self.earliest_ts:
+            # Check if this H4 block is fully present
+            is_complete, _ = self.check_h4_block(curr_back)
+            if is_complete:
+                intra_week_blocks += 1
+                curr_back -= SECONDS_IN_H4
+                if intra_week_blocks == target_h4_blocks:
+                    break
+            else:
+                # Incomplete block or gap reached
+                hit_weekend_backwards = True
+                break
+
+        if intra_week_blocks < target_h4_blocks:
+            hit_weekend_backwards = True
+
+        has_14_intra_week = (intra_week_blocks >= target_h4_blocks)
+
+        return {
+            "entry_timestamp": entry_ts,
+            "target_blocks": target_h4_blocks,
+            "intra_week_completed_blocks": intra_week_blocks,
+            "has_14_intra_week": has_14_intra_week,
+            "hit_weekend_or_gap_backwards": hit_weekend_backwards
         }

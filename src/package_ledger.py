@@ -16,10 +16,10 @@ CORE_EID = "840020011"
 
 def compute_entry_timestamp(release_ts: int) -> int:
     """
-    Computes the next completed H4 boundary timestamp for entry.
+    Computes the Open timestamp of the next completed H4 bar following release.
     H4 bars start at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00.
-    15:30:00 -> 16:00:00 (release_ts + 1800)
-    16:30:00 -> 20:00:00 (release_ts + 12600)
+    15:30:00 -> 16:00:00 (release_ts + 1800, 30-min delay)
+    16:30:00 -> 20:00:00 (release_ts + 12600, 210-min / 3.5h delay)
     """
     remainder = release_ts % SECONDS_IN_H4
     if remainder == 0:
@@ -114,14 +114,19 @@ def build_retail_sales_package_ledger(
         # Candle coverage evaluation
         h6_cov = None
         h12_cov = None
+        pre_lookback_audit = None
         h6_later_usd = 0
         h6_later_eur = 0
         h12_later_usd = 0
         h12_later_eur = 0
 
         if candle_index:
-            h6_cov = candle_index.evaluate_holding_horizon(entry_ts, horizon_h4=6)
-            h12_cov = candle_index.evaluate_holding_horizon(entry_ts, horizon_h4=12)
+            # Pure forward paths
+            h6_cov = candle_index.evaluate_forward_horizon(entry_ts, horizon_h4=6)
+            h12_cov = candle_index.evaluate_forward_horizon(entry_ts, horizon_h4=12)
+
+            # Separate diagnostic for pre-entry lookback
+            pre_lookback_audit = candle_index.audit_pre_entry_lookback(entry_ts, target_h4_blocks=14)
 
             # Count subsequent releases between entry and exit
             if h6_cov["is_complete"] and h6_cov["exit_timestamp"]:
@@ -167,6 +172,7 @@ def build_retail_sales_package_ledger(
             "entry_delay_minutes": entry_delay_minutes,
             "h6_coverage": h6_cov,
             "h12_coverage": h12_cov,
+            "pre_lookback_audit": pre_lookback_audit,
             "h6_later_usd_packages": h6_later_usd if h6_cov and h6_cov["is_complete"] else None,
             "h6_later_eur_packages": h6_later_eur if h6_cov and h6_cov["is_complete"] else None,
             "h12_later_usd_packages": h12_later_usd if h12_cov and h12_cov["is_complete"] else None,
@@ -198,6 +204,12 @@ def build_retail_sales_package_ledger(
     collision_count_all = sum(1 for p in packages if p["has_cross_currency_collision"])
     collision_count_afp = sum(1 for p in afp_pkgs if p["has_cross_currency_collision"])
 
+    # Forward path completion on complete AFP packages
+    h6_complete_afp = sum(1 for p in afp_pkgs if p["h6_coverage"] and p["h6_coverage"]["is_complete"])
+    h12_complete_afp = sum(1 for p in afp_pkgs if p["h12_coverage"] and p["h12_coverage"]["is_complete"])
+    h6_cross_weekend_afp = sum(1 for p in afp_pkgs if p["h6_coverage"] and p["h6_coverage"]["crosses_weekend"])
+    h12_cross_weekend_afp = sum(1 for p in afp_pkgs if p["h12_coverage"] and p["h12_coverage"]["crosses_weekend"])
+
     return {
         "total_packages": total_pkgs,
         "complete_joint_afp_packages": n_afp,
@@ -206,6 +218,16 @@ def build_retail_sales_package_ledger(
         "cross_currency_collisions": {
             "all_pre2023": {"count": collision_count_all, "pct": collision_count_all / total_pkgs if total_pkgs else 0},
             "complete_afp": {"count": collision_count_afp, "pct": collision_count_afp / n_afp if n_afp else 0},
+        },
+        "forward_coverage_complete_afp": {
+            "h6_clean_count": h6_complete_afp,
+            "h6_clean_pct": h6_complete_afp / n_afp if n_afp else 0,
+            "h6_weekend_crossings": h6_cross_weekend_afp,
+            "h6_weekend_pct": h6_cross_weekend_afp / n_afp if n_afp else 0,
+            "h12_clean_count": h12_complete_afp,
+            "h12_clean_pct": h12_complete_afp / n_afp if n_afp else 0,
+            "h12_weekend_crossings": h12_cross_weekend_afp,
+            "h12_weekend_pct": h12_cross_weekend_afp / n_afp if n_afp else 0,
         },
         "packages": packages
     }
@@ -220,3 +242,4 @@ if __name__ == "__main__":
     print(f"Complete Joint AFP: {res['complete_joint_afp_packages']}")
     print(f"Sign distribution: {res['sign_distribution']}")
     print(f"Collisions: {res['cross_currency_collisions']}")
+    print(f"Forward coverage: {res['forward_coverage_complete_afp']}")

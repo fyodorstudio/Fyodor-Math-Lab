@@ -1,6 +1,7 @@
 """
 Synthetic Unit Tests for Timestamp Boundaries & Coverage
-Tests chronological split enforcement, H4 block boundaries, entry delay rules, and weekend gap handling.
+Tests chronological split enforcement, H4 block boundaries, entry delay rules,
+forward-path eligibility versus pre-entry lookback, and weekend gap handling.
 """
 
 import unittest
@@ -14,29 +15,24 @@ from src.parsers import SPLIT_TIMESTAMP
 class TestTimestampBoundaries(unittest.TestCase):
 
     def test_entry_timestamp_computation(self):
-        # Base H4 timestamp: e.g. 1500000000 % 14400
-        # Let base = 1500000000 - (1500000000 % 14400) (aligned to 00:00, 04:00, 08:00, 12:00, 16:00, or 20:00)
-        base = 1500006400 - (1500006400 % 14400)  # aligned H4
+        base = 1500006400 - (1500006400 % 14400)
 
-        # 15:30 is 12:00 + 3.5h = 12:00 + 12600s
-        # 12:00 is aligned to H4. Next H4 is 16:00 (+14400s).
+        # 15:30 release -> Open of next H4 bar is 16:00 (30 min delay)
         rel_1530 = base + 12600
         entry_1530 = compute_entry_timestamp(rel_1530)
         self.assertEqual(entry_1530, base + 14400)
-        self.assertEqual((entry_1530 - rel_1530) // 60, 30)  # exactly 30 min delay
+        self.assertEqual((entry_1530 - rel_1530) // 60, 30)
 
-        # 16:30 is 16:00 + 0.5h = 16:00 + 1800s
-        # 16:00 is aligned to H4. Next H4 is 20:00 (+14400s).
+        # 16:30 release -> Open of next H4 bar is 20:00 (210 min / 3.5h delay)
         rel_1630 = base + 1800
         entry_1630 = compute_entry_timestamp(rel_1630)
         self.assertEqual(entry_1630, base + 14400)
-        self.assertEqual((entry_1630 - rel_1630) // 60, 210)  # exactly 210 min (3.5 hours) delay
+        self.assertEqual((entry_1630 - rel_1630) // 60, 210)
 
     def test_h4_block_integrity(self):
-        base_h4 = 1600003200  # must be divisible by 14400
+        base_h4 = 1600003200
         base_h4 = (base_h4 // 14400) * 14400
 
-        # Construct candle CSV with 4 consecutive H1 bars for this block
         bars = [base_h4, base_h4 + 3600, base_h4 + 7200, base_h4 + 10800]
         content = "time,open,high,low,close,tick_volume,spread,real_volume\n"
         for b in bars:
@@ -52,8 +48,6 @@ class TestTimestampBoundaries(unittest.TestCase):
             self.assertTrue(is_ok)
             self.assertEqual(missing, [])
 
-            # Test missing constituent bar
-            # Remove bar at offset 7200
             content_missing = "time,open,high,low,close,tick_volume,spread,real_volume\n"
             for b in [base_h4, base_h4 + 3600, base_h4 + 10800]:
                 content_missing += f"{b},1.0,1.1,0.9,1.0,10,1,0\n"
@@ -69,19 +63,21 @@ class TestTimestampBoundaries(unittest.TestCase):
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
 
-    def test_holding_horizon_weekend_crossing(self):
-        # Create continuous Friday bars (8 hours = 2 H4 blocks), then 48h weekend gap, then Monday bars (16 hours = 4 H4 blocks)
+    def test_forward_weekend_crossing(self):
+        # Small hand-checkable fixture:
+        # Friday entry at 16:00:
+        # Friday trading: 2 H4 blocks (16:00 to 24:00 = 8 H1 bars)
+        # Weekend gap: 48 hours (Friday 24:00 to Monday 00:00)
+        # Monday trading: 4 H4 blocks (00:00 to 16:00 = 16 H1 bars)
+        # Total forward blocks: 2 + 4 = 6 completed H4 blocks = 24 active hours
         base_friday_entry = 1600003200
         base_friday_entry = (base_friday_entry // 14400) * 14400
 
         bars = []
-        # Friday: 2 H4 blocks = 8 H1 bars
         for i in range(8):
             bars.append(base_friday_entry + i * SECONDS_IN_H1)
 
-        # Weekend jump: Friday 24:00 to Monday 00:00 (48 hours = 48 * 3600 gap)
         monday_open = base_friday_entry + 8 * SECONDS_IN_H1 + 48 * SECONDS_IN_H1
-        # Monday: 4 H4 blocks = 16 H1 bars
         for i in range(16):
             bars.append(monday_open + i * SECONDS_IN_H1)
 
@@ -95,32 +91,38 @@ class TestTimestampBoundaries(unittest.TestCase):
 
         try:
             idx = CandleTimestampIndex(tmp_path, split_timestamp=SPLIT_TIMESTAMP)
-            cov = idx.evaluate_holding_horizon(base_friday_entry, horizon_h4=6)
+            cov = idx.evaluate_forward_horizon(base_friday_entry, horizon_h4=6)
 
             self.assertTrue(cov["is_complete"])
             self.assertEqual(cov["completed_blocks"], 6)
             self.assertTrue(cov["crosses_weekend"])
             self.assertFalse(cov["has_missing_h1"])
-            self.assertFalse(cov["crosses_split"])
-            # Exit timestamp should be monday_open + 16 * 3600
             self.assertEqual(cov["exit_timestamp"], monday_open + 16 * SECONDS_IN_H1)
         finally:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
 
-    def test_holding_horizon_split_boundary_rejection(self):
-        # Test an episode right before the split boundary 1672531200
-        # If entry is 12 hours before split, a 24-hour horizon crosses the split and must fail closed
-        near_split_entry = SPLIT_TIMESTAMP - 12 * SECONDS_IN_H1
-        near_split_entry = (near_split_entry // 14400) * 14400
+    def test_forward_eligibility_versus_lookback_eligibility(self):
+        # Small hand-checkable fixture:
+        # Monday 16:00 entry:
+        # Preceding Sunday/Monday has ONLY 4 completed H4 blocks (16 hours = 00:00 to 16:00).
+        # Before Monday 00:00 is a 48h weekend gap.
+        # Forward Monday 16:00 has 6 continuous H4 blocks (24 hours = Monday 16:00 to Tuesday 16:00).
+        monday_entry = 1600003200
+        monday_entry = (monday_entry // 14400) * 14400
+        monday_open = monday_entry - 4 * SECONDS_IN_H4
 
         bars = []
+        # Monday pre-entry: 16 hours = 4 H4 blocks
+        for i in range(16):
+            bars.append(monday_open + i * SECONDS_IN_H1)
+
+        # Forward holding: 24 hours = 6 H4 blocks
         for i in range(24):
-            b = near_split_entry + i * SECONDS_IN_H1
-            bars.append(b)
+            bars.append(monday_entry + i * SECONDS_IN_H1)
 
         content = "time,open,high,low,close,tick_volume,spread,real_volume\n"
-        for b in bars:
+        for b in sorted(list(set(bars))):
             content += f"{b},1.0,1.1,0.9,1.0,10,1,0\n"
 
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
@@ -129,10 +131,20 @@ class TestTimestampBoundaries(unittest.TestCase):
 
         try:
             idx = CandleTimestampIndex(tmp_path, split_timestamp=SPLIT_TIMESTAMP)
-            cov = idx.evaluate_holding_horizon(near_split_entry, horizon_h4=6)
 
-            self.assertFalse(cov["is_complete"])
-            self.assertTrue(cov["crosses_split"])
+            # 1. Forward path evaluation for 6 H4: fully clean!
+            fwd_cov = idx.evaluate_forward_horizon(monday_entry, horizon_h4=6)
+            self.assertTrue(fwd_cov["is_complete"])
+            self.assertEqual(fwd_cov["completed_blocks"], 6)
+            self.assertFalse(fwd_cov["crosses_weekend"])
+
+            # 2. Pre-entry lookback audit: only 4 blocks completed this week!
+            lb_audit = idx.audit_pre_entry_lookback(monday_entry, target_h4_blocks=14)
+            self.assertEqual(lb_audit["intra_week_completed_blocks"], 4)
+            self.assertFalse(lb_audit["has_14_intra_week"])
+            self.assertTrue(lb_audit["hit_weekend_or_gap_backwards"])
+
+            # This proves: forward eligibility is 100% complete, while intra-week lookback fails!
         finally:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)

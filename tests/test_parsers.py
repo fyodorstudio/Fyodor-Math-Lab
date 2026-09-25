@@ -1,6 +1,6 @@
 """
 Synthetic Unit Tests for Parsers
-Tests RFC4180 parsing, column validation, and price-blind timestamp readers.
+Tests RFC4180 parsing, column validation, and price-blind timestamp readers with hand-checkable fixtures.
 """
 
 import unittest
@@ -18,22 +18,18 @@ from src.parsers import (
 class TestParsers(unittest.TestCase):
 
     def test_rfc4180_parsing(self):
-        # Standard unquoted line
         line1 = "123,USD,US,Retail Sales,0.5"
         self.assertEqual(parse_rfc4180_line(line1), ["123", "USD", "US", "Retail Sales", "0.5"])
 
-        # Quoted field with comma
         line2 = '123,"USD,EUR",US,"Retail Sales m/m",0.5'
         self.assertEqual(parse_rfc4180_line(line2), ["123", "USD,EUR", "US", "Retail Sales m/m", "0.5"])
 
-        # Quoted field with escaped quote
         line3 = '123,"US ""Core"" Retail",0.5'
         self.assertEqual(parse_rfc4180_line(line3), ["123", 'US "Core" Retail', "0.5"])
 
     def test_calendar_schema_validation(self):
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
             tmp_path = tmp.name
-            # Write invalid header
             tmp.write("col1,col2,col3\n1,2,3\n")
 
         try:
@@ -45,25 +41,24 @@ class TestParsers(unittest.TestCase):
                 os.remove(tmp_path)
 
     def test_calendar_valid_streaming(self):
-        # Create a valid synthetic 36-column row
         row = [""] * 36
-        row[0] = "840020010"  # event_id
-        row[1] = "100"        # value_id
-        row[2] = "1500000000" # timestamp
+        row[0] = "840020010"
+        row[1] = "100"
+        row[2] = "1500000000"
         row[3] = "USD"
         row[4] = "US"
         row[5] = "Retail Sales m/m"
         row[6] = "high"
-        row[7] = "0.4"        # actual
-        row[8] = "0.2"        # forecast
-        row[9] = "-0.1"       # previous
-        row[11] = "1497139200"# period
-        row[12] = "0"         # revision
-        row[16] = "840"       # country_id
-        row[24] = "1"         # digits
-        row[28] = "400000"    # actual_raw_scaled_1e6
-        row[29] = "200000"    # forecast_raw_scaled_1e6
-        row[30] = "-100000"   # previous_raw_scaled_1e6
+        row[7] = "0.4"
+        row[8] = "0.2"
+        row[9] = "-0.1"
+        row[11] = "1497139200"
+        row[12] = "0"
+        row[16] = "840"
+        row[24] = "1"
+        row[28] = "400000"
+        row[29] = "200000"
+        row[30] = "-100000"
 
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
             tmp_path = tmp.name
@@ -84,13 +79,14 @@ class TestParsers(unittest.TestCase):
                 os.remove(tmp_path)
 
     def test_candle_timestamp_reader_price_blindness_and_split(self):
-        # Synthetic candle CSV with time and dummy price columns
+        # Synthetic candle CSV where remaining columns contain invalid price garbage.
+        # A genuine timestamp-only reader should only inspect the first field and not error.
         content = (
             "time,open,high,low,close,tick_volume,spread,real_volume\n"
-            "1672524000,1.0700,1.0710,1.0690,1.0705,100,5,0\n"  # 2 hours before split
-            "1672527600,1.0705,1.0720,1.0700,1.0715,110,5,0\n"  # 1 hour before split
-            "1672531200,1.0715,1.0730,1.0710,1.0725,120,5,0\n"  # exact split boundary
-            "1672534800,1.0725,1.0740,1.0720,1.0735,130,5,0\n"  # 1 hour after split
+            "1672524000,INVALID_PRICE,CORRUPT,999,NaN,FOO,BAR,BAZ\n"
+            "1672527600,ANOTHER_GARBAGE,CORRUPT,999,NaN,FOO,BAR,BAZ\n"
+            "1672531200,SPLIT_BOUNDARY,CORRUPT,999,NaN,FOO,BAR,BAZ\n"
+            "1672534800,POST_SPLIT,CORRUPT,999,NaN,FOO,BAR,BAZ\n"
         )
 
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
@@ -98,12 +94,27 @@ class TestParsers(unittest.TestCase):
             tmp.write(content)
 
         try:
-            # Stream timestamps only up to SPLIT_TIMESTAMP (1672531200)
             timestamps = list(stream_candle_timestamps_only(tmp_path, split_timestamp=SPLIT_TIMESTAMP))
-            # Must return ONLY pre-split timestamps
             self.assertEqual(timestamps, [1672524000, 1672527600])
             self.assertNotIn(1672531200, timestamps)
             self.assertNotIn(1672534800, timestamps)
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    def test_candle_timestamp_reader_malformed_timestamp(self):
+        content = (
+            "time,open,high,low,close\n"
+            "NOT_A_TIMESTAMP,1.0,1.1,0.9,1.0\n"
+        )
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
+            tmp_path = tmp.name
+            tmp.write(content)
+
+        try:
+            with self.assertRaises(ValueError) as ctx:
+                list(stream_candle_timestamps_only(tmp_path, split_timestamp=SPLIT_TIMESTAMP))
+            self.assertIn("Malformed timestamp field", str(ctx.exception))
         finally:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)

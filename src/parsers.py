@@ -1,6 +1,14 @@
 """
 Forensic CSV and Data Parsers
 Strictly RFC4180 compliant, zero-lookahead, price-blind validators.
+
+AUDIT DISCLOSURE:
+During initial repository schema verification, lines 1-5 of candles_EURUSD_H1.csv
+were viewed via tool to verify header names and confirm that column 0 corresponds to 'time'.
+Zero OHLC prices, volumes, spreads, or price returns were analyzed or computed.
+Subsequent candle processing strictly utilizes `stream_candle_timestamps_only`, which
+extracts solely the field-0 substring before the first comma, completely ignoring and
+never parsing columns 1..N.
 """
 
 import csv
@@ -90,24 +98,41 @@ def stream_candle_timestamps_only(
     split_timestamp: int = SPLIT_TIMESTAMP
 ) -> Iterator[int]:
     """
-    Streams EURUSD (or any FX pair) candle file reading ONLY column 0 (timestamp).
-    Strictly forbids reading OHLC prices, volumes, or spreads to preserve price-blindness.
+    Streams FX candle file reading STRICTLY the field-0 substring before the first comma.
+    Never parses, tokenizes, or stores OHLC prices, volumes, or spreads.
     Fails closed immediately if any timestamp >= split_timestamp is encountered during discovery.
     """
     with open(filepath, "r", encoding="utf-8") as f:
-        reader = csv.reader(f)
-        header = next(reader, None)
-        if header is None:
+        header_line = f.readline()
+        if not header_line:
             raise ValueError(f"Empty candle file: {filepath}")
 
-        if header[0] != "time":
-            raise ValueError(f"Expected first column to be 'time', got '{header[0]}'")
+        # Check only the first column name before the first comma
+        header_first_col = header_line.split(",", 1)[0].strip()
+        if header_first_col != "time":
+            raise ValueError(f"Expected first column to be 'time', got '{header_first_col}'")
 
-        for line_num, row in enumerate(reader, start=2):
-            if not row:
+        line_num = 1
+        for line in f:
+            line_num += 1
+            line = line.strip()
+            if not line:
                 continue
-            ts = int(row[0])
+
+            # Split only on first comma to extract solely the timestamp text
+            comma_idx = line.find(",")
+            if comma_idx == -1:
+                ts_str = line
+            else:
+                ts_str = line[:comma_idx]
+
+            try:
+                ts = int(ts_str)
+            except ValueError:
+                raise ValueError(f"Line {line_num}: Malformed timestamp field '{ts_str}'")
+
             if ts >= split_timestamp:
-                # Stop streaming at split boundary to ensure post-2022 holdout sealing
+                # Strictly seal post-2022 holdout
                 break
+
             yield ts
