@@ -1,7 +1,7 @@
 """
 Synthetic Unit Tests for Strategy Viability Arithmetic
 Verifies trade bid-ask mechanics, cost scenario deductions, 1-sample statistics,
-and decision gate classification using small, hand-checkable synthetic examples.
+boundary/input validation, and decision gate classification using small synthetic examples.
 
 Zero reading of candidate prices or holdout candle files.
 """
@@ -115,7 +115,7 @@ class TestStrategyViabilityArithmetic(unittest.TestCase):
         std_dev = sqrt(0.0000035) approx 0.0018708287
         std_err = sqrt(0.0000035 / 5) approx 0.0008366600
         t_stat = 0.0020 / std_err approx 2.3904572
-        df = 4, 1-sided p-value approx 0.03799 (< 0.05)
+        df = 4, 1-sided p-value approx 0.03757 (< 0.05)
         Win rate: 4/5 = 80.0%
         """
         sample = [0.0020, 0.0040, -0.0010, 0.0030, 0.0020]
@@ -129,38 +129,140 @@ class TestStrategyViabilityArithmetic(unittest.TestCase):
         self.assertAlmostEqual(stats_res["p_value_1sided"], 0.03757, places=4)
         self.assertAlmostEqual(stats_res["win_rate"], 0.80, places=4)
 
-        # Confidence interval contains the true sample mean
-        self.assertLess(stats_res["ci_95_lower"], stats_res["mean_return"])
-        self.assertGreater(stats_res["ci_95_upper"], stats_res["mean_return"])
+        # 1-sided 95% lower bound must be positive because p_value_1sided < 0.05
+        self.assertGreater(stats_res["ci_95_1sided_lower"], 0.0)
 
-    def test_decision_gate_classification(self):
-        """Verifies exact classification logic across pre-specified decision gates."""
-        # 1. Negative return -> Disconfirmed
+        # 2-sided 95% interval contains the mean
+        self.assertLess(stats_res["ci_95_2sided_lower"], stats_res["mean_return"])
+        self.assertGreater(stats_res["ci_95_2sided_upper"], stats_res["mean_return"])
+
+    def test_input_validation_boundary_conditions(self):
+        """Verifies proper error handling for non-finite, zero-variance, and malformed inputs."""
+        # 1. NaN input raises ValueError
+        with self.assertRaises(ValueError) as ctx:
+            compute_1sample_viability_statistics([0.001, float("nan"), 0.002])
+        self.assertIn("non-finite", str(ctx.exception))
+
+        # 2. Inf input raises ValueError
+        with self.assertRaises(ValueError) as ctx:
+            compute_1sample_viability_statistics([0.001, float("inf"), 0.002])
+        self.assertIn("non-finite", str(ctx.exception))
+
+        # 3. Zero-variance sample (all values identical) raises ValueError
+        with self.assertRaises(ValueError) as ctx:
+            compute_1sample_viability_statistics([0.005, 0.005, 0.005, 0.005])
+        self.assertIn("Zero sample variance", str(ctx.exception))
+
+        # 4. Fewer than 2 observations raises ValueError
+        with self.assertRaises(ValueError) as ctx:
+            compute_1sample_viability_statistics([0.005])
+        self.assertIn("At least 2 observations required", str(ctx.exception))
+
+        # 5. Non-numeric input raises TypeError
+        with self.assertRaises(TypeError):
+            compute_1sample_viability_statistics([0.001, "invalid_price", 0.002])
+
+    def test_reconciliation_one_sided_p_vs_two_sided_ci(self):
+        """
+        Demonstrates mathematical reconciliation:
+        When 0.025 <= p_1sided < 0.05, the 1-sided 95% lower bound is > 0,
+        while the 2-sided 95% lower bound is < 0.
+        """
+        # Synthetic sample engineered so that t-statistic is between t_0.95 and t_0.975
+        # df = 4: t_0.95 = 2.1318, t_0.975 = 2.7764
+        # Target t = 2.40 -> p_1sided approx 0.0368 (< 0.05, passes 1-sided test)
+        # 1-sided 95% lower bound = mean - 2.1318 * se = se * (2.40 - 2.1318) > 0
+        # 2-sided 95% lower bound = mean - 2.7764 * se = se * (2.40 - 2.7764) < 0
+        sample = [0.0020, 0.0040, -0.0010, 0.0030, 0.0020]
+        res = compute_1sample_viability_statistics(sample)
+
+        self.assertLess(res["p_value_1sided"], 0.05)
+        self.assertGreater(res["p_value_1sided"], 0.025)
+
+        # 1-sided 95% bound is strictly positive (matches p < 0.05 test)
+        self.assertGreater(res["ci_95_1sided_lower"], 0.0)
+
+        # 2-sided 95% lower bound is negative (covers 2.5% in left tail)
+        self.assertLess(res["ci_95_2sided_lower"], 0.0)
+
+    def test_decision_gate_exhaustive_truth_table(self):
+        """
+        Verifies exhaustive coverage of every decision gate boundary combination.
+        """
+        # 1. Adverse point estimates (mean <= 0) -> DISCONFIRMED_ADVERSE (regardless of p or win rate)
         self.assertEqual(
-            classify_discovery_outcome(mean_net_standard=-0.0005, p_val_1sided=0.04, win_rate=0.48, ci_lower=-0.0010),
-            "DISCONFIRMED_NEGATIVE"
+            classify_discovery_outcome(mean_net=-0.0001, p_val_1sided=0.01, win_rate=0.60, mean_net_friday=0.001, mean_net_non_friday=0.001),
+            "DISCONFIRMED_ADVERSE"
         )
-        # 2. Positive return but p >= 0.10 -> Disconfirmed
         self.assertEqual(
-            classify_discovery_outcome(mean_net_standard=0.0005, p_val_1sided=0.15, win_rate=0.55, ci_lower=-0.0002),
-            "DISCONFIRMED_NEGATIVE"
+            classify_discovery_outcome(mean_net=0.0, p_val_1sided=0.50, win_rate=0.50, mean_net_friday=0.0, mean_net_non_friday=0.0),
+            "DISCONFIRMED_ADVERSE"
         )
-        # 3. Positive return, 0.05 <= p < 0.10 -> Inconclusive / Fragile
+
+        # 2. Statistically underpowered (mean > 0, p >= 0.10) -> INCONCLUSIVE_UNDERPOWERED
         self.assertEqual(
-            classify_discovery_outcome(mean_net_standard=0.0008, p_val_1sided=0.07, win_rate=0.54, ci_lower=-0.0001),
+            classify_discovery_outcome(mean_net=0.0005, p_val_1sided=0.10, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001),
+            "INCONCLUSIVE_UNDERPOWERED"
+        )
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0010, p_val_1sided=0.25, win_rate=0.58, mean_net_friday=0.001, mean_net_non_friday=0.001),
+            "INCONCLUSIVE_UNDERPOWERED"
+        )
+
+        # 3. Marginal significance (0.05 <= p < 0.10) -> INCONCLUSIVE_FRAGILE
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0008, p_val_1sided=0.050, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001),
             "INCONCLUSIVE_FRAGILE"
         )
-        # 4. Positive return, p < 0.05, but win rate < 0.53 -> Inconclusive / Fragile
         self.assertEqual(
-            classify_discovery_outcome(mean_net_standard=0.0012, p_val_1sided=0.03, win_rate=0.49, ci_lower=0.0001),
+            classify_discovery_outcome(mean_net=0.0008, p_val_1sided=0.099, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001),
             "INCONCLUSIVE_FRAGILE"
         )
-        # 5. Robust discovery result: positive under Scenario 2, p < 0.05, win rate >= 0.53
-        # -> Candidate for holdout verification (NOT a registered setup)
+
+        # 4. p < 0.05 but win rate < 0.50 -> INCONCLUSIVE_FRAGILE
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.48, mean_net_friday=0.001, mean_net_non_friday=0.001),
+            "INCONCLUSIVE_FRAGILE"
+        )
+
+        # 5. p < 0.05 with 50% - 52.9% win rate -> INCONCLUSIVE_FRAGILE
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.51, mean_net_friday=0.001, mean_net_non_friday=0.001),
+            "INCONCLUSIVE_FRAGILE"
+        )
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.529, mean_net_friday=0.001, mean_net_non_friday=0.001),
+            "INCONCLUSIVE_FRAGILE"
+        )
+
+        # 6. p < 0.05, win rate >= 0.53, but Friday subgroup fails (mean <= 0) -> INCONCLUSIVE_FRAGILE
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=-0.0005, mean_net_non_friday=0.0020),
+            "INCONCLUSIVE_FRAGILE"
+        )
+
+        # 7. p < 0.05, win rate >= 0.53, but Non-Friday subgroup fails (mean <= 0) -> INCONCLUSIVE_FRAGILE
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=0.0020, mean_net_non_friday=-0.0005),
+            "INCONCLUSIVE_FRAGILE"
+        )
+
+        # 8. p < 0.05, win rate >= 0.53, but subgroup means omitted (None) -> INCONCLUSIVE_FRAGILE
+        self.assertEqual(
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=None, mean_net_non_friday=None),
+            "INCONCLUSIVE_FRAGILE"
+        )
+
+        # 9. Meets all hurdles -> PROMISING_DISCOVERY_CANDIDATE
         outcome = classify_discovery_outcome(
-            mean_net_standard=0.0015, p_val_1sided=0.02, win_rate=0.58, ci_lower=0.0002
+            mean_net=0.0015,
+            p_val_1sided=0.02,
+            win_rate=0.55,
+            mean_net_friday=0.0010,
+            mean_net_non_friday=0.0018
         )
-        self.assertEqual(outcome, "PROMISING_DISCOVERY_CANDIDATE_FOR_HOLDOUT")
+        self.assertEqual(outcome, "PROMISING_DISCOVERY_CANDIDATE")
+        # Explicit governance confirmation: promising candidate is NOT a registered setup
         self.assertNotEqual(outcome, "REGISTERED_SETUP")
 
 
