@@ -1,10 +1,10 @@
 # US Retail Sales EURUSD Research Freeze Packet
 
 > [!CAUTION]
-> **GOVERNANCE STATUS: PENDING CODEX / PROJECT DIRECTOR APPROVAL**  
-> **CURRENT STATE: FROZEN SPECIFICATION PENDING AUDIT (NOT APPROVED, NOT EXECUTED)**  
-> This document is a formal pre-price research freeze record.  
-> **Strict Operational Boundary**: This freeze packet does **NOT** authorize an empirical price run, does **NOT** authorize parsing candle prices or calculating trade returns, and does **NOT** authorize opening or unsealing the post-2022 historical holdout partition (`timestamp >= 1672531200`). Live or demo order dispatch is strictly prohibited.  
+> **GOVERNANCE STATUS: PENDING CODEX / PROJECT DIRECTOR APPROVAL**
+> **CURRENT STATE: FROZEN SPECIFICATION PENDING AUDIT (NOT APPROVED, NOT EXECUTED)**
+> This document is a formal pre-price research freeze record.
+> **Strict Operational Boundary**: This freeze packet does **NOT** authorize an empirical price run, does **NOT** authorize parsing candle prices or calculating trade returns, and does **NOT** authorize opening or unsealing the post-2022 historical holdout partition (`timestamp >= 1672531200`). Live or demo order dispatch is strictly prohibited.
 > The protocol parameters and decision rules herein are frozen byte-for-byte; they must **NOT** be altered or retrofitted to improve expected results.
 
 ---
@@ -28,7 +28,9 @@ Every input data file is pinned to an immutable SHA-256 digest:
 | **Raw Economic Calendar** | `data/pinned/FyodorResearchExport_v3_20260923_234930_server/calendar_releases.csv` | `76062b8f6747d38b530d086780f2dfcf0b0bde59690bfdf4458c7519d4e6be2e` |
 | **EURUSD H1 Candle Data** | `data/pinned/FyodorResearchExport_v3_20260923_234930_server/candles/candles_EURUSD_H1.csv` | `893aa1934ef93dce57101e1eec85d08c0055112123e2b4846f2c70ceb234ade5` |
 | **Pre-2023 Episode Ledger** | `evidence/inventory/fms_episodes.jsonl` | `37df7880a2bc36dbbce06b4a6ba39f7bd962a4c1c92eb2ce64cb71a886de55d2` |
-| **Symbol Specification** | `data/pinned/FyodorResearchExport_v3_20260923_234930_server/candle_symbols.csv` | Verified: 5 digits, point = `0.00001`, 1 pip = 10 broker points |
+| **Symbol Specification** | `data/pinned/FyodorResearchExport_v3_20260923_234930_server/candle_symbols.csv` | `3b067061adbb6e941be26006f9451e853a91cd622479e78387b32102a43755b1` |
+
+*Verified Symbol Specification*: EURUSD 5 digits (`symbol_digits = 5`), point = `0.00001`, 1 standard pip = 10 broker points (`0.00010`).
 
 ---
 
@@ -87,16 +89,16 @@ The software classification engine ([`src/strategy_viability.py`](file:///c:/dev
    - $0.05 \le p_{\text{1-sided}} < 0.10$, OR
    - Win Rate $W < 53\%$, OR
    - Friday subgroup mean $\bar{R}_{\text{Fri}} \le 0.0$, OR
-   - Non-Friday subgroup mean $\bar{R}_{\text{NonFri}} \le 0.0$.  
+   - Non-Friday subgroup mean $\bar{R}_{\text{NonFri}} \le 0.0$.
    $\implies$ Lacks consistency across market regimes; investigation terminated.
-4. **`PROMISING_DISCOVERY_CANDIDATE`**: $\bar{R}_{\text{net}} > 0.0$ AND $p_{\text{1-sided}} < 0.05$ AND $W \ge 53\%$ AND $\bar{R}_{\text{Fri}} > 0.0$ AND $\bar{R}_{\text{NonFri}} > 0.0$.  
+4. **`PROMISING_DISCOVERY_CANDIDATE`**: $\bar{R}_{\text{net}} > 0.0$ AND $p_{\text{1-sided}} < 0.05$ AND $W \ge 53\%$ AND $\bar{R}_{\text{Fri}} > 0.0$ AND $\bar{R}_{\text{NonFri}} > 0.0$.
    $\implies$ Promising candidate (**NOT A REGISTERED SETUP**); unlocks permission for Codex to review holdout unsealing.
 
 ### 5.2 Predeclared Post-2022 Holdout Gates (Sealed Partition: $t \ge 1672531200$)
 1. **`HOLDOUT_SAMPLE_DEFICIENT`**: $N_{\text{holdout}} < 15$ packages $\implies$ Descriptive metrics only; no inference; candidate terminated.
 2. **`HOLDOUT_FAIL`**: $N_{\text{holdout}} \ge 15$ and $\bar{R}_{\text{holdout, net}} \le 0.0 \implies$ Fails out-of-sample replication; candidate permanently terminated.
 3. **`HOLDOUT_INCONCLUSIVE`**: $N_{\text{holdout}} \ge 15$ and $\bar{R}_{\text{holdout, net}} > 0.0$, but $p_{\text{holdout}} \ge 0.05$ OR $W < 50\% \implies$ Statistically weak; candidate terminated.
-4. **`HOLDOUT_PASS_ELIGIBLE_FOR_DEMO`**: $N_{\text{holdout}} \ge 15$ AND $\bar{R}_{\text{holdout, net}} > 0.0$ AND $p_{\text{holdout}} < 0.05$ AND $W \ge 50\%$.  
+4. **`HOLDOUT_PASS_ELIGIBLE_FOR_DEMO`**: $N_{\text{holdout}} \ge 15$ AND $\bar{R}_{\text{holdout, net}} > 0.0$ AND $p_{\text{holdout}} < 0.05$ AND $W \ge 50\%$.
    $\implies$ Grants eligibility for forward demo-account tracking ONLY (**NOT PROOF OF PROFITABILITY**).
 
 ---

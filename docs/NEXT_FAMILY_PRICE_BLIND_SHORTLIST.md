@@ -1,10 +1,10 @@
 # Next-Family Price-Blind Shortlist: US GDP vs. US ISM Manufacturing PMI
 
 > [!IMPORTANT]
-> **GOVERNANCE STATUS: PRICE-BLIND CANDIDATE SCREENING (NOT AN EXECUTABLE PROTOCOL)**  
-> **No price data was parsed, no returns were calculated, and no trading setups are registered.**  
-> This shortlist evaluates **DATA SUITABILITY ONLY**, not predicted profitability.  
-> Candlestick files were accessed strictly to verify Unix timestamp continuity (`time` column 0). Zero Open, High, Low, Close, or Spread fields were inspected.  
+> **GOVERNANCE STATUS: PRICE-BLIND CANDIDATE SCREENING (NOT AN EXECUTABLE PROTOCOL)**
+> **No price data was parsed, no returns were calculated, and no trading setups are registered.**
+> This shortlist evaluates **DATA SUITABILITY ONLY**, not predicted profitability.
+> Candlestick files were accessed strictly to verify Unix timestamp continuity (`time` column 0). Zero Open, High, Low, Close, or Spread fields were inspected.
 > The US Retail Sales study remains completely unaffected and unaltered by this screening. No new runner or live/demo code has been generated.
 
 ---
@@ -16,7 +16,8 @@ Following the completion of the US Retail Sales pre-price runner, this screening
 ### Mandatory Methodological Guardrails:
 1. **Zero Price Inspection**: Candidate evaluation relies strictly on pre-2023 economic calendar fields and EURUSD H1 candle timestamps.
 2. **Strict Non-Pooling Mandate**: Advance, Second, and Third GDP revision stages must **NOT** be pooled merely to inflate sample size. S&P Global (Markit) and ISM PMI providers must **NOT** be pooled.
-3. **Researcher History & Multiplicity Context**: Any candidate advancing from this queue enters as step $K \ge 3$ in an unbroken institutional research history following:
+3. **Statistical Power vs. Data Availability**: Sample size ($N$) reflects historical observation counts and relative data availability, not statistical power. Power cannot be established without specifying an assumed effect size and return variance under costs, which cannot be measured while price-blind.
+4. **Researcher History & Multiplicity Context**: Any candidate advancing from this queue enters as step $K \ge 3$ in an unbroken institutional research history following:
    - **Phase 1 Historical Exploration**: Narrow exploratory tests on USD CPI and NFP post-announcement drift (`evidence/trials/phase1/PHASE1_EXPLORATION.md`).
    - **German Ifo Pilot Trial**: Directional EURUSD pilot ($N = 40$) resulting in **State 3: No Convincing Evidence** ($p = 0.9575$, $\Delta \bar{R} = -21.31\text{ bps}$; `evidence/trials/ifo/ifo_pre2023_exploration_report.md`).
    - **US Retail Sales Pilot**: Current frozen protocol pending Codex review ($N = 49$).
@@ -50,7 +51,7 @@ Between `2015-01-01` and `2022-12-31` (`timestamp < 1672531200`), there are 95 t
 *Derivation & Observations*:
 1. **Forecast Omission**: MetaQuotes did not record consensus forecasts for GDP releases in 2015 and 2016 (0/24 populated). Forecasts began populating mid-2017.
 2. **2019 Q4 2018 BEA Shutdown Anomaly**: In 2019, Revision 2 contains only 3 releases instead of 4. Due to the 35-day U.S. Federal Government shutdown (Dec 22, 2018 – Jan 25, 2019), the BEA delayed the Q4 2018 Advance release into late February 2019, skipped the Second estimate entirely, and proceeded directly to the Third estimate in March.
-3. **Severe Sample Deficiency (Under Non-Pooling)**: For the economically primary Advance estimate (Rev 1), exactly **$N = 22$ complete packages** exist in the entire 8-year pre-2023 record.
+3. **Severe Sample Limitation (Under Non-Pooling)**: For the economically primary Advance estimate (Rev 1), exactly **$N = 22$ complete packages** exist in the entire 8-year pre-2023 record. This represents extremely restricted historical data availability for estimating mean net returns or evaluating subgroup stability across market regimes.
 
 ### 2.3 Simultaneous Co-Releases & Cross-Currency Collisions (Advance Estimate)
 - **Mean Bundled Same-Second Releases**: **9.9 events** (range: 5 to 22).
@@ -96,7 +97,7 @@ Between `2015-01-01` and `2022-12-31`, exactly 96 monthly releases exist (12 per
 
 *Derivation & Observations*:
 1. **Forecast Availability**: Forecasts are missing throughout 2015–2016 and Jan–May 2017. They are 100% complete from June 2017 through December 2022.
-2. **Actionable Sample Size**: Exactly **$N = 67$ complete A/F/P packages** exist pre-2023 without pooling disparate providers or revision stages.
+2. **Relative Data Availability**: Exactly **$N = 67$ complete A/F/P packages** exist pre-2023 without pooling disparate providers or revision stages, offering substantially greater historical observation density (over 3x the observations of unpooled Advance GDP).
 
 ### 3.3 Simultaneous Co-Releases & Cross-Currency Collisions
 - **Mean Bundled Same-Second Releases**: **5.4 events** (range: 4 to 12).
@@ -115,9 +116,9 @@ Between `2015-01-01` and `2022-12-31`, exactly 96 monthly releases exist (12 per
 - *Single Path Failure*: TS 1572627600 (Friday 2019-11-01 17:00 UTC). Europe shifted out of DST on Oct 27, while the US did not shift until Nov 3; the broker trade-server closed at 22:00 UTC, leaving the 20:00 H4 block with only 3 constituent H1 bars before weekend shutdown.
 
 ### 3.5 Critical Family Quirks
-1. **15-Minute Preemption by S&P Global (Markit) PMI**:
+1. **Potential 15-Minute Preceding Confounder (S&P Global PMI)**:
    - On 91 of 96 release dates, `S&P Global Manufacturing PMI` (`840500001`, revision 3) was released **exactly 15 minutes earlier** (at 9:45 AM ET / 17:45 or 16:45 server time).
-   - *Epistemological Risk*: Because S&P Global reports on the identical underlying economic sector 15 minutes ahead of ISM, initial market repricing often occurs on the S&P release, partially absorbing the shock before ISM prints. A protocol cannot assume ISM enters an untouched market.
+   - *Attribution & Timing Risk*: S&P Global reports on the US manufacturing sector 15 minutes ahead of ISM. While actual price impact has not been measured (prices remain uninspected), this 15-minute lead serves as a potential timing and information confounder that any future ISM protocol must explicitly address.
 2. **Multi-Component Internal Conflict**:
    - Headline PMI can diverge from Prices Paid (inflation) or New Orders (forward demand). E.g., a strong headline PMI accompanied by an unexpected spike in Prices Paid creates conflicting policy and growth signals.
 
@@ -131,37 +132,40 @@ Between `2015-01-01` and `2022-12-31`, exactly 96 monthly releases exist (12 per
 | **Reporting Frequency** | Quarterly (4/year) | Monthly (12/year) |
 | **Total Pre-2023 Releases** | 32 (Advance) / 95 (All Stages) | 96 |
 | **Complete A/F/P Sample ($N$)** | **$N = 22$** (Advance, Unpooled) | **$N = 67$** (Unpooled) |
-| **Statistical Viability Power** | **Severely Deficient** ($N = 22$ fails robust discovery) | **Adequate** ($N = 67$ provides solid power) |
+| **Relative Data Availability** | Very Limited ($N = 22$ unpooled episodes) | Substantially Greater ($N = 67$ unpooled episodes) |
 | **Clean USD Currency Isolation** | 56.2% Clean (43.8% CAD/EUR collisions) | **96.9% Clean** (3.1% CAD/EUR collisions) |
 | **Confounding Co-Releases** | Pervasive: Core PCE (100%), Jobless Claims (46.9%) | Moderate: Construction Spending (95.8%), ISM Sub-indices |
 | **6-H4 Candle Path Coverage** | 100.0% (22/22 complete) | 98.5% (66/67 complete) |
 | **12-H4 Candle Path Coverage** | 86.4% (19/22; late-Oct DST gaps) | 98.5% (66/67 complete) |
-| **External Preemption Quirk** | None | **S&P Global PMI prints 15m earlier** |
-| **Post-2022 Holdout Size** | $N_{\text{holdout}} = 14$ (Advance) $\implies$ Likely sample-deficient | $N_{\text{holdout}} = 45 \implies$ Substantial holdout |
+| **Timing Confounder** | None | **S&P Global PMI prints 15m earlier** |
+| **Post-2022 Calendar Rows** | 14 Advance rows (Unpooled) | 45 calendar rows (Eligible holdout trade count unknown) |
+
+*Note on Power vs. Data Availability*: Statistical power cannot be asserted without an assumed effect size and variance; $N$ reflects historical observation counts only.
+*Note on Holdout Counts*: Post-2022 figures reflect raw calendar releases; the number of eligible holdout trades is unknown until an event-specific protocol is frozen. Retail Sales' $N \ge 15$ rule does not apply to other families without explicit predeclaration.
 
 ---
 
 ## 5. Formal Data Suitability Ranking & Recommendation
 
 ### Rank 1: US ISM Manufacturing PMI (`USD:US:840040001:r0`)
-- **Suitability Classification**: **CONDITIONALLY SUITABLE FOR FUTURE PROTOCOL DESIGN**
+- **Suitability Classification**: **CONDITIONALLY SUITABLE FOR FUTURE PROTOCOL DESIGN (DATA SUITABILITY ONLY)**
 - **Justification**:
-  - Sample size ($N = 67$ complete pre-2023 packages) is well above the empirical discovery threshold ($N \ge 30–50$) needed to distinguish systematic drift from variance.
-  - Near-zero cross-currency contamination (96.9% clean USD releases).
+  - Relative data availability ($N = 67$ complete pre-2023 packages) is substantially higher than quarterly GDP (over 3x the observations of unpooled Advance GDP). Whether $N = 67$ achieves adequate statistical power depends on the assumed effect size and return variance under costs, which cannot be determined while price-blind.
+  - Outstanding cross-currency isolation (96.9% clean USD releases).
   - Excellent candle path completeness (98.5%).
-  - Post-2022 holdout ($N = 45$) exceeds the $N \ge 15$ sample-adequacy requirement.
+  - Post-2022 dataset contains 45 calendar release rows (though the number of qualifying eligible trades under a future protocol remains unknown).
 - **Mandatory Preconditions Before Protocol Formulation**:
-  1. Audit whether the 15-minute preceding S&P Global PMI release dampens or alters EURUSD volatility.
+  1. Audit whether the 15-minute preceding S&P Global PMI release acts as an informational or volatility confounder.
   2. Define an explicit coherence rule across ISM sub-components (Headline vs Prices Paid).
-  3. Predeclare entry timing (10:00 AM ET is 16:00 or 17:00 broker time, landing on H1/H4 boundaries).
+  3. Predeclare entry timing and specific holdout decision gates in an independent protocol.
 
 ### Rank 2: US GDP Releases (`USD:US:840010007`)
-- **Suitability Classification**: **UNSUITABLE FOR STANDALONE STRATEGY VIABILITY PILOT**
+- **Suitability Classification**: **UNSUITABLE FOR STANDALONE STRATEGY VIABILITY PILOT (DATA SUITABILITY)**
 - **Justification**:
-  - **Fatal Sample Deficiency**: Under the non-pooling constraint, Advance GDP offers only $N = 22$ complete packages in 8 years. A sample of 22 has negligible statistical power to survive a 1.0-pip friction hurdle without extreme outlier distortion.
-  - Even if all stages were improperly pooled ($N = 67$), combining Advance, Second, and Third estimates mixes preliminary first-look shocks with minor accounting revisions that do not elicit comparable market mechanisms.
+  - **Severe Sample Limitation**: Under the non-pooling constraint, Advance GDP offers only $N = 22$ complete packages in 8 years. Relative data availability is extremely restricted for estimating mean net returns or diagnosing regime stability across subgroups.
+  - Even if all stages were improperly pooled ($N = 67$), combining Advance, Second, and Third estimates mixes preliminary first-look shocks with minor accounting revisions that do not share economic shock comparability.
   - Heavy cross-currency collision rate (43.8% CAD/EUR contamination) and chronic bundling with Initial Jobless Claims and Core PCE prevent clean attribution.
-  - The post-2022 holdout ($N_{\text{holdout}} = 14$ for Advance) already falls below the prespecified $N \ge 15$ adequacy threshold.
+  - Post-2022 dataset contains only 14 Advance calendar rows.
 - **Action**: **PARK US GDP**. Do not build a research runner or draft a trading protocol for US GDP at this time.
 
 ---
