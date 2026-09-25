@@ -10,6 +10,7 @@ These documents define current research boundaries, protocols under active revie
 
 - [`README.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/README.md): Repository entrance, governance rules, directory classification, and provenance manifest.
 - [`docs/INDEX.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/INDEX.md): This classification index.
+- [`docs/RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md): Active maintained macro research roadmap, decision sequence, and parked state signature question.
 - [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md): Comprehensive price-blind feasibility investigation of US Retail Sales m/m (`USD:US:840020010:r0`) and Core Retail Sales m/m (`USD:US:840020011:r0`) on EURUSD.
 - [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md): Proposed draft frozen protocol for Codex review prior to any price inspection.
 - [`src/`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/): Core Python research modules (parsers, calendar reconciliation, candle coverage, package ledger).
@@ -48,6 +49,7 @@ These documents contain historical research notes, exporter source code, and ear
 - [`reference/audit-history/CODEX_QUANT_AUDIT.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/audit-history/CODEX_QUANT_AUDIT.md): Quantitative audit of the legacy laboratory and MT5 v3.1 migration verification.
 - [`reference/exporter/FyodorResearchExporterV3.mq5`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/exporter/FyodorResearchExporterV3.mq5) & [`README.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/exporter/README.md): MQL5 source script that generated the pinned export.
 - [`reference/planning-history/research note.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/planning-history/research%20note.md): Initial roadmap formulation and milestone planning notes.
+- [`reference/planning-history/FMS_RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/planning-history/FMS_RESEARCH_ROADMAP.md): Historical planning snapshot and decision record preserved from legacy GEMINI archive.
 - [`reference/preprice/FMS_CANDIDATE_SELECTION_CHARTER.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/preprice/FMS_CANDIDATE_SELECTION_CHARTER.md): Preliminary candidate-selection charter covering Building Permits and German Ifo.
 
 ---

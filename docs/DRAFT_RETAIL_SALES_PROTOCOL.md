@@ -309,8 +309,8 @@ The post-2022 holdout classification is implemented in [`classify_holdout_outcom
 ```
 
 1. **Branch 1: HOLDOUT SAMPLE DEFICIENT (Underpowered Sample Size)**:
-   - **Hurdle**: Sample size $N_{\text{holdout}} < 15$ packages (evaluated FIRST, regardless of observed mean net return).
-   - **Downstream Action**: The holdout sample contains fewer than 15 eligible packages. Formal independent hypothesis testing is not statistically justified. The report documents descriptive metrics only. Zero forward demo trading or setup registration is permitted.
+   - **Hurdle**: Sample size $N_{\text{holdout}} < 15$ packages (evaluated FIRST, before requiring statistical metrics).
+   - **Downstream Action**: The holdout sample contains fewer than 15 eligible packages. Formal independent hypothesis testing is not statistically justified. If $N_{\text{holdout}} = 0$ (no eligible releases), sample mean, p-value, and win rate do not exist; [`classify_holdout_outcome(0, None, None, None)`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/strategy_viability.py) returns `HOLDOUT_SAMPLE_DEFICIENT` directly without requiring invented placeholder numbers. For $N_{\text{holdout}} \ge 15$, valid finite statistics are strictly required. The report documents descriptive metrics only. Zero forward demo trading or setup registration is permitted.
 2. **Branch 2: HOLDOUT FAIL (Disconfirmed / Non-Replicating Discovery)**:
    - **Hurdle**: Sample size $N_{\text{holdout}} \ge 15$ AND sample mean net return under Scenario C $\bar{R}_{\text{holdout, net}}(c_2) \le 0.0$.
    - **Downstream Action**: The out-of-sample directional point estimate is flat or negative. The candidate is **permanently rejected** and cataloged as an in-sample discovery artifact / data-mining overfit. The inquiry is terminated; zero parameter re-tuning is permitted.

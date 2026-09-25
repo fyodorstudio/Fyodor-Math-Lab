@@ -292,9 +292,9 @@ def classify_discovery_outcome(
 
 def classify_holdout_outcome(
     n_holdout: int,
-    mean_net: float,
-    p_val_1sided: float,
-    win_rate: float,
+    mean_net: Optional[float] = None,
+    p_val_1sided: Optional[float] = None,
+    win_rate: Optional[float] = None,
     discovery_mean_sign: int = 1
 ) -> str:
     """
@@ -302,9 +302,14 @@ def classify_holdout_outcome(
     Uses Scenario C (Assumed 10-point / 1.0-pip friction) as the evaluation hurdle.
 
     Governance Rules:
-    1. Sample adequacy (N_holdout >= 15) is evaluated FIRST. If N_holdout < 15, the sample
-       is declared sample-deficient regardless of the observed mean or p-value.
-    2. A holdout pass grants ELIGIBILITY FOR DEMO FORWARD VALIDATION ONLY.
+    1. Sample adequacy (N_holdout >= 15) is evaluated FIRST before requiring statistical metrics.
+       If N_holdout < 15, the sample is declared sample-deficient (HOLDOUT_SAMPLE_DEFICIENT)
+       regardless of the observed mean or p-value. If N_holdout == 0 (no eligible trades),
+       mean, p-value, and win rate do not exist and may be passed as None without requiring
+       invented placeholder numbers.
+    2. When N_holdout >= 15, finite valid numeric statistics are strictly required.
+       None, NaN, Inf, or out-of-range statistics raise ValueError or TypeError.
+    3. A holdout pass grants ELIGIBILITY FOR DEMO FORWARD VALIDATION ONLY.
        It does NOT constitute proof of a valid anomaly or executable profitability.
 
     Exhaustive Output Dispositions:
@@ -331,16 +336,24 @@ def classify_holdout_outcome(
     if n_holdout < 0:
         raise ValueError(f"n_holdout must be non-negative, got {n_holdout}")
 
+    # Branch 1: Sample-deficient (first branch, evaluated BEFORE requiring statistical metrics)
+    if n_holdout < 15:
+        return "HOLDOUT_SAMPLE_DEFICIENT"
+
+    # For N >= 15, statistical metrics are mandatory and must be finite, valid numbers
+    if mean_net is None:
+        raise ValueError("mean_net is required when n_holdout >= 15")
+    if p_val_1sided is None:
+        raise ValueError("p_val_1sided is required when n_holdout >= 15")
+    if win_rate is None:
+        raise ValueError("win_rate is required when n_holdout >= 15")
+
     mean_val = _validate_numeric(mean_net, "mean_net")
     p_val = _validate_numeric(p_val_1sided, "p_val_1sided", min_val=0.0, max_val=1.0)
     w_val = _validate_numeric(win_rate, "win_rate", min_val=0.0, max_val=1.0)
 
     if isinstance(discovery_mean_sign, bool) or discovery_mean_sign not in (-1, 1):
         raise ValueError(f"discovery_mean_sign must be +1 or -1, got {discovery_mean_sign}")
-
-    # Branch 1: Sample-deficient (first branch, evaluated regardless of observed mean)
-    if n_holdout < 15:
-        return "HOLDOUT_SAMPLE_DEFICIENT"
 
     # Branch 2: Point estimate flat or negative
     if mean_val <= 0.0:
@@ -353,4 +366,5 @@ def classify_holdout_outcome(
 
     # Branch 4: Pass hurdles for demo forward validation
     return "HOLDOUT_PASS_ELIGIBLE_FOR_DEMO"
+
 

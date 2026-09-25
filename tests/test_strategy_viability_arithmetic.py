@@ -366,7 +366,20 @@ class TestStrategyViabilityArithmetic(unittest.TestCase):
         with self.assertRaises(ValueError):
             classify_holdout_outcome(n_holdout=20, mean_net=0.001, p_val_1sided=0.02, win_rate=0.55, discovery_mean_sign=0)
 
-        # 2. Branch 1: Sample-deficient (N < 15 evaluated FIRST, regardless of observed mean or p-value)
+        # 2. Branch 1: Sample-deficient (N < 15 evaluated FIRST, before requiring statistical metrics)
+        # Zero eligible trades / None statistics handled directly without invented placeholders
+        self.assertEqual(
+            classify_holdout_outcome(0, None, None, None),
+            "HOLDOUT_SAMPLE_DEFICIENT"
+        )
+        self.assertEqual(
+            classify_holdout_outcome(0),
+            "HOLDOUT_SAMPLE_DEFICIENT"
+        )
+        self.assertEqual(
+            classify_holdout_outcome(14, None, None, None),
+            "HOLDOUT_SAMPLE_DEFICIENT"
+        )
         self.assertEqual(
             classify_holdout_outcome(n_holdout=0, mean_net=0.0050, p_val_1sided=0.001, win_rate=0.80),
             "HOLDOUT_SAMPLE_DEFICIENT"
@@ -379,6 +392,16 @@ class TestStrategyViabilityArithmetic(unittest.TestCase):
             classify_holdout_outcome(n_holdout=14, mean_net=-0.0050, p_val_1sided=0.999, win_rate=0.20),
             "HOLDOUT_SAMPLE_DEFICIENT"
         )
+
+        # For N >= 15, statistical metrics are mandatory; None raises ValueError
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=15, mean_net=None, p_val_1sided=0.02, win_rate=0.55)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=15, mean_net=0.001, p_val_1sided=None, win_rate=0.55)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=15, mean_net=0.001, p_val_1sided=0.02, win_rate=None)
 
         # 3. Branch 2: Point estimate flat or negative (N >= 15, mean_net <= 0)
         self.assertEqual(

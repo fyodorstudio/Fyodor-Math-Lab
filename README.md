@@ -11,6 +11,7 @@ This repository is dedicated strictly to **rigorous, price-blind macroeconomic r
 - **No Web Application**: Legacy H1 web applications, interactive dashboards, and UI servers are deliberately excluded.
 - **Strictly Price-Blind Feasibility**: Initial investigations are strictly pre-price and pre-backtest. Candidate selection is based purely on data completeness, economic transmission rationale, and physical execution feasibility.
 - **No Optimization / Hunting**: Zero parameter sweeps, zero indicator mining, and zero directional threshold tuning.
+- **Maintained Research Roadmap**: The active staged sequence, holdout audit policies, and parked research hypotheses are maintained in [`docs/RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md). Zero registered setups or profitability evidence currently exist.
 
 ---
 
@@ -39,7 +40,7 @@ This repository is dedicated strictly to **rigorous, price-blind macroeconomic r
 
 | Directory | Classification | Role & Retention Policy |
 |---|---|---|
-| `docs/` | **Active Guidance** | Current maintained documentation, protocol drafts, and feasibility ledgers. |
+| `docs/` | **Active Guidance** | Current maintained documentation, research roadmap ([`docs/RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md)), protocol drafts, and feasibility ledgers. |
 | `src/` | **Active Guidance** | Clean Python research modules for parsing, reconciliation, and audit. |
 | `tests/` | **Active Guidance** | Synthetic unit tests for parsers, joins, boundaries, and reconciliation. |
 | `data/pinned/` | **Pinned Data** | Immutable MT5 v3.1 export (`fyodor-mt5-research-export/3.1.0`). Ignored by Git. |

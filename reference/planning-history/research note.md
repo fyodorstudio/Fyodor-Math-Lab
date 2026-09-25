@@ -1,6 +1,6 @@
 # Research notes — current direction and parked ideas
 
-The current decision record and grand-plan map live in [docs/FMS_RESEARCH_ROADMAP.md](docs/FMS_RESEARCH_ROADMAP.md). The owner is open to first- or second-trading-day moves **and** longer positions; 42–60 H4 candles describe past holding behavior, not a required or privileged test horizon. The timestamp-only eligibility inventory is complete, but no FMS demo candidate has been registered. The sections below preserve the earlier proposals and cautions; they do not override a later frozen protocol.
+The historical decision record lives in [`FMS_RESEARCH_ROADMAP.md`](FMS_RESEARCH_ROADMAP.md) (historical snapshot); the active maintained research sequence lives in [`docs/RESEARCH_ROADMAP.md`](../../docs/RESEARCH_ROADMAP.md). The owner is open to first- or second-trading-day moves **and** longer positions; 42–60 H4 candles describe past holding behavior, not a required or privileged test horizon. The timestamp-only eligibility inventory is complete, but no FMS demo candidate has been registered. The sections below preserve the earlier proposals and cautions; they do not override a later frozen protocol.
 
 ## Parked proposal: post-release magnitude / volatility
 
