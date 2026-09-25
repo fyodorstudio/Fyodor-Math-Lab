@@ -3,9 +3,9 @@
 > [!CAUTION]
 > **HISTORICAL ARCHIVE SNAPSHOT (PRESERVED FOR AUDIT REFERENCE ONLY)**:
 > This document is an immutable historical snapshot copied from the legacy repository (GEMINI/docs/FMS_RESEARCH_ROADMAP.md, dated 2026-09-24).
-> It reflects an earlier planning phase when German Ifo was being considered as a pilot prior to its empirical failure ( = 0.9575$, State 3: No Convincing Evidence).
+> It reflects an earlier planning phase when German Ifo was being considered as a pilot prior to its empirical failure ($p = 0.9575$, State 3: No Convincing Evidence).
 > Paths, statuses, and trial states described herein are historical artifacts, NOT current policy or instructions to revive old code.
-> For the current active research sequence, see [docs/RESEARCH_ROADMAP.md](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md).
+> For the current active research sequence, see [the maintained roadmap](../../docs/RESEARCH_ROADMAP.md).
 
 ---
 

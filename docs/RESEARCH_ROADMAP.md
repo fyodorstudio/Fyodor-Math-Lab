@@ -1,7 +1,7 @@
 # Macro Research Roadmap & Decision Sequence
 
 > [!IMPORTANT]
-> **GOVERNANCE STATUS: RESEARCH IN PROGRESS (ZERO PROFITABILITY EVIDENCE)**  
+> **GOVERNANCE STATUS: RESEARCH IN PROGRESS (NO VERIFIED PROFITABLE SETUP)**
 > **No registered setup, profitable edge, or executable trading recommendation exists in this repository.**  
 > Prior trials (Phase 1 CPI/NFP and the German Ifo pilot trial with $p = 0.9575$) yielded no actionable trading setups.  
 > The current candidate investigation (US Retail Sales on EURUSD) is strictly in pre-price feasibility and protocol audit. Candidate prices, win rates, and post-2022 holdout outcomes remain completely uninspected and sealed.
@@ -41,10 +41,10 @@ The repository executes a strictly staged, unidirectional research pipeline:
                       v
 [5] Conditional Post-2022 Historical Holdout Validation       [SEALED]
     - Evaluated ONLY if Step 4 yields PROMISING_DISCOVERY_CANDIDATE
-    - N_holdout < 15 -> HOLDOUT_SAMPLE_DEFICIENT (first branch; descriptive only)
+    - N_holdout < 15 -> HOLDOUT_SAMPLE_DEFICIENT (prespecified minimum unmet; descriptive only)
     - N_holdout >= 15 & mean <= 0 -> HOLDOUT_FAIL (candidate permanently terminated)
-    - N_holdout >= 15 & (p >= 0.05 | W < 50% | sign mismatch) -> HOLDOUT_INCONCLUSIVE
-    - N_holdout >= 15 & p < 0.05 & W >= 50% & matching sign -> HOLDOUT_PASS_ELIGIBLE_FOR_DEMO
+    - N_holdout >= 15 & mean > 0 & (p >= 0.05 | W < 50%) -> HOLDOUT_INCONCLUSIVE
+    - N_holdout >= 15 & mean > 0 & p < 0.05 & W >= 50% -> HOLDOUT_PASS_ELIGIBLE_FOR_DEMO
                       |
                       v
 [6] Prospective Demo Ledger (Forward Execution Tracking)      [PROSPECTIVE ONLY]
@@ -70,7 +70,7 @@ A rigorous epistemological boundary separates historical holdouts from forward o
    - Clearing the holdout hurdle grants **eligibility for demo forward validation ONLY**. It does not prove that an anomaly is executable, profitable, or immune to historical data leakage.
 
 2. **Genuinely Prospective Demo Testing**:
-   - **Only future, first-seen live releases executed in a demo environment are truly out-of-sample.**
+   - Future, first-seen releases recorded under a fixed demo protocol offer genuinely prospective evidence. A historical holdout can be out-of-sample relative to a fixed model, but must not be described as prospectively observed, and its independence from earlier researcher exposure is uncertain here.
    - In prospective testing, calendar values and candle paths do not exist on disk prior to event arrival. An append-only forward capture engine records exact arrival timestamps, broker quote latency, effective entry/exit spreads, and financing costs.
 
 ---
@@ -101,6 +101,12 @@ To prevent data mining and retrospective selection bias, any future trial invest
 3. **No Retrospective Cluster Cherry-Picking**: An investigator cannot inspect the historical scatter plot, identify a favorable 2- or 3-case cluster of past winning trades, and retroactively declare it a "recurring signature."
 4. **Independent Protocol & Holdout**: If pursued, this inquiry requires an independent protocol charter, a separate multiplicity adjustment ($K$-trial penalty), and validation on genuinely untouched data.
 5. **Zero Interaction with Current Retail Sales Study**: Momentum ($M = A - P$) is strictly barred from being injected into the current Retail Sales pre-price design as a post-hoc filter.
+
+### 3.4 Questions to Resolve Before a Separate State-Signature Protocol
+- Define the exact series, units, calendar vintage, and whether `Previous` means the value visible at release time or a later revised value. A retrospective calendar export alone does not establish point-in-time availability.
+- Define a small, fixed set of scale-aware states within each series; an equal numeric difference across unlike indicators or changed units is not necessarily a similar economic surprise. State membership must use only information available before the trade.
+- Predefine trade direction, entry, exit, friction, comparator, and the minimum number of independent episodes. Three matching outcomes are a lead, not a registration threshold; the relevant evidence is the complete conditional return distribution and uncertainty after costs.
+- Record every attempted family, state definition, horizon, and pair before testing. A future trial needs an explicit selection/multiplicity policy and genuinely new validation evidence; do not recycle the current Retail Sales outcomes into a second confirmation claim.
 
 ---
 

@@ -15,7 +15,8 @@
 > *For the 49 pre-2023 strict-concordance US Retail Sales packages on EURUSD, is the sample mean 6-H4 directional trade return strictly positive AFTER deducting a prespecified execution cost assumption?*
 
 **Explicit Scope Limitation**:
-- This is strictly an empirical test of **directional trading strategy viability** under executable friction.
+- This is an empirical **directional-strategy screening test** under prespecified assumed friction.
+- More precisely, Scenario C tests a **hypothetical one-pip-friction screening rule**, not verified all-in broker profitability: historical commission, slippage, financing, and point-in-time calendar availability remain unmeasured. Any passing result is a candidate for further validation, not evidence that a broker could have filled the historical trades at those prices.
 - It is **NOT** an estimate of the causal macroeconomic effect of US Retail Sales on exchange rates.
 - It is **NOT** a measure of "excess return versus matched controls."
 - Any observed post-announcement price movement reflects the joint market absorption of the co-released Retail Sales package, bundled same-second indicators, cross-currency collisions, liquidity conditions, and subsequent macroeconomic announcements.
@@ -193,7 +194,7 @@ Let $R_{\text{net}, i}(c)$ be the directional net log return of trade episode $i
 
 ### 5.4 Test Assumptions & Input Validation Safeguards
 1. **Independence Assumption**: Trade episodes occur approximately once per month (~30 days apart). Temporal autocorrelation between consecutive monthly episodes is assumed negligible.
-2. **Central Limit Theorem for Sample Mean**: While individual FX returns exhibit excess kurtosis (fat tails), the sample mean $\bar{R}_{\text{net}}$ across $N = 49$ independent episodes is approximately normally distributed under the Central Limit Theorem.
+2. **Approximation, Not Guarantee**: The one-sample t-test relies on an adequate sampling approximation. $N = 49$ alone does not establish approximate normality of the sample mean under fat tails, outliers, or dependence; inspect the predeclared diagnostics and report any sensitivity without changing the primary rule after outcomes are known.
 3. **Statistical Integrity Prohibitions**:
    - Directional assignments ($d_i \in \{-1, +1\}$) are **NOT randomized by nature**; they are deterministic functions of macroeconomic releases.
    - The 1-sample test is **NOT a paired t-test** (there is no paired control trade in the primary test).
@@ -272,7 +273,7 @@ The written decision logic and the software classification engine [`classify_dis
      - Strict concordance required: $\text{sign}(S_H) \times \text{sign}(S_C) > 0$.
      - Missing forecasts, active sign conflicts, and zero surprises are excluded under the identical logic.
 3. **Sample Adequacy Requirement**:
-   - If $N_{\text{holdout}} < 15$ packages, the holdout sample is formally declared **sample-deficient / underpowered** for independent asymptotic hypothesis testing. The report must state this limitation and report descriptive metrics only.
+   - If $N_{\text{holdout}} < 15$ packages, the sample fails this protocol's **prespecified minimum** and cannot earn a holdout pass. This cutoff is a decision rule, not a theorem that all inference with fewer than 15 observations is invalid. The report must state the limitation and report descriptive metrics only under this protocol.
 
 ### 8.2 Fixed Execution & Cost Specifications
 - **Identical Entry Rule**: Open of the next active H4 bar ($T_{\text{entry}} = 16:00$ for 15:30 releases; $20:00$ for 16:30 releases).
@@ -310,10 +311,10 @@ The post-2022 holdout classification is implemented in [`classify_holdout_outcom
 
 1. **Branch 1: HOLDOUT SAMPLE DEFICIENT (Underpowered Sample Size)**:
    - **Hurdle**: Sample size $N_{\text{holdout}} < 15$ packages (evaluated FIRST, before requiring statistical metrics).
-   - **Downstream Action**: The holdout sample contains fewer than 15 eligible packages. Formal independent hypothesis testing is not statistically justified. If $N_{\text{holdout}} = 0$ (no eligible releases), sample mean, p-value, and win rate do not exist; [`classify_holdout_outcome(0, None, None, None)`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/strategy_viability.py) returns `HOLDOUT_SAMPLE_DEFICIENT` directly without requiring invented placeholder numbers. For $N_{\text{holdout}} \ge 15$, valid finite statistics are strictly required. The report documents descriptive metrics only. Zero forward demo trading or setup registration is permitted.
+   - **Downstream Action**: The holdout sample fails the prespecified minimum for a pass. If $N_{\text{holdout}} = 0$ (no eligible releases), sample mean, p-value, and win rate do not exist; `classify_holdout_outcome(0, None, None, None)` returns `HOLDOUT_SAMPLE_DEFICIENT` without invented placeholder numbers. For $N_{\text{holdout}} \ge 15$, valid finite statistics are strictly required. The report documents descriptive metrics only under this protocol. Zero forward demo trading or setup registration is permitted.
 2. **Branch 2: HOLDOUT FAIL (Disconfirmed / Non-Replicating Discovery)**:
    - **Hurdle**: Sample size $N_{\text{holdout}} \ge 15$ AND sample mean net return under Scenario C $\bar{R}_{\text{holdout, net}}(c_2) \le 0.0$.
-   - **Downstream Action**: The out-of-sample directional point estimate is flat or negative. The candidate is **permanently rejected** and cataloged as an in-sample discovery artifact / data-mining overfit. The inquiry is terminated; zero parameter re-tuning is permitted.
+   - **Downstream Action**: The historical holdout point estimate is flat or negative. This candidate is rejected **under this frozen rule** and must not be rescued by parameter re-tuning on the same data. A negative estimate does not prove the discovery was an overfit or that the true expected return is non-positive.
 3. **Branch 3: HOLDOUT INCONCLUSIVE (Statistically Insufficient or Inconsistent)**:
    - **Hurdle**: Sample size $N_{\text{holdout}} \ge 15$ AND $\bar{R}_{\text{holdout, net}}(c_2) > 0.0$, BUT fails any secondary hurdle:
      - 1-sided Student's t-test on holdout: $p_{\text{holdout}} \ge 0.05$ (data cannot distinguish positive drift from random noise).
@@ -328,6 +329,8 @@ The post-2022 holdout classification is implemented in [`classify_holdout_outcom
      - 1-sided Student's t-test on holdout: $p_{\text{holdout}} < 0.05$.
      - Win rate $\ge 50\%$.
    - **Downstream Action**: The candidate successfully replicates out-of-sample under the predeclared hurdle. This grants **eligibility for demo forward validation** in a live forward paper/demo execution environment. It does **NOT** constitute proof of executable profitability or an immutable trading setup.
+
+**Logical simplification for this candidate:** Discovery can advance only with a strictly positive Scenario C mean. The holdout `mean <= 0` branch is tested before the sign check. Consequently, any holdout with `mean > 0` already has a matching sign; the written "sign mismatch" condition and the code's `discovery_mean_sign` comparison are redundant for this positive-drift protocol, not an independent validation hurdle. Do not count them as separate evidence.
 
 ---
 
@@ -348,3 +351,5 @@ The post-2022 holdout classification is implemented in [`classify_holdout_outcom
 - [x] Exact, non-optimizable post-2022 holdout pass/fail rule predeclared while holdout outcomes remain sealed
 - [x] Price blindness strictly preserved (zero price reads, zero backtests run, holdout strictly sealed)
 - [ ] Codex Quant Director audit & formal protocol freeze
+
+**Freeze-review scope:** A freeze would authorize only the prespecified *historical screening calculation* on pre-2023 prices. It would not validate historical fills, establish first-seen calendar vintages, or authorize use of the 2023+ partition or live/demo orders. Before opening candidate prices, record the exact implementation commit and output schema, verify the H1-to-H4 entry/exit mapping against hand-worked synthetic cases (including a weekend), and retain the executable calculation as an auditable artifact. These are review items, not permission to retune the hypothesis after seeing returns.

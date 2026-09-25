@@ -7,10 +7,43 @@ Enforces the chronological split boundary at 1672531200.
 
 from typing import Dict, List, Set, Optional, Tuple, Any
 import bisect
+from datetime import datetime, timezone
 from .parsers import stream_candle_timestamps_only, SPLIT_TIMESTAMP
 
 SECONDS_IN_H1 = 3600
 SECONDS_IN_H4 = 14400
+
+
+def is_valid_weekend_market_closure(gap_start_ts: int, resume_ts: int) -> Tuple[bool, str]:
+    """
+    Explicit, testable market closure rule for FX trading over the weekend.
+    Rejects weekday data gaps (e.g. Wednesday to Friday missing Thursday).
+
+    Valid weekend closure requirements:
+    1. Trading paused on weekend boundary:
+       - Friday late (weekday == 4 and hour >= 20), OR
+       - Saturday (weekday == 5).
+    2. Trading resumes on market open:
+       - Sunday late (weekday == 6 and hour >= 21), OR
+       - Monday early (weekday == 0 and hour <= 4).
+    3. Calendar closure duration between 24 and 72 hours.
+    """
+    dt_start = datetime.fromtimestamp(gap_start_ts, tz=timezone.utc)
+    dt_resume = datetime.fromtimestamp(resume_ts, tz=timezone.utc)
+    gap_hours = (resume_ts - gap_start_ts) / SECONDS_IN_H1
+
+    if not (24.0 <= gap_hours <= 72.0):
+        return False, f"Gap duration {gap_hours:.1f}h is outside valid weekend range [24, 72]h"
+
+    is_start_weekend = (dt_start.weekday() == 4 and dt_start.hour >= 20) or (dt_start.weekday() == 5)
+    if not is_start_weekend:
+        return False, f"Gap start at {dt_start.strftime('%A %H:%M')} is a weekday data gap, not a weekend closure"
+
+    is_resume_weekend = (dt_resume.weekday() == 6 and dt_resume.hour >= 21) or (dt_resume.weekday() == 0 and dt_resume.hour <= 4)
+    if not is_resume_weekend:
+        return False, f"Gap resume at {dt_resume.strftime('%A %H:%M')} is not a Sunday/Monday market open"
+
+    return True, "Valid weekend market closure"
 
 
 class CandleTimestampIndex:
@@ -95,9 +128,9 @@ class CandleTimestampIndex:
                         has_missing_h1 = True
                         break
                     next_avail_ts = self.timestamps_list[idx]
-                    gap_hours = (next_avail_ts - current_h4) / SECONDS_IN_H1
+                    is_weekend, reason = is_valid_weekend_market_closure(current_h4, next_avail_ts)
 
-                    if 24 <= gap_hours <= 72:
+                    if is_weekend:
                         crosses_weekend = True
                         current_h4 = (next_avail_ts // SECONDS_IN_H4) * SECONDS_IN_H4
                     else:

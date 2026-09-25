@@ -70,8 +70,8 @@ class TestTimestampBoundaries(unittest.TestCase):
         # Weekend gap: 48 hours (Friday 24:00 to Monday 00:00)
         # Monday trading: 4 H4 blocks (00:00 to 16:00 = 16 H1 bars)
         # Total forward blocks: 2 + 4 = 6 completed H4 blocks = 24 active hours
-        base_friday_entry = 1600003200
-        base_friday_entry = (base_friday_entry // 14400) * 14400
+        # Friday 2020-09-18 16:00:00 UTC = 1600444800
+        base_friday_entry = 1600444800
 
         bars = []
         for i in range(8):
