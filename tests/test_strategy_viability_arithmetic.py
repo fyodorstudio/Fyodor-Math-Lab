@@ -20,7 +20,8 @@ from src.strategy_viability import (
     compute_directional_log_return,
     compute_directional_profit_pips,
     compute_1sample_viability_statistics,
-    classify_discovery_outcome
+    classify_discovery_outcome,
+    classify_holdout_outcome
 )
 
 PINNED_CANDLE_SYMBOLS_PATH = "data/pinned/FyodorResearchExport_v3_20260923_234930_server/candle_symbols.csv"
@@ -265,6 +266,198 @@ class TestStrategyViabilityArithmetic(unittest.TestCase):
         # Explicit governance confirmation: promising candidate is NOT a registered setup
         self.assertNotEqual(outcome, "REGISTERED_SETUP")
 
+    def test_classify_discovery_outcome_adversarial_validation(self):
+        """
+        Adversarial tests proving that invalid numeric inputs (NaN, Inf, out-of-range, bool)
+        can NEVER pass to PROMISING_DISCOVERY_CANDIDATE and strictly raise ValueError/TypeError.
+        Also verifies missing required subgroup means cannot pass.
+        """
+        # 1. NaN inputs must raise ValueError (specifically tests Codex's blocker)
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=float("nan"), win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=float("nan"), mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=float("nan"), mean_net_non_friday=0.001)
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=float("nan"))
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=float("nan"), p_val_1sided=0.02, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        # 2. Inf inputs must raise ValueError
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=float("inf"), win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=float("inf"), mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=float("inf"), mean_net_non_friday=0.001)
+
+        # 3. Out-of-range p-values must raise ValueError
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=-0.001, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=1.001, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        # 4. Out-of-range win rates must raise ValueError
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=-0.01, mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        with self.assertRaises(ValueError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=1.01, mean_net_friday=0.001, mean_net_non_friday=0.001)
+
+        # 5. Non-numeric and boolean types must raise TypeError
+        with self.assertRaises(TypeError):
+            classify_discovery_outcome(mean_net="0.0015", p_val_1sided=0.02, win_rate=0.55)
+
+        with self.assertRaises(TypeError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=True, win_rate=0.55)
+
+        with self.assertRaises(TypeError):
+            classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=False)
+
+        # 6. Missing subgroup means (None) can never pass to PROMISING_DISCOVERY_CANDIDATE
+        res_none_fri = classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=None, mean_net_non_friday=0.001)
+        self.assertEqual(res_none_fri, "INCONCLUSIVE_FRAGILE")
+        self.assertNotEqual(res_none_fri, "PROMISING_DISCOVERY_CANDIDATE")
+
+        res_none_non_fri = classify_discovery_outcome(mean_net=0.0015, p_val_1sided=0.02, win_rate=0.55, mean_net_friday=0.001, mean_net_non_friday=None)
+        self.assertEqual(res_none_non_fri, "INCONCLUSIVE_FRAGILE")
+        self.assertNotEqual(res_none_non_fri, "PROMISING_DISCOVERY_CANDIDATE")
+
+    def test_classify_holdout_outcome_all_branches(self):
+        """
+        Verifies input validation and exhaustive mutually exclusive branches for classify_holdout_outcome.
+        """
+        # 1. Input validation & error handling
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=-1, mean_net=0.001, p_val_1sided=0.02, win_rate=0.55)
+
+        with self.assertRaises(TypeError):
+            classify_holdout_outcome(n_holdout=15.5, mean_net=0.001, p_val_1sided=0.02, win_rate=0.55)
+
+        with self.assertRaises(TypeError):
+            classify_holdout_outcome(n_holdout=True, mean_net=0.001, p_val_1sided=0.02, win_rate=0.55)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=20, mean_net=float("nan"), p_val_1sided=0.02, win_rate=0.55)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=20, mean_net=0.001, p_val_1sided=float("nan"), win_rate=0.55)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=20, mean_net=0.001, p_val_1sided=0.02, win_rate=float("nan"))
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=20, mean_net=0.001, p_val_1sided=-0.01, win_rate=0.55)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=20, mean_net=0.001, p_val_1sided=1.05, win_rate=0.55)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=20, mean_net=0.001, p_val_1sided=0.02, win_rate=1.05)
+
+        with self.assertRaises(ValueError):
+            classify_holdout_outcome(n_holdout=20, mean_net=0.001, p_val_1sided=0.02, win_rate=0.55, discovery_mean_sign=0)
+
+        # 2. Branch 1: Sample-deficient (N < 15 evaluated FIRST, regardless of observed mean or p-value)
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=0, mean_net=0.0050, p_val_1sided=0.001, win_rate=0.80),
+            "HOLDOUT_SAMPLE_DEFICIENT"
+        )
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=14, mean_net=0.0050, p_val_1sided=0.001, win_rate=0.80),
+            "HOLDOUT_SAMPLE_DEFICIENT"
+        )
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=14, mean_net=-0.0050, p_val_1sided=0.999, win_rate=0.20),
+            "HOLDOUT_SAMPLE_DEFICIENT"
+        )
+
+        # 3. Branch 2: Point estimate flat or negative (N >= 15, mean_net <= 0)
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=15, mean_net=-0.0001, p_val_1sided=0.01, win_rate=0.60),
+            "HOLDOUT_FAIL"
+        )
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=25, mean_net=0.0, p_val_1sided=0.50, win_rate=0.50),
+            "HOLDOUT_FAIL"
+        )
+
+        # 4. Branch 3: Inconclusive (N >= 15, mean_net > 0, but fails statistical or consistency hurdles)
+        # 4A. p >= 0.05
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=15, mean_net=0.0010, p_val_1sided=0.050, win_rate=0.55),
+            "HOLDOUT_INCONCLUSIVE"
+        )
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=15, mean_net=0.0010, p_val_1sided=0.15, win_rate=0.55),
+            "HOLDOUT_INCONCLUSIVE"
+        )
+        # 4B. Win rate < 50%
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=15, mean_net=0.0010, p_val_1sided=0.02, win_rate=0.49),
+            "HOLDOUT_INCONCLUSIVE"
+        )
+        # 4C. Directional sign mismatch
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=15, mean_net=0.0010, p_val_1sided=0.02, win_rate=0.55, discovery_mean_sign=-1),
+            "HOLDOUT_INCONCLUSIVE"
+        )
+
+        # 5. Branch 4: Pass hurdles for demo forward validation
+        pass_res = classify_holdout_outcome(
+            n_holdout=15,
+            mean_net=0.0012,
+            p_val_1sided=0.035,
+            win_rate=0.52,
+            discovery_mean_sign=1
+        )
+        self.assertEqual(pass_res, "HOLDOUT_PASS_ELIGIBLE_FOR_DEMO")
+        # Explicit governance confirmation: pass grants demo validation eligibility, NOT setup registration or proven profit
+        self.assertNotEqual(pass_res, "REGISTERED_SETUP")
+        self.assertNotEqual(pass_res, "PROVEN_PROFITABLE")
+
+        # Upper sample size (e.g. 45 packages)
+        self.assertEqual(
+            classify_holdout_outcome(n_holdout=45, mean_net=0.0020, p_val_1sided=0.005, win_rate=0.62),
+            "HOLDOUT_PASS_ELIGIBLE_FOR_DEMO"
+        )
+
+    def test_docs_markdown_zero_control_characters(self):
+        """
+        Audits all markdown documents in docs/ to prove zero unexpected ASCII control characters.
+        Rejects all bytes < 32 except standard line feed (0x0A) and carriage return (0x0D).
+        Specifically guards against escaped LaTeX commands turning into bell (0x07),
+        backspace (0x08), tab (0x09), or form feed (0x0C).
+        """
+        docs_dir = "docs"
+        self.assertTrue(os.path.exists(docs_dir), f"Directory {docs_dir} does not exist")
+
+        md_files = [
+            os.path.join(root, f)
+            for root, _, files in os.walk(docs_dir)
+            for f in files if f.endswith(".md")
+        ]
+        self.assertGreater(len(md_files), 0, "No markdown files found in docs/")
+
+        for file_path in md_files:
+            with open(file_path, "rb") as f:
+                content = f.read()
+            forbidden = [(idx, b) for idx, b in enumerate(content) if b < 32 and b not in (10, 13)]
+            self.assertEqual(
+                len(forbidden),
+                0,
+                f"File {file_path} contains {len(forbidden)} forbidden control characters: {forbidden[:10]}"
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
+
