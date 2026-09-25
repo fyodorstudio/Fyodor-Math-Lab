@@ -1,0 +1,5234 @@
+{
+  "schemaVersion": "1.0.0",
+  "provenance": {
+    "calendarReleasesSha256": "76062b8f6747d38b530d086780f2dfcf0b0bde59690bfdf4458c7519d4e6be2e",
+    "episodesJsonlSha256": "37df7880a2bc36dbbce06b4a6ba39f7bd962a4c1c92eb2ce64cb71a886de55d2",
+    "splitTimestamp": 1672531200
+  },
+  "totals": {
+    "totalPre2023Packages": 96,
+    "actionableStrictAgreement": 40,
+    "neutralExpectations": 1,
+    "conflictingExpectations": 3,
+    "neutralClimate": 2,
+    "missingConsensus": 43,
+    "pathIneligible": 7,
+    "actionableLongCount": 18,
+    "actionableShortCount": 22,
+    "actionableCollisionCount": 4
+  },
+  "actionableRows": [
+    {
+      "packageIndex": 47,
+      "timestamp": 1543235400,
+      "timestampServerText": "2018.11.26 12:30:00",
+      "brokerDateTime": "2018-11-26 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75757",
+        "actual": 102,
+        "forecast": 103.2,
+        "previous": 102.8,
+        "surprise": -1.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75755",
+        "actual": 98.7,
+        "forecast": 100.4,
+        "previous": 99.8,
+        "surprise": -1.7
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1543248000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 48,
+      "timestamp": 1545136200,
+      "timestampServerText": "2018.12.18 12:30:00",
+      "brokerDateTime": "2018-12-18 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75760",
+        "actual": 101,
+        "forecast": 102.3,
+        "previous": 102,
+        "surprise": -1.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75758",
+        "actual": 97.3,
+        "forecast": 99.3,
+        "previous": 98.7,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1545148800,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 49,
+      "timestamp": 1548419400,
+      "timestampServerText": "2019.01.25 12:30:00",
+      "brokerDateTime": "2019-01-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75763",
+        "actual": 99.1,
+        "forecast": 101.4,
+        "previous": 101,
+        "surprise": -2.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75761",
+        "actual": 94.2,
+        "forecast": 98,
+        "previous": 97.3,
+        "surprise": -3.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1548432000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 50,
+      "timestamp": 1550838600,
+      "timestampServerText": "2019.02.22 12:30:00",
+      "brokerDateTime": "2019-02-22 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75766",
+        "actual": 98.5,
+        "forecast": 100,
+        "previous": 99.1,
+        "surprise": -1.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75764",
+        "actual": 93.8,
+        "forecast": 95.7,
+        "previous": 94.2,
+        "surprise": -1.9
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1550851200,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 52,
+      "timestamp": 1556105400,
+      "timestampServerText": "2019.04.24 11:30:00",
+      "brokerDateTime": "2019-04-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75772",
+        "actual": 99.2,
+        "forecast": 99,
+        "previous": 99.6,
+        "surprise": 0.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75770",
+        "actual": 95.2,
+        "forecast": 94.7,
+        "previous": 95.6,
+        "surprise": 0.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1556107200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 53,
+      "timestamp": 1558611000,
+      "timestampServerText": "2019.05.23 11:30:00",
+      "brokerDateTime": "2019-05-23 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75933",
+        "actual": 97.9,
+        "forecast": 99.3,
+        "previous": 99.2,
+        "surprise": -1.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75931",
+        "actual": 95.3,
+        "forecast": 95.4,
+        "previous": 95.2,
+        "surprise": -0.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1558612800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 54,
+      "timestamp": 1561375800,
+      "timestampServerText": "2019.06.24 11:30:00",
+      "brokerDateTime": "2019-06-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75936",
+        "actual": 97.4,
+        "forecast": 99.3,
+        "previous": 97.9,
+        "surprise": -1.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75934",
+        "actual": 94.2,
+        "forecast": 95.4,
+        "previous": 95.3,
+        "surprise": -1.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1561377600,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 55,
+      "timestamp": 1564054200,
+      "timestampServerText": "2019.07.25 11:30:00",
+      "brokerDateTime": "2019-07-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75939",
+        "actual": 95.7,
+        "forecast": 96.7,
+        "previous": 97.4,
+        "surprise": -1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75937",
+        "actual": 92.2,
+        "forecast": 95.2,
+        "previous": 94.2,
+        "surprise": -3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1564056000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 56,
+      "timestamp": 1566819000,
+      "timestampServerText": "2019.08.26 11:30:00",
+      "brokerDateTime": "2019-08-26 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75942",
+        "actual": 94.3,
+        "forecast": 95.7,
+        "previous": 95.7,
+        "surprise": -1.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75940",
+        "actual": 91.3,
+        "forecast": 94.7,
+        "previous": 92.2,
+        "surprise": -3.4
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1566820800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 58,
+      "timestamp": 1572003000,
+      "timestampServerText": "2019.10.25 11:30:00",
+      "brokerDateTime": "2019-10-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75948",
+        "actual": 94.6,
+        "forecast": 93.1,
+        "previous": 94.6,
+        "surprise": 1.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75946",
+        "actual": 91.5,
+        "forecast": 91,
+        "previous": 90.8,
+        "surprise": 0.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1572004800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 59,
+      "timestamp": 1574685000,
+      "timestampServerText": "2019.11.25 12:30:00",
+      "brokerDateTime": "2019-11-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75951",
+        "actual": 95,
+        "forecast": 93.3,
+        "previous": 94.6,
+        "surprise": 1.7
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75949",
+        "actual": 92.1,
+        "forecast": 91.1,
+        "previous": 91.5,
+        "surprise": 1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1574697600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 60,
+      "timestamp": 1576672200,
+      "timestampServerText": "2019.12.18 12:30:00",
+      "brokerDateTime": "2019-12-18 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75954",
+        "actual": 96.3,
+        "forecast": 94.3,
+        "previous": 95,
+        "surprise": 2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75952",
+        "actual": 93.8,
+        "forecast": 91.7,
+        "previous": 92.1,
+        "surprise": 2.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1576684800,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 62,
+      "timestamp": 1582547400,
+      "timestampServerText": "2020.02.24 12:30:00",
+      "brokerDateTime": "2020-02-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112152",
+        "actual": 96.1,
+        "forecast": 96,
+        "previous": 95.9,
+        "surprise": 0.1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112153",
+        "actual": 93.4,
+        "forecast": 93.3,
+        "previous": 92.9,
+        "surprise": 0.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1582560000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 63,
+      "timestamp": 1585139400,
+      "timestampServerText": "2020.03.25 12:30:00",
+      "brokerDateTime": "2020-03-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112155",
+        "actual": 86.1,
+        "forecast": 95.9,
+        "previous": 96.1,
+        "surprise": -9.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112156",
+        "actual": 79.7,
+        "forecast": 93.1,
+        "previous": 93.4,
+        "surprise": -13.4
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1585152000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 64,
+      "timestamp": 1587727800,
+      "timestampServerText": "2020.04.24 11:30:00",
+      "brokerDateTime": "2020-04-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112158",
+        "actual": 74.3,
+        "forecast": 90.9,
+        "previous": 86.1,
+        "surprise": -16.6
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112159",
+        "actual": 69.4,
+        "forecast": 86.4,
+        "previous": 79.7,
+        "surprise": -17
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1587729600,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 66,
+      "timestamp": 1592998200,
+      "timestampServerText": "2020.06.24 11:30:00",
+      "brokerDateTime": "2020-06-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112164",
+        "actual": 86.2,
+        "forecast": 76.7,
+        "previous": 79.5,
+        "surprise": 9.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112165",
+        "actual": 91.4,
+        "forecast": 68.5,
+        "previous": 80.1,
+        "surprise": 22.9
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1593000000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 67,
+      "timestamp": 1595849400,
+      "timestampServerText": "2020.07.27 11:30:00",
+      "brokerDateTime": "2020-07-27 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112167",
+        "actual": 90.5,
+        "forecast": 82.7,
+        "previous": 86.2,
+        "surprise": 7.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112168",
+        "actual": 97,
+        "forecast": 85.8,
+        "previous": 91.4,
+        "surprise": 11.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1595851200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 68,
+      "timestamp": 1598355000,
+      "timestampServerText": "2020.08.25 11:30:00",
+      "brokerDateTime": "2020-08-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112170",
+        "actual": 92.6,
+        "forecast": 88.2,
+        "previous": 90.5,
+        "surprise": 4.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112171",
+        "actual": 97.5,
+        "forecast": 94.2,
+        "previous": 97,
+        "surprise": 3.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1598356800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 69,
+      "timestamp": 1600947000,
+      "timestampServerText": "2020.09.24 11:30:00",
+      "brokerDateTime": "2020-09-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112173",
+        "actual": 93.4,
+        "forecast": 91.4,
+        "previous": 92.6,
+        "surprise": 2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112174",
+        "actual": 97.7,
+        "forecast": 97.2,
+        "previous": 97.5,
+        "surprise": 0.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1600948800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 71,
+      "timestamp": 1606221000,
+      "timestampServerText": "2020.11.24 12:30:00",
+      "brokerDateTime": "2020-11-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112179",
+        "actual": 90.7,
+        "forecast": 92.9,
+        "previous": 92.7,
+        "surprise": -2.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112180",
+        "actual": 91.5,
+        "forecast": 96.3,
+        "previous": 95,
+        "surprise": -4.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1606233600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 73,
+      "timestamp": 1611577800,
+      "timestampServerText": "2021.01.25 12:30:00",
+      "brokerDateTime": "2021-01-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142892",
+        "actual": 90.1,
+        "forecast": 91.3,
+        "previous": 92.1,
+        "surprise": -1.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142866",
+        "actual": 91.1,
+        "forecast": 92.1,
+        "previous": 92.8,
+        "surprise": -1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1611590400,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 74,
+      "timestamp": 1613997000,
+      "timestampServerText": "2021.02.22 12:30:00",
+      "brokerDateTime": "2021-02-22 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142893",
+        "actual": 92.4,
+        "forecast": 91,
+        "previous": 90.1,
+        "surprise": 1.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142867",
+        "actual": 94.2,
+        "forecast": 91.9,
+        "previous": 91.1,
+        "surprise": 2.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1614009600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 76,
+      "timestamp": 1619436600,
+      "timestampServerText": "2021.04.26 11:30:00",
+      "brokerDateTime": "2021-04-26 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142895",
+        "actual": 96.8,
+        "forecast": 94.4,
+        "previous": 96.6,
+        "surprise": 2.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142869",
+        "actual": 99.5,
+        "forecast": 97.3,
+        "previous": 100.4,
+        "surprise": 2.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1619438400,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 77,
+      "timestamp": 1621942200,
+      "timestampServerText": "2021.05.25 11:30:00",
+      "brokerDateTime": "2021-05-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142896",
+        "actual": 99.2,
+        "forecast": 96.6,
+        "previous": 96.8,
+        "surprise": 2.6
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142870",
+        "actual": 102.9,
+        "forecast": 100,
+        "previous": 99.5,
+        "surprise": 2.9
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1621944000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 78,
+      "timestamp": 1624534200,
+      "timestampServerText": "2021.06.24 11:30:00",
+      "brokerDateTime": "2021-06-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142897",
+        "actual": 101.8,
+        "forecast": 97.9,
+        "previous": 99.2,
+        "surprise": 3.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142871",
+        "actual": 104,
+        "forecast": 101.2,
+        "previous": 102.9,
+        "surprise": 2.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1624536000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 80,
+      "timestamp": 1629891000,
+      "timestampServerText": "2021.08.25 11:30:00",
+      "brokerDateTime": "2021-08-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142899",
+        "actual": 99.4,
+        "forecast": 101.2,
+        "previous": 100.8,
+        "surprise": -1.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142873",
+        "actual": 97.5,
+        "forecast": 102.6,
+        "previous": 101.2,
+        "surprise": -5.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1629892800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 81,
+      "timestamp": 1632483000,
+      "timestampServerText": "2021.09.24 11:30:00",
+      "brokerDateTime": "2021-09-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142900",
+        "actual": 98.8,
+        "forecast": 100,
+        "previous": 99.4,
+        "surprise": -1.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142874",
+        "actual": 97.3,
+        "forecast": 99.3,
+        "previous": 97.5,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1632484800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 82,
+      "timestamp": 1635161400,
+      "timestampServerText": "2021.10.25 11:30:00",
+      "brokerDateTime": "2021-10-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142901",
+        "actual": 97.7,
+        "forecast": 99,
+        "previous": 98.8,
+        "surprise": -1.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142875",
+        "actual": 95.4,
+        "forecast": 97.4,
+        "previous": 97.3,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1635163200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 83,
+      "timestamp": 1637757000,
+      "timestampServerText": "2021.11.24 12:30:00",
+      "brokerDateTime": "2021-11-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142902",
+        "actual": 96.5,
+        "forecast": 98.2,
+        "previous": 97.7,
+        "surprise": -1.7
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142876",
+        "actual": 94.2,
+        "forecast": 96.3,
+        "previous": 95.4,
+        "surprise": -2.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1637769600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 84,
+      "timestamp": 1639744200,
+      "timestampServerText": "2021.12.17 12:30:00",
+      "brokerDateTime": "2021-12-17 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142903",
+        "actual": 94.7,
+        "forecast": 97,
+        "previous": 96.5,
+        "surprise": -2.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142877",
+        "actual": 92.6,
+        "forecast": 94.8,
+        "previous": 94.2,
+        "surprise": -2.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1639756800,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 85,
+      "timestamp": 1643113800,
+      "timestampServerText": "2022.01.25 12:30:00",
+      "brokerDateTime": "2022-01-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158505",
+        "actual": 95.7,
+        "forecast": 95.5,
+        "previous": 94.7,
+        "surprise": 0.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158483",
+        "actual": 95.2,
+        "forecast": 93.4,
+        "previous": 92.6,
+        "surprise": 1.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1643126400,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 86,
+      "timestamp": 1645533000,
+      "timestampServerText": "2022.02.22 12:30:00",
+      "brokerDateTime": "2022-02-22 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "159271",
+        "actual": 98.9,
+        "forecast": 95.1,
+        "previous": 95.7,
+        "surprise": 3.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "159267",
+        "actual": 99.2,
+        "forecast": 93.9,
+        "previous": 95.2,
+        "surprise": 5.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1645545600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 88,
+      "timestamp": 1650886200,
+      "timestampServerText": "2022.04.25 11:30:00",
+      "brokerDateTime": "2022-04-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158507",
+        "actual": 91.8,
+        "forecast": 94.7,
+        "previous": 90.8,
+        "surprise": -2.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158485",
+        "actual": 86.7,
+        "forecast": 92.1,
+        "previous": 85.1,
+        "surprise": -5.4
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1650888000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 89,
+      "timestamp": 1653305400,
+      "timestampServerText": "2022.05.23 11:30:00",
+      "brokerDateTime": "2022-05-23 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158508",
+        "actual": 93,
+        "forecast": 91.2,
+        "previous": 91.8,
+        "surprise": 1.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158486",
+        "actual": 86.9,
+        "forecast": 85.8,
+        "previous": 86.7,
+        "surprise": 1.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1653307200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 91,
+      "timestamp": 1658748600,
+      "timestampServerText": "2022.07.25 11:30:00",
+      "brokerDateTime": "2022-07-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158510",
+        "actual": 88.6,
+        "forecast": 92.5,
+        "previous": 92.3,
+        "surprise": -3.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158488",
+        "actual": 80.3,
+        "forecast": 86.3,
+        "previous": 85.8,
+        "surprise": -6
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1658750400,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 92,
+      "timestamp": 1661427000,
+      "timestampServerText": "2022.08.25 11:30:00",
+      "brokerDateTime": "2022-08-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158511",
+        "actual": 88.5,
+        "forecast": 90.3,
+        "previous": 88.6,
+        "surprise": -1.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158489",
+        "actual": 80.3,
+        "forecast": 86.3,
+        "previous": 80.3,
+        "surprise": -6
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1661428800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 93,
+      "timestamp": 1664191800,
+      "timestampServerText": "2022.09.26 11:30:00",
+      "brokerDateTime": "2022-09-26 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158512",
+        "actual": 84.3,
+        "forecast": 88.4,
+        "previous": 88.5,
+        "surprise": -4.1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158490",
+        "actual": 75.2,
+        "forecast": 80.2,
+        "previous": 80.3,
+        "surprise": -5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1664193600,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 94,
+      "timestamp": 1666697400,
+      "timestampServerText": "2022.10.25 11:30:00",
+      "brokerDateTime": "2022-10-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158513",
+        "actual": 84.3,
+        "forecast": 86.3,
+        "previous": 84.3,
+        "surprise": -2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158491",
+        "actual": 75.6,
+        "forecast": 77.6,
+        "previous": 75.2,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1666699200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 95,
+      "timestamp": 1669293000,
+      "timestampServerText": "2022.11.24 12:30:00",
+      "brokerDateTime": "2022-11-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158514",
+        "actual": 86.3,
+        "forecast": 84.2,
+        "previous": 84.3,
+        "surprise": 2.1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158492",
+        "actual": 80,
+        "forecast": 75.3,
+        "previous": 75.6,
+        "surprise": 4.7
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1669305600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 96,
+      "timestamp": 1671453000,
+      "timestampServerText": "2022.12.19 12:30:00",
+      "brokerDateTime": "2022-12-19 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158515",
+        "actual": 88.6,
+        "forecast": 85.2,
+        "previous": 86.3,
+        "surprise": 3.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158493",
+        "actual": 83.2,
+        "forecast": 77.7,
+        "previous": 80,
+        "surprise": 5.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1671465600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    }
+  ],
+  "allPackages": [
+    {
+      "packageIndex": 1,
+      "timestamp": 1422273600,
+      "timestampServerText": "2015.01.26 12:00:00",
+      "brokerDateTime": "2015-01-26 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75366",
+        "actual": 106.7,
+        "forecast": null,
+        "previous": 105.5,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75225",
+        "actual": 102,
+        "forecast": null,
+        "previous": 101.3,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1422288000,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 2,
+      "timestamp": 1424692800,
+      "timestampServerText": "2015.02.23 12:00:00",
+      "brokerDateTime": "2015-02-23 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75367",
+        "actual": 106.8,
+        "forecast": null,
+        "previous": 106.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75226",
+        "actual": 102.5,
+        "forecast": null,
+        "previous": 102,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1424707200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 3,
+      "timestamp": 1427284800,
+      "timestampServerText": "2015.03.25 12:00:00",
+      "brokerDateTime": "2015-03-25 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75368",
+        "actual": 107.9,
+        "forecast": null,
+        "previous": 106.8,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75227",
+        "actual": 103.9,
+        "forecast": null,
+        "previous": 102.5,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1427299200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 4,
+      "timestamp": 1429873200,
+      "timestampServerText": "2015.04.24 11:00:00",
+      "brokerDateTime": "2015-04-24 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75369",
+        "actual": 108.6,
+        "forecast": null,
+        "previous": 107.9,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75228",
+        "actual": 103.5,
+        "forecast": null,
+        "previous": 103.9,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1429876800,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "CHF",
+          "EUR"
+        ]
+      }
+    },
+    {
+      "packageIndex": 5,
+      "timestamp": 1432292400,
+      "timestampServerText": "2015.05.22 11:00:00",
+      "brokerDateTime": "2015-05-22 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75370",
+        "actual": 108.5,
+        "forecast": null,
+        "previous": 108.6,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75229",
+        "actual": 103,
+        "forecast": null,
+        "previous": 103.5,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1432296000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 6,
+      "timestamp": 1435143600,
+      "timestampServerText": "2015.06.24 11:00:00",
+      "brokerDateTime": "2015-06-24 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75371",
+        "actual": 107.4,
+        "forecast": null,
+        "previous": 108.5,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75230",
+        "actual": 102,
+        "forecast": null,
+        "previous": 103,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1435147200,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 7,
+      "timestamp": 1437994800,
+      "timestampServerText": "2015.07.27 11:00:00",
+      "brokerDateTime": "2015-07-27 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75372",
+        "actual": 108,
+        "forecast": null,
+        "previous": 107.4,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75231",
+        "actual": 102.4,
+        "forecast": null,
+        "previous": 102,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1437998400,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 8,
+      "timestamp": 1440500400,
+      "timestampServerText": "2015.08.25 11:00:00",
+      "brokerDateTime": "2015-08-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75373",
+        "actual": 108.3,
+        "forecast": null,
+        "previous": 108,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75232",
+        "actual": 102.2,
+        "forecast": null,
+        "previous": 102.4,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1440504000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 9,
+      "timestamp": 1443092400,
+      "timestampServerText": "2015.09.24 11:00:00",
+      "brokerDateTime": "2015-09-24 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75374",
+        "actual": 108.5,
+        "forecast": null,
+        "previous": 108.3,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75233",
+        "actual": 103.3,
+        "forecast": null,
+        "previous": 102.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1443096000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 10,
+      "timestamp": 1445860800,
+      "timestampServerText": "2015.10.26 12:00:00",
+      "brokerDateTime": "2015-10-26 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75375",
+        "actual": 108.2,
+        "forecast": null,
+        "previous": 108.5,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75234",
+        "actual": 103.8,
+        "forecast": null,
+        "previous": 103.3,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1445875200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 11,
+      "timestamp": 1448366400,
+      "timestampServerText": "2015.11.24 12:00:00",
+      "brokerDateTime": "2015-11-24 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75376",
+        "actual": 109,
+        "forecast": null,
+        "previous": 108.2,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75235",
+        "actual": 104.7,
+        "forecast": null,
+        "previous": 103.8,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1448380800,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 12,
+      "timestamp": 1450353600,
+      "timestampServerText": "2015.12.17 12:00:00",
+      "brokerDateTime": "2015-12-17 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75377",
+        "actual": 108.7,
+        "forecast": null,
+        "previous": 109,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75236",
+        "actual": 104.7,
+        "forecast": null,
+        "previous": 104.7,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1450368000,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 13,
+      "timestamp": 1453723200,
+      "timestampServerText": "2016.01.25 12:00:00",
+      "brokerDateTime": "2016-01-25 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75378",
+        "actual": 107.3,
+        "forecast": null,
+        "previous": 108.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75237",
+        "actual": 102.4,
+        "forecast": null,
+        "previous": 104.7,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1453737600,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 14,
+      "timestamp": 1456228800,
+      "timestampServerText": "2016.02.23 12:00:00",
+      "brokerDateTime": "2016-02-23 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75379",
+        "actual": 105.7,
+        "forecast": null,
+        "previous": 107.3,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75238",
+        "actual": 98.8,
+        "forecast": null,
+        "previous": 102.4,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1456243200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 15,
+      "timestamp": 1458648000,
+      "timestampServerText": "2016.03.22 12:00:00",
+      "brokerDateTime": "2016-03-22 12:00:00",
+      "disposition": "PATH_INELIGIBLE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75380",
+        "actual": 106.7,
+        "forecast": null,
+        "previous": 105.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75239",
+        "actual": 100,
+        "forecast": null,
+        "previous": 98.8,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": false,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1458662400,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 16,
+      "timestamp": 1461582000,
+      "timestampServerText": "2016.04.25 11:00:00",
+      "brokerDateTime": "2016-04-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75381",
+        "actual": 106.6,
+        "forecast": null,
+        "previous": 106.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75240",
+        "actual": 100.4,
+        "forecast": null,
+        "previous": 100,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1461585600,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 17,
+      "timestamp": 1464174000,
+      "timestampServerText": "2016.05.25 11:00:00",
+      "brokerDateTime": "2016-05-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75382",
+        "actual": 107.7,
+        "forecast": null,
+        "previous": 106.6,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75241",
+        "actual": 101.6,
+        "forecast": null,
+        "previous": 100.4,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1464177600,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 18,
+      "timestamp": 1466766000,
+      "timestampServerText": "2016.06.24 11:00:00",
+      "brokerDateTime": "2016-06-24 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75383",
+        "actual": 108.7,
+        "forecast": null,
+        "previous": 107.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75242",
+        "actual": 103.1,
+        "forecast": null,
+        "previous": 101.6,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1466769600,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 19,
+      "timestamp": 1469444400,
+      "timestampServerText": "2016.07.25 11:00:00",
+      "brokerDateTime": "2016-07-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75384",
+        "actual": 108.3,
+        "forecast": null,
+        "previous": 108.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75243",
+        "actual": 102.2,
+        "forecast": null,
+        "previous": 103.1,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1469448000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 20,
+      "timestamp": 1472122800,
+      "timestampServerText": "2016.08.25 11:00:00",
+      "brokerDateTime": "2016-08-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75385",
+        "actual": 106.2,
+        "forecast": null,
+        "previous": 108.3,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75244",
+        "actual": 100.1,
+        "forecast": null,
+        "previous": 102.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1472126400,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 21,
+      "timestamp": 1474887600,
+      "timestampServerText": "2016.09.26 11:00:00",
+      "brokerDateTime": "2016-09-26 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75386",
+        "actual": 109.5,
+        "forecast": null,
+        "previous": 106.2,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75245",
+        "actual": 104.5,
+        "forecast": null,
+        "previous": 100.1,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1474891200,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 22,
+      "timestamp": 1477393200,
+      "timestampServerText": "2016.10.25 11:00:00",
+      "brokerDateTime": "2016-10-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75387",
+        "actual": 110.5,
+        "forecast": null,
+        "previous": 109.5,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75246",
+        "actual": 106.1,
+        "forecast": null,
+        "previous": 104.5,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1477396800,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 23,
+      "timestamp": 1479988800,
+      "timestampServerText": "2016.11.24 12:00:00",
+      "brokerDateTime": "2016-11-24 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75388",
+        "actual": 110.4,
+        "forecast": null,
+        "previous": 110.5,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75247",
+        "actual": 105.5,
+        "forecast": null,
+        "previous": 106.1,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1480003200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 24,
+      "timestamp": 1482148800,
+      "timestampServerText": "2016.12.19 12:00:00",
+      "brokerDateTime": "2016-12-19 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75389",
+        "actual": 111,
+        "forecast": null,
+        "previous": 110.4,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75248",
+        "actual": 105.6,
+        "forecast": null,
+        "previous": 105.5,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1482163200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 25,
+      "timestamp": 1485345600,
+      "timestampServerText": "2017.01.25 12:00:00",
+      "brokerDateTime": "2017-01-25 12:00:00",
+      "disposition": "PATH_INELIGIBLE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75390",
+        "actual": 109.8,
+        "forecast": null,
+        "previous": 111,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75249",
+        "actual": 103.2,
+        "forecast": null,
+        "previous": 105.6,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": false,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1485360000,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "CHF",
+          "EUR"
+        ]
+      }
+    },
+    {
+      "packageIndex": 26,
+      "timestamp": 1487764800,
+      "timestampServerText": "2017.02.22 12:00:00",
+      "brokerDateTime": "2017-02-22 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75391",
+        "actual": 111,
+        "forecast": null,
+        "previous": 109.8,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75250",
+        "actual": 104,
+        "forecast": null,
+        "previous": 103.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1487779200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "CHF",
+          "EUR"
+        ]
+      }
+    },
+    {
+      "packageIndex": 27,
+      "timestamp": 1490612400,
+      "timestampServerText": "2017.03.27 11:00:00",
+      "brokerDateTime": "2017-03-27 11:00:00",
+      "disposition": "PATH_INELIGIBLE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75392",
+        "actual": 112.3,
+        "forecast": null,
+        "previous": 111,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75251",
+        "actual": 105.7,
+        "forecast": null,
+        "previous": 104,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": false,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1490616000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 28,
+      "timestamp": 1493031600,
+      "timestampServerText": "2017.04.24 11:00:00",
+      "brokerDateTime": "2017-04-24 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75393",
+        "actual": 112.9,
+        "forecast": null,
+        "previous": 112.3,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75252",
+        "actual": 105.2,
+        "forecast": null,
+        "previous": 105.7,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1493035200,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 29,
+      "timestamp": 1495537200,
+      "timestampServerText": "2017.05.23 11:00:00",
+      "brokerDateTime": "2017-05-23 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75394",
+        "actual": 114.6,
+        "forecast": null,
+        "previous": 112.9,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75253",
+        "actual": 106.5,
+        "forecast": null,
+        "previous": 105.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1495540800,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 30,
+      "timestamp": 1498474800,
+      "timestampServerText": "2017.06.26 11:00:00",
+      "brokerDateTime": "2017-06-26 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75395",
+        "actual": 115.1,
+        "forecast": null,
+        "previous": 114.6,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75254",
+        "actual": 106.8,
+        "forecast": null,
+        "previous": 106.5,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1498478400,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 31,
+      "timestamp": 1500980400,
+      "timestampServerText": "2017.07.25 11:00:00",
+      "brokerDateTime": "2017-07-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75396",
+        "actual": 116,
+        "forecast": null,
+        "previous": 115.1,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75255",
+        "actual": 107.3,
+        "forecast": null,
+        "previous": 106.8,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1500984000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 32,
+      "timestamp": 1503658800,
+      "timestampServerText": "2017.08.25 11:00:00",
+      "brokerDateTime": "2017-08-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75397",
+        "actual": 115.9,
+        "forecast": null,
+        "previous": 116,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75256",
+        "actual": 107.9,
+        "forecast": null,
+        "previous": 107.3,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1503662400,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 33,
+      "timestamp": 1506337200,
+      "timestampServerText": "2017.09.25 11:00:00",
+      "brokerDateTime": "2017-09-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75398",
+        "actual": 115.2,
+        "forecast": null,
+        "previous": 115.9,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75257",
+        "actual": 107.4,
+        "forecast": null,
+        "previous": 107.9,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1506340800,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 34,
+      "timestamp": 1508929200,
+      "timestampServerText": "2017.10.25 11:00:00",
+      "brokerDateTime": "2017-10-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75399",
+        "actual": 116.7,
+        "forecast": null,
+        "previous": 115.2,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75258",
+        "actual": 109.1,
+        "forecast": null,
+        "previous": 107.4,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1508932800,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "CHF",
+          "EUR"
+        ]
+      }
+    },
+    {
+      "packageIndex": 35,
+      "timestamp": 1511524800,
+      "timestampServerText": "2017.11.24 12:00:00",
+      "brokerDateTime": "2017-11-24 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75400",
+        "actual": 117.5,
+        "forecast": null,
+        "previous": 116.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75259",
+        "actual": 111,
+        "forecast": null,
+        "previous": 109.1,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1511539200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 36,
+      "timestamp": 1513684800,
+      "timestampServerText": "2017.12.19 12:00:00",
+      "brokerDateTime": "2017-12-19 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75401",
+        "actual": 117.2,
+        "forecast": null,
+        "previous": 117.5,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75260",
+        "actual": 109.5,
+        "forecast": null,
+        "previous": 111,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1513699200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 37,
+      "timestamp": 1516881600,
+      "timestampServerText": "2018.01.25 12:00:00",
+      "brokerDateTime": "2018-01-25 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75402",
+        "actual": 117.6,
+        "forecast": null,
+        "previous": 117.2,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75261",
+        "actual": 108.4,
+        "forecast": null,
+        "previous": 109.5,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1516896000,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 38,
+      "timestamp": 1519300800,
+      "timestampServerText": "2018.02.22 12:00:00",
+      "brokerDateTime": "2018-02-22 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75403",
+        "actual": 115.4,
+        "forecast": null,
+        "previous": 117.6,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75262",
+        "actual": 105.4,
+        "forecast": null,
+        "previous": 108.4,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1519315200,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 39,
+      "timestamp": 1521720000,
+      "timestampServerText": "2018.03.22 12:00:00",
+      "brokerDateTime": "2018-03-22 12:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75404",
+        "actual": 114.7,
+        "forecast": null,
+        "previous": 115.4,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75263",
+        "actual": 104.4,
+        "forecast": null,
+        "previous": 105.4,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1521734400,
+        "entryDelayMinutes": 240,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 40,
+      "timestamp": 1524567600,
+      "timestampServerText": "2018.04.24 11:00:00",
+      "brokerDateTime": "2018-04-24 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75405",
+        "actual": 102.1,
+        "forecast": null,
+        "previous": 114.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75264",
+        "actual": 98.7,
+        "forecast": null,
+        "previous": 104.4,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1524571200,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 41,
+      "timestamp": 1527246000,
+      "timestampServerText": "2018.05.25 11:00:00",
+      "brokerDateTime": "2018-05-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75406",
+        "actual": 102.2,
+        "forecast": null,
+        "previous": 102.1,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75265",
+        "actual": 98.5,
+        "forecast": null,
+        "previous": 98.7,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1527249600,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 42,
+      "timestamp": 1529924400,
+      "timestampServerText": "2018.06.25 11:00:00",
+      "brokerDateTime": "2018-06-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75407",
+        "actual": 101.8,
+        "forecast": null,
+        "previous": 102.2,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75266",
+        "actual": 98.6,
+        "forecast": null,
+        "previous": 98.5,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1529928000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 43,
+      "timestamp": 1532516400,
+      "timestampServerText": "2018.07.25 11:00:00",
+      "brokerDateTime": "2018-07-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75408",
+        "actual": 101.7,
+        "forecast": null,
+        "previous": 101.8,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75267",
+        "actual": 98.2,
+        "forecast": null,
+        "previous": 98.6,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1532520000,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "CHF",
+          "EUR"
+        ]
+      }
+    },
+    {
+      "packageIndex": 44,
+      "timestamp": 1535367600,
+      "timestampServerText": "2018.08.27 11:00:00",
+      "brokerDateTime": "2018-08-27 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75409",
+        "actual": 103.8,
+        "forecast": null,
+        "previous": 101.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75268",
+        "actual": 101.2,
+        "forecast": null,
+        "previous": 98.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1535371200,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 45,
+      "timestamp": 1537786800,
+      "timestampServerText": "2018.09.24 11:00:00",
+      "brokerDateTime": "2018-09-24 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75410",
+        "actual": 103.7,
+        "forecast": null,
+        "previous": 103.8,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75269",
+        "actual": 101,
+        "forecast": null,
+        "previous": 101.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1537790400,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 46,
+      "timestamp": 1540465200,
+      "timestampServerText": "2018.10.25 11:00:00",
+      "brokerDateTime": "2018-10-25 11:00:00",
+      "disposition": "MISSING_CONSENSUS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75411",
+        "actual": 102.8,
+        "forecast": null,
+        "previous": 103.7,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75270",
+        "actual": 99.8,
+        "forecast": null,
+        "previous": 101,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1540468800,
+        "entryDelayMinutes": 60,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 47,
+      "timestamp": 1543235400,
+      "timestampServerText": "2018.11.26 12:30:00",
+      "brokerDateTime": "2018-11-26 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75757",
+        "actual": 102,
+        "forecast": 103.2,
+        "previous": 102.8,
+        "surprise": -1.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75755",
+        "actual": 98.7,
+        "forecast": 100.4,
+        "previous": 99.8,
+        "surprise": -1.7
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1543248000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 48,
+      "timestamp": 1545136200,
+      "timestampServerText": "2018.12.18 12:30:00",
+      "brokerDateTime": "2018-12-18 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75760",
+        "actual": 101,
+        "forecast": 102.3,
+        "previous": 102,
+        "surprise": -1.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75758",
+        "actual": 97.3,
+        "forecast": 99.3,
+        "previous": 98.7,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1545148800,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 49,
+      "timestamp": 1548419400,
+      "timestampServerText": "2019.01.25 12:30:00",
+      "brokerDateTime": "2019-01-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75763",
+        "actual": 99.1,
+        "forecast": 101.4,
+        "previous": 101,
+        "surprise": -2.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75761",
+        "actual": 94.2,
+        "forecast": 98,
+        "previous": 97.3,
+        "surprise": -3.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1548432000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 50,
+      "timestamp": 1550838600,
+      "timestampServerText": "2019.02.22 12:30:00",
+      "brokerDateTime": "2019-02-22 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75766",
+        "actual": 98.5,
+        "forecast": 100,
+        "previous": 99.1,
+        "surprise": -1.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75764",
+        "actual": 93.8,
+        "forecast": 95.7,
+        "previous": 94.2,
+        "surprise": -1.9
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1550851200,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 51,
+      "timestamp": 1553517000,
+      "timestampServerText": "2019.03.25 12:30:00",
+      "brokerDateTime": "2019-03-25 12:30:00",
+      "disposition": "PATH_INELIGIBLE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75769",
+        "actual": 99.6,
+        "forecast": 98.7,
+        "previous": 98.5,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75767",
+        "actual": 95.6,
+        "forecast": 94,
+        "previous": 93.8,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": false,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1553529600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 52,
+      "timestamp": 1556105400,
+      "timestampServerText": "2019.04.24 11:30:00",
+      "brokerDateTime": "2019-04-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75772",
+        "actual": 99.2,
+        "forecast": 99,
+        "previous": 99.6,
+        "surprise": 0.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75770",
+        "actual": 95.2,
+        "forecast": 94.7,
+        "previous": 95.6,
+        "surprise": 0.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1556107200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 53,
+      "timestamp": 1558611000,
+      "timestampServerText": "2019.05.23 11:30:00",
+      "brokerDateTime": "2019-05-23 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75933",
+        "actual": 97.9,
+        "forecast": 99.3,
+        "previous": 99.2,
+        "surprise": -1.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75931",
+        "actual": 95.3,
+        "forecast": 95.4,
+        "previous": 95.2,
+        "surprise": -0.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1558612800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 54,
+      "timestamp": 1561375800,
+      "timestampServerText": "2019.06.24 11:30:00",
+      "brokerDateTime": "2019-06-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75936",
+        "actual": 97.4,
+        "forecast": 99.3,
+        "previous": 97.9,
+        "surprise": -1.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75934",
+        "actual": 94.2,
+        "forecast": 95.4,
+        "previous": 95.3,
+        "surprise": -1.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1561377600,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 55,
+      "timestamp": 1564054200,
+      "timestampServerText": "2019.07.25 11:30:00",
+      "brokerDateTime": "2019-07-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75939",
+        "actual": 95.7,
+        "forecast": 96.7,
+        "previous": 97.4,
+        "surprise": -1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75937",
+        "actual": 92.2,
+        "forecast": 95.2,
+        "previous": 94.2,
+        "surprise": -3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1564056000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 56,
+      "timestamp": 1566819000,
+      "timestampServerText": "2019.08.26 11:30:00",
+      "brokerDateTime": "2019-08-26 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75942",
+        "actual": 94.3,
+        "forecast": 95.7,
+        "previous": 95.7,
+        "surprise": -1.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75940",
+        "actual": 91.3,
+        "forecast": 94.7,
+        "previous": 92.2,
+        "surprise": -3.4
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1566820800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 57,
+      "timestamp": 1569324600,
+      "timestampServerText": "2019.09.24 11:30:00",
+      "brokerDateTime": "2019-09-24 11:30:00",
+      "disposition": "NEUTRAL_CLIMATE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75945",
+        "actual": 94.6,
+        "forecast": 94.6,
+        "previous": 94.3,
+        "surprise": 0
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75943",
+        "actual": 90.8,
+        "forecast": 93.1,
+        "previous": 91.3,
+        "surprise": -2.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1569326400,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 58,
+      "timestamp": 1572003000,
+      "timestampServerText": "2019.10.25 11:30:00",
+      "brokerDateTime": "2019-10-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75948",
+        "actual": 94.6,
+        "forecast": 93.1,
+        "previous": 94.6,
+        "surprise": 1.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75946",
+        "actual": 91.5,
+        "forecast": 91,
+        "previous": 90.8,
+        "surprise": 0.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1572004800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 59,
+      "timestamp": 1574685000,
+      "timestampServerText": "2019.11.25 12:30:00",
+      "brokerDateTime": "2019-11-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75951",
+        "actual": 95,
+        "forecast": 93.3,
+        "previous": 94.6,
+        "surprise": 1.7
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75949",
+        "actual": 92.1,
+        "forecast": 91.1,
+        "previous": 91.5,
+        "surprise": 1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1574697600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 60,
+      "timestamp": 1576672200,
+      "timestampServerText": "2019.12.18 12:30:00",
+      "brokerDateTime": "2019-12-18 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "75954",
+        "actual": 96.3,
+        "forecast": 94.3,
+        "previous": 95,
+        "surprise": 2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "75952",
+        "actual": 93.8,
+        "forecast": 91.7,
+        "previous": 92.1,
+        "surprise": 2.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1576684800,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": true,
+        "collidingCurrencies": [
+          "EUR",
+          "GBP"
+        ]
+      }
+    },
+    {
+      "packageIndex": 61,
+      "timestamp": 1580128200,
+      "timestampServerText": "2020.01.27 12:30:00",
+      "brokerDateTime": "2020-01-27 12:30:00",
+      "disposition": "NEUTRAL_EXPECTATIONS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112149",
+        "actual": 95.9,
+        "forecast": 95.6,
+        "previous": 96.3,
+        "surprise": 0.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112150",
+        "actual": 92.9,
+        "forecast": 92.9,
+        "previous": 93.8,
+        "surprise": 0
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1580140800,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 62,
+      "timestamp": 1582547400,
+      "timestampServerText": "2020.02.24 12:30:00",
+      "brokerDateTime": "2020-02-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112152",
+        "actual": 96.1,
+        "forecast": 96,
+        "previous": 95.9,
+        "surprise": 0.1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112153",
+        "actual": 93.4,
+        "forecast": 93.3,
+        "previous": 92.9,
+        "surprise": 0.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1582560000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 63,
+      "timestamp": 1585139400,
+      "timestampServerText": "2020.03.25 12:30:00",
+      "brokerDateTime": "2020-03-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112155",
+        "actual": 86.1,
+        "forecast": 95.9,
+        "previous": 96.1,
+        "surprise": -9.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112156",
+        "actual": 79.7,
+        "forecast": 93.1,
+        "previous": 93.4,
+        "surprise": -13.4
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1585152000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 64,
+      "timestamp": 1587727800,
+      "timestampServerText": "2020.04.24 11:30:00",
+      "brokerDateTime": "2020-04-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112158",
+        "actual": 74.3,
+        "forecast": 90.9,
+        "previous": 86.1,
+        "surprise": -16.6
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112159",
+        "actual": 69.4,
+        "forecast": 86.4,
+        "previous": 79.7,
+        "surprise": -17
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1587729600,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 65,
+      "timestamp": 1590406200,
+      "timestampServerText": "2020.05.25 11:30:00",
+      "brokerDateTime": "2020-05-25 11:30:00",
+      "disposition": "CONFLICTING_EXPECTATIONS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112161",
+        "actual": 79.5,
+        "forecast": 80,
+        "previous": 74.3,
+        "surprise": -0.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112162",
+        "actual": 80.1,
+        "forecast": 74.4,
+        "previous": 69.4,
+        "surprise": 5.7
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1590408000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 66,
+      "timestamp": 1592998200,
+      "timestampServerText": "2020.06.24 11:30:00",
+      "brokerDateTime": "2020-06-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112164",
+        "actual": 86.2,
+        "forecast": 76.7,
+        "previous": 79.5,
+        "surprise": 9.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112165",
+        "actual": 91.4,
+        "forecast": 68.5,
+        "previous": 80.1,
+        "surprise": 22.9
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1593000000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 67,
+      "timestamp": 1595849400,
+      "timestampServerText": "2020.07.27 11:30:00",
+      "brokerDateTime": "2020-07-27 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112167",
+        "actual": 90.5,
+        "forecast": 82.7,
+        "previous": 86.2,
+        "surprise": 7.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112168",
+        "actual": 97,
+        "forecast": 85.8,
+        "previous": 91.4,
+        "surprise": 11.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1595851200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 68,
+      "timestamp": 1598355000,
+      "timestampServerText": "2020.08.25 11:30:00",
+      "brokerDateTime": "2020-08-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112170",
+        "actual": 92.6,
+        "forecast": 88.2,
+        "previous": 90.5,
+        "surprise": 4.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112171",
+        "actual": 97.5,
+        "forecast": 94.2,
+        "previous": 97,
+        "surprise": 3.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1598356800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 69,
+      "timestamp": 1600947000,
+      "timestampServerText": "2020.09.24 11:30:00",
+      "brokerDateTime": "2020-09-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112173",
+        "actual": 93.4,
+        "forecast": 91.4,
+        "previous": 92.6,
+        "surprise": 2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112174",
+        "actual": 97.7,
+        "forecast": 97.2,
+        "previous": 97.5,
+        "surprise": 0.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1600948800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 70,
+      "timestamp": 1603715400,
+      "timestampServerText": "2020.10.26 12:30:00",
+      "brokerDateTime": "2020-10-26 12:30:00",
+      "disposition": "PATH_INELIGIBLE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112176",
+        "actual": 92.7,
+        "forecast": 92.9,
+        "previous": 93.4,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112177",
+        "actual": 95,
+        "forecast": 97.6,
+        "previous": 97.7,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": false,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1603728000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 71,
+      "timestamp": 1606221000,
+      "timestampServerText": "2020.11.24 12:30:00",
+      "brokerDateTime": "2020-11-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112179",
+        "actual": 90.7,
+        "forecast": 92.9,
+        "previous": 92.7,
+        "surprise": -2.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112180",
+        "actual": 91.5,
+        "forecast": 96.3,
+        "previous": 95,
+        "surprise": -4.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1606233600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 72,
+      "timestamp": 1608294600,
+      "timestampServerText": "2020.12.18 12:30:00",
+      "brokerDateTime": "2020-12-18 12:30:00",
+      "disposition": "CONFLICTING_EXPECTATIONS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "112182",
+        "actual": 92.1,
+        "forecast": 91.6,
+        "previous": 90.7,
+        "surprise": 0.5
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "112183",
+        "actual": 92.8,
+        "forecast": 93.2,
+        "previous": 91.5,
+        "surprise": -0.4
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1608307200,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 73,
+      "timestamp": 1611577800,
+      "timestampServerText": "2021.01.25 12:30:00",
+      "brokerDateTime": "2021-01-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142892",
+        "actual": 90.1,
+        "forecast": 91.3,
+        "previous": 92.1,
+        "surprise": -1.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142866",
+        "actual": 91.1,
+        "forecast": 92.1,
+        "previous": 92.8,
+        "surprise": -1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1611590400,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 74,
+      "timestamp": 1613997000,
+      "timestampServerText": "2021.02.22 12:30:00",
+      "brokerDateTime": "2021-02-22 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142893",
+        "actual": 92.4,
+        "forecast": 91,
+        "previous": 90.1,
+        "surprise": 1.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142867",
+        "actual": 94.2,
+        "forecast": 91.9,
+        "previous": 91.1,
+        "surprise": 2.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1614009600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 75,
+      "timestamp": 1616761800,
+      "timestampServerText": "2021.03.26 12:30:00",
+      "brokerDateTime": "2021-03-26 12:30:00",
+      "disposition": "PATH_INELIGIBLE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142894",
+        "actual": 96.6,
+        "forecast": 91.1,
+        "previous": 92.4,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142868",
+        "actual": 100.4,
+        "forecast": 92.6,
+        "previous": 94.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": false,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1616774400,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 76,
+      "timestamp": 1619436600,
+      "timestampServerText": "2021.04.26 11:30:00",
+      "brokerDateTime": "2021-04-26 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142895",
+        "actual": 96.8,
+        "forecast": 94.4,
+        "previous": 96.6,
+        "surprise": 2.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142869",
+        "actual": 99.5,
+        "forecast": 97.3,
+        "previous": 100.4,
+        "surprise": 2.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1619438400,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 77,
+      "timestamp": 1621942200,
+      "timestampServerText": "2021.05.25 11:30:00",
+      "brokerDateTime": "2021-05-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142896",
+        "actual": 99.2,
+        "forecast": 96.6,
+        "previous": 96.8,
+        "surprise": 2.6
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142870",
+        "actual": 102.9,
+        "forecast": 100,
+        "previous": 99.5,
+        "surprise": 2.9
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1621944000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 78,
+      "timestamp": 1624534200,
+      "timestampServerText": "2021.06.24 11:30:00",
+      "brokerDateTime": "2021-06-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142897",
+        "actual": 101.8,
+        "forecast": 97.9,
+        "previous": 99.2,
+        "surprise": 3.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142871",
+        "actual": 104,
+        "forecast": 101.2,
+        "previous": 102.9,
+        "surprise": 2.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1624536000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 79,
+      "timestamp": 1627299000,
+      "timestampServerText": "2021.07.26 11:30:00",
+      "brokerDateTime": "2021-07-26 11:30:00",
+      "disposition": "CONFLICTING_EXPECTATIONS",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142898",
+        "actual": 100.8,
+        "forecast": 100.5,
+        "previous": 101.8,
+        "surprise": 0.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142872",
+        "actual": 101.2,
+        "forecast": 103.5,
+        "previous": 104,
+        "surprise": -2.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1627300800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 80,
+      "timestamp": 1629891000,
+      "timestampServerText": "2021.08.25 11:30:00",
+      "brokerDateTime": "2021-08-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142899",
+        "actual": 99.4,
+        "forecast": 101.2,
+        "previous": 100.8,
+        "surprise": -1.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142873",
+        "actual": 97.5,
+        "forecast": 102.6,
+        "previous": 101.2,
+        "surprise": -5.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1629892800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 81,
+      "timestamp": 1632483000,
+      "timestampServerText": "2021.09.24 11:30:00",
+      "brokerDateTime": "2021-09-24 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142900",
+        "actual": 98.8,
+        "forecast": 100,
+        "previous": 99.4,
+        "surprise": -1.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142874",
+        "actual": 97.3,
+        "forecast": 99.3,
+        "previous": 97.5,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1632484800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 82,
+      "timestamp": 1635161400,
+      "timestampServerText": "2021.10.25 11:30:00",
+      "brokerDateTime": "2021-10-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142901",
+        "actual": 97.7,
+        "forecast": 99,
+        "previous": 98.8,
+        "surprise": -1.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142875",
+        "actual": 95.4,
+        "forecast": 97.4,
+        "previous": 97.3,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1635163200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 83,
+      "timestamp": 1637757000,
+      "timestampServerText": "2021.11.24 12:30:00",
+      "brokerDateTime": "2021-11-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142902",
+        "actual": 96.5,
+        "forecast": 98.2,
+        "previous": 97.7,
+        "surprise": -1.7
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142876",
+        "actual": 94.2,
+        "forecast": 96.3,
+        "previous": 95.4,
+        "surprise": -2.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1637769600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Wed"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 84,
+      "timestamp": 1639744200,
+      "timestampServerText": "2021.12.17 12:30:00",
+      "brokerDateTime": "2021-12-17 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "142903",
+        "actual": 94.7,
+        "forecast": 97,
+        "previous": 96.5,
+        "surprise": -2.3
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "142877",
+        "actual": 92.6,
+        "forecast": 94.8,
+        "previous": 94.2,
+        "surprise": -2.2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1639756800,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 85,
+      "timestamp": 1643113800,
+      "timestampServerText": "2022.01.25 12:30:00",
+      "brokerDateTime": "2022-01-25 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158505",
+        "actual": 95.7,
+        "forecast": 95.5,
+        "previous": 94.7,
+        "surprise": 0.2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158483",
+        "actual": 95.2,
+        "forecast": 93.4,
+        "previous": 92.6,
+        "surprise": 1.8
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1643126400,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 86,
+      "timestamp": 1645533000,
+      "timestampServerText": "2022.02.22 12:30:00",
+      "brokerDateTime": "2022-02-22 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "159271",
+        "actual": 98.9,
+        "forecast": 95.1,
+        "previous": 95.7,
+        "surprise": 3.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "159267",
+        "actual": 99.2,
+        "forecast": 93.9,
+        "previous": 95.2,
+        "surprise": 5.3
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1645545600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 87,
+      "timestamp": 1648211400,
+      "timestampServerText": "2022.03.25 12:30:00",
+      "brokerDateTime": "2022-03-25 12:30:00",
+      "disposition": "PATH_INELIGIBLE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "159272",
+        "actual": 90.8,
+        "forecast": 97.2,
+        "previous": 98.9,
+        "surprise": null
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "159268",
+        "actual": 85.1,
+        "forecast": 97.2,
+        "previous": 99.2,
+        "surprise": null
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": false,
+        "pathEligible12H4": false,
+        "entryTimestamp": 1648224000,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 88,
+      "timestamp": 1650886200,
+      "timestampServerText": "2022.04.25 11:30:00",
+      "brokerDateTime": "2022-04-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158507",
+        "actual": 91.8,
+        "forecast": 94.7,
+        "previous": 90.8,
+        "surprise": -2.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158485",
+        "actual": 86.7,
+        "forecast": 92.1,
+        "previous": 85.1,
+        "surprise": -5.4
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1650888000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 89,
+      "timestamp": 1653305400,
+      "timestampServerText": "2022.05.23 11:30:00",
+      "brokerDateTime": "2022-05-23 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158508",
+        "actual": 93,
+        "forecast": 91.2,
+        "previous": 91.8,
+        "surprise": 1.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158486",
+        "actual": 86.9,
+        "forecast": 85.8,
+        "previous": 86.7,
+        "surprise": 1.1
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1653307200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 90,
+      "timestamp": 1656070200,
+      "timestampServerText": "2022.06.24 11:30:00",
+      "brokerDateTime": "2022-06-24 11:30:00",
+      "disposition": "NEUTRAL_CLIMATE",
+      "isActionable": false,
+      "actionableDirection": null,
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158509",
+        "actual": 92.3,
+        "forecast": 92.3,
+        "previous": 93,
+        "surprise": 0
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158487",
+        "actual": 85.8,
+        "forecast": 86.7,
+        "previous": 86.9,
+        "surprise": -0.9
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1656072000,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Fri"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 91,
+      "timestamp": 1658748600,
+      "timestampServerText": "2022.07.25 11:30:00",
+      "brokerDateTime": "2022-07-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158510",
+        "actual": 88.6,
+        "forecast": 92.5,
+        "previous": 92.3,
+        "surprise": -3.9
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158488",
+        "actual": 80.3,
+        "forecast": 86.3,
+        "previous": 85.8,
+        "surprise": -6
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1658750400,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 92,
+      "timestamp": 1661427000,
+      "timestampServerText": "2022.08.25 11:30:00",
+      "brokerDateTime": "2022-08-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158511",
+        "actual": 88.5,
+        "forecast": 90.3,
+        "previous": 88.6,
+        "surprise": -1.8
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158489",
+        "actual": 80.3,
+        "forecast": 86.3,
+        "previous": 80.3,
+        "surprise": -6
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1661428800,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 93,
+      "timestamp": 1664191800,
+      "timestampServerText": "2022.09.26 11:30:00",
+      "brokerDateTime": "2022-09-26 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158512",
+        "actual": 84.3,
+        "forecast": 88.4,
+        "previous": 88.5,
+        "surprise": -4.1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158490",
+        "actual": 75.2,
+        "forecast": 80.2,
+        "previous": 80.3,
+        "surprise": -5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1664193600,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 94,
+      "timestamp": 1666697400,
+      "timestampServerText": "2022.10.25 11:30:00",
+      "brokerDateTime": "2022-10-25 11:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "SHORT",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158513",
+        "actual": 84.3,
+        "forecast": 86.3,
+        "previous": 84.3,
+        "surprise": -2
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158491",
+        "actual": 75.6,
+        "forecast": 77.6,
+        "previous": 75.2,
+        "surprise": -2
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1666699200,
+        "entryDelayMinutes": 30,
+        "entryBrokerHour": "12:00:00",
+        "weekday": "Tue"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 95,
+      "timestamp": 1669293000,
+      "timestampServerText": "2022.11.24 12:30:00",
+      "brokerDateTime": "2022-11-24 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158514",
+        "actual": 86.3,
+        "forecast": 84.2,
+        "previous": 84.3,
+        "surprise": 2.1
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158492",
+        "actual": 80,
+        "forecast": 75.3,
+        "previous": 75.6,
+        "surprise": 4.7
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1669305600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Thu"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    },
+    {
+      "packageIndex": 96,
+      "timestamp": 1671453000,
+      "timestampServerText": "2022.12.19 12:30:00",
+      "brokerDateTime": "2022-12-19 12:30:00",
+      "disposition": "ACTIONABLE_STRICT_AGREEMENT",
+      "isActionable": true,
+      "actionableDirection": "LONG",
+      "climate": {
+        "eventId": "276030003",
+        "valueId": "158515",
+        "actual": 88.6,
+        "forecast": 85.2,
+        "previous": 86.3,
+        "surprise": 3.4
+      },
+      "expectations": {
+        "eventId": "276030001",
+        "valueId": "158493",
+        "actual": 83.2,
+        "forecast": 77.7,
+        "previous": 80,
+        "surprise": 5.5
+      },
+      "pairCoverage": {
+        "pair": "EURUSD",
+        "pathEligible6H4": true,
+        "pathEligible12H4": true,
+        "entryTimestamp": 1671465600,
+        "entryDelayMinutes": 210,
+        "entryBrokerHour": "16:00:00",
+        "weekday": "Mon"
+      },
+      "collision": {
+        "hasCrossCurrencyCollision": false,
+        "collidingCurrencies": []
+      }
+    }
+  ]
+}

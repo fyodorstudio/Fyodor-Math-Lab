@@ -1,0 +1,24 @@
+# Pinned raw export (record hashes and location in docs instead)
+data/
+
+# Large pre-computed episode ledger (~844 MB, record hash in docs instead)
+evidence/inventory/fms_episodes.jsonl
+
+# Python cache & build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment and IDE
+.env
+.venv
+env/
+venv/
+.idea/
+.vscode/
+
+# Disposable scratch
+scratch/
