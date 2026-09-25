@@ -98,7 +98,17 @@ To prevent data mining and retrospective selection bias, any future trial invest
 
 ---
 
-## 4. Prior Trial History & Archive Links
+## 4. Parked Idea: Price Zones and Post-Release Response Paths
+
+The owner previously used support/resistance-aware stop-loss and take-profit levels and tracked event responses over 1, 2, 3, ... 60 or more H4 candles. Preserve these as **unvalidated research ideas**, separate from the active ISM price-blind design. A support or resistance level is conceived as a **zone with width**, where price may reverse or break through; neither outcome is assumed to have a demonstrated probability or positive expectancy here.
+
+Any future test must define zones using only completed **pre-entry** H1/H4 bars: the lookback, swing/level algorithm, zone width, touch/break rule, and invalidation must be frozen before evaluating subsequent returns. Stop, target, and expiry must be set from information available at entry. H1 OHLC cannot always reveal whether a stop or target was hit first within the same bar; use a prespecified conservative resolution or obtain finer point-in-time data. Spread, slippage, gaps, and financing remain execution limitations.
+
+The multi-horizon response curve may be reported descriptively (directional return, absolute move, maximum favorable/adverse excursion, and time to excursion), but scanning dozens of horizons and selecting the best one is a new multiple-testing exercise, **not** one prespecified setup. A tradable hypothesis needs one primary horizon or a predeclared correction scheme, an explicit comparator, and fresh validation. Do not retrofit zones, stops, targets, or horizons onto the already failed Retail Sales discovery as a rescue attempt.
+
+---
+
+## 5. Prior Trial History & Archive Links
 
 This repository maintains an unbroken forensic record of all prior candidate trials:
 
