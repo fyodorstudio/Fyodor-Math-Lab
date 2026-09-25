@@ -1,10 +1,11 @@
 # US Retail Sales EURUSD Research Freeze Packet
 
-> [!CAUTION]
-> **GOVERNANCE STATUS: PENDING CODEX / PROJECT DIRECTOR APPROVAL**
-> **CURRENT STATE: FROZEN SPECIFICATION PENDING AUDIT (NOT APPROVED, NOT EXECUTED)**
-> This document is a formal pre-price research freeze record.
-> **Strict Operational Boundary**: This freeze packet does **NOT** authorize an empirical price run, does **NOT** authorize parsing candle prices or calculating trade returns, and does **NOT** authorize opening or unsealing the post-2022 historical holdout partition (`timestamp >= 1672531200`). Live or demo order dispatch is strictly prohibited.
+> [!NOTE]
+> **GOVERNANCE STATUS: AUTHORIZED FOR PRE-2023 DISCOVERY RUN ONLY**
+> **APPROVAL DATE: 2026-09-26**
+> **APPROVAL SCOPE: PRE-2023 DISCOVERY RUN ONLY (CODEX & PROJECT DIRECTOR SIGN-OFF)**
+> **RUNNER / OUTPUT SCHEMA VERSION: 1.1.0**
+> **Strict Operational Boundary**: Authorization applies strictly and exclusively to unblinding pre-2023 candidate candle prices for the frozen $N = 49$ package discovery run. This authorization does **NOT** permit inspecting or calculating post-2022 holdout outcomes (`timestamp >= 1672531200`), placing live/demo orders, changing decision rules, optimizing parameters, or testing alternative candidate variants. The post-2022 holdout partition remains strictly sealed.
 > The protocol parameters and decision rules herein are frozen byte-for-byte; they must **NOT** be altered or retrofitted to improve expected results.
 
 ---
@@ -15,6 +16,7 @@
 - **Governing Protocol Document**: [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md) (Pre-Price Design v0.5)
 - **Feasibility Investigation**: [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md)
 - **Executable Calculation Runner**: [`src/calculation_runner.py`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/src/calculation_runner.py)
+- **Runner / Output Schema Version**: `1.1.0`
 - **Unit Test Suite Status**: **43 / 43 tests passing** (`python -m unittest discover -s tests` executed in 7.84s clean)
 
 ---
@@ -126,9 +128,10 @@ The software classification engine ([`src/strategy_viability.py`](file:///c:/dev
 |---|---|---|
 | **Git Baseline** | Commit `b32fb8c14f2cf383d0358bbbc6b7df13bb891f03` verified clean | **VERIFIED** |
 | **Unit Test Coverage** | 43 / 43 tests passing | **VERIFIED** |
-| **Price Blindness** | Zero candle prices parsed; zero returns computed | **VERIFIED** |
-| **Holdout Boundary** | `timestamp >= 1672531200` completely sealed | **VERIFIED** |
-| **Codex / Director Approval** | Formal sign-off to proceed to pre-2023 price execution | **PENDING AUDIT & SIGN-OFF** |
+| **Price Blindness (Pre-Run)** | Pinned source hashes verified; zero pre-run contamination | **VERIFIED** |
+| **Holdout Boundary** | `timestamp >= 1672531200` completely sealed | **VERIFIED (SEALED)** |
+| **Codex / Director Approval** | Formal sign-off for pre-2023 discovery run only (2026-09-26) | **APPROVED (PRE-2023 DISCOVERY ONLY)** |
+| **Runner / Schema Version** | Schema 1.1.0 registered for pre-2023 unblinding | **VERSION 1.1.0 REGISTERED** |
 
 > [!IMPORTANT]
-> **NEXT ACTION**: Stop and await Codex Quant Director audit and Project Director steering decision.
+> **OPERATIONAL STATUS**: Authorized for single pre-2023 discovery calculation run (`allow_unblinded_run=True`). All post-2022 holdout data remain sealed.
