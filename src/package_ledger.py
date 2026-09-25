@@ -6,6 +6,7 @@ Builds the price-blind package ledger for US Retail Sales & Core Retail Sales on
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timezone
 import os
+import json
 
 from .parsers import stream_calendar_releases, SPLIT_TIMESTAMP
 from .candle_coverage import CandleTimestampIndex, SECONDS_IN_H4
@@ -230,6 +231,197 @@ def build_retail_sales_package_ledger(
             "h12_weekend_pct": h12_cross_weekend_afp / n_afp if n_afp else 0,
         },
         "packages": packages
+    }
+
+
+def audit_strict_agreement_subsamples(ledger: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Computes exact sub-sample filtering statistics for the 49 strict-agreement packages.
+    Verifies attrition under:
+    1. Friday exclusion (leaves 34)
+    2. Strict same-week 14-H4 lookback failure (leaves 37)
+    3. Cross-currency collision exclusion (leaves 19)
+    4. Combined intersection (leaves 6)
+    """
+    packages = ledger["packages"]
+    strict_pkgs = [p for p in packages if p["sign_category"] in ("STRICT_AGREE_POS", "STRICT_AGREE_NEG")]
+
+    fridays = [p for p in strict_pkgs if p["weekday"] == "Friday"]
+    non_fridays = [p for p in strict_pkgs if p["weekday"] != "Friday"]
+
+    lookback_failures = [p for p in strict_pkgs if not (p.get("pre_lookback_audit") and p["pre_lookback_audit"]["has_14_intra_week"])]
+    lookback_passes = [p for p in strict_pkgs if p.get("pre_lookback_audit") and p["pre_lookback_audit"]["has_14_intra_week"]]
+
+    collisions = [p for p in strict_pkgs if p["has_cross_currency_collision"]]
+    collision_free = [p for p in strict_pkgs if not p["has_cross_currency_collision"]]
+
+    combined_clean = [
+        p for p in strict_pkgs
+        if p["weekday"] != "Friday"
+        and (p.get("pre_lookback_audit") and p["pre_lookback_audit"]["has_14_intra_week"])
+        and not p["has_cross_currency_collision"]
+    ]
+
+    return {
+        "total_strict_agreement": len(strict_pkgs),
+        "strict_pos": sum(1 for p in strict_pkgs if p["sign_category"] == "STRICT_AGREE_POS"),
+        "strict_neg": sum(1 for p in strict_pkgs if p["sign_category"] == "STRICT_AGREE_NEG"),
+        "friday_filter": {
+            "fridays_count": len(fridays),
+            "remaining_non_fridays_count": len(non_fridays),
+            "fridays": [p["timestamp"] for p in fridays],
+        },
+        "lookback_filter": {
+            "failures_count": len(lookback_failures),
+            "remaining_passes_count": len(lookback_passes),
+            "failures": [p["timestamp"] for p in lookback_failures],
+        },
+        "collision_filter": {
+            "collisions_count": len(collisions),
+            "remaining_collision_free_count": len(collision_free),
+            "collisions": [p["timestamp"] for p in collisions],
+        },
+        "combined_clean_intersection_count": len(combined_clean),
+        "combined_clean_timestamps": [p["timestamp"] for p in combined_clean],
+    }
+
+
+def audit_ifo_benchmark(
+    ifo_ledger_path: str,
+    candle_index: CandleTimestampIndex
+) -> Dict[str, Any]:
+    """
+    Forensically audits the German Ifo pilot benchmark from immutable project evidence.
+    Verifies:
+    1. 40 actionable strict-agreement episodes on EURUSD
+    2. Friday count (6 of 40 = 15.0%)
+    3. 6-H4 forward path weekend crossings on EURUSD H1 candles (6 of 40 = 15.0%, all Fridays cross)
+    4. Release bundle composition: CESifo co-releases 3 core series at identical timestamps:
+       - 276030001: Ifo Business Expectations
+       - 276030002: Ifo Current Business Situation
+       - 276030003: Ifo Business Climate
+    """
+    with open(ifo_ledger_path, "r", encoding="utf-8") as f:
+        ifo_data = json.load(f)
+
+    actionable_rows = ifo_data.get("actionableRows", [])
+    total_actionable = len(actionable_rows)
+
+    friday_episodes = []
+    weekend_crossings = []
+
+    for row in actionable_rows:
+        entry_ts = row["pairCoverage"]["entryTimestamp"]
+        cov = candle_index.evaluate_forward_horizon(entry_ts, horizon_h4=6)
+
+        is_friday = (row["pairCoverage"].get("weekday") == "Fri")
+        if is_friday:
+            friday_episodes.append(row)
+
+        if cov["crosses_weekend"]:
+            weekend_crossings.append({
+                "timestamp": row["timestamp"],
+                "entry_timestamp": entry_ts,
+                "timestamp_text": row.get("timestampServerText"),
+                "is_complete": cov["is_complete"]
+            })
+
+    return {
+        "total_actionable": total_actionable,
+        "friday_episodes_count": len(friday_episodes),
+        "h6_weekend_crossings_count": len(weekend_crossings),
+        "h6_weekend_crossings_pct": len(weekend_crossings) / total_actionable if total_actionable else 0.0,
+        "weekend_crossings": weekend_crossings,
+        "ifo_bundled_series": [
+            {"event_id": "276030001", "name": "Ifo Business Expectations", "role": "Signal component"},
+            {"event_id": "276030002", "name": "Ifo Current Business Situation", "role": "Co-released bundle member (omitted from signal)"},
+            {"event_id": "276030003", "name": "Ifo Business Climate", "role": "Signal component"}
+        ]
+    }
+
+
+def audit_control_availability(
+    packages: List[Dict[str, Any]],
+    calendar_csv_path: str
+) -> Dict[str, Any]:
+    """
+    Audits the availability of unconfounded matched control windows (T - 7d and T - 14d)
+    against high-impact USD and EUR macroeconomic releases.
+    Evaluates the 49 strict-agreement packages under a 6-H4 horizon.
+    """
+    strict_pkgs = [p for p in packages if p["sign_category"] in ("STRICT_AGREE_POS", "STRICT_AGREE_NEG")]
+
+    # Stream all calendar releases pre-2023
+    high_usd_eur: Dict[int, List[str]] = {}
+    for r in stream_calendar_releases(calendar_csv_path, max_timestamp=SPLIT_TIMESTAMP):
+        if r["currency"] in ("USD", "EUR") and r["importance"] in ("high", "CALENDAR_IMPORTANCE_HIGH"):
+            ts = r["timestamp"]
+            if ts not in high_usd_eur:
+                high_usd_eur[ts] = []
+            high_usd_eur[ts].append(f"{r['currency']}:{r['event_name']}")
+
+    seconds_in_day = 86400
+    horizon_seconds = 6 * SECONDS_IN_H4
+
+    clean_7d = 0
+    clean_14d = 0
+    clean_either = 0
+    contaminated_both = 0
+    package_audits = []
+
+    for p in strict_pkgs:
+        entry_ts = p["entry_timestamp"]
+        exit_ts = p["h6_coverage"]["exit_timestamp"] if (p.get("h6_coverage") and p["h6_coverage"].get("exit_timestamp")) else entry_ts + horizon_seconds
+
+        c7_entry = entry_ts - 7 * seconds_in_day
+        c7_exit = exit_ts - 7 * seconds_in_day
+
+        c14_entry = entry_ts - 14 * seconds_in_day
+        c14_exit = exit_ts - 14 * seconds_in_day
+
+        c7_events = []
+        for ts, evs in high_usd_eur.items():
+            if c7_entry <= ts <= c7_exit:
+                c7_events.extend(evs)
+
+        c14_events = []
+        for ts, evs in high_usd_eur.items():
+            if c14_entry <= ts <= c14_exit:
+                c14_events.extend(evs)
+
+        is_c7_clean = (len(c7_events) == 0)
+        is_c14_clean = (len(c14_events) == 0)
+
+        if is_c7_clean:
+            clean_7d += 1
+        if is_c14_clean:
+            clean_14d += 1
+        if is_c7_clean or is_c14_clean:
+            clean_either += 1
+        else:
+            contaminated_both += 1
+
+        package_audits.append({
+            "timestamp": p["timestamp"],
+            "timestamp_text": p["timestamp_server_text"],
+            "c7_clean": is_c7_clean,
+            "c7_events_count": len(c7_events),
+            "c14_clean": is_c14_clean,
+            "c14_events_count": len(c14_events),
+        })
+
+    n = len(strict_pkgs)
+    return {
+        "total_evaluated_packages": n,
+        "clean_7d_count": clean_7d,
+        "clean_7d_pct": clean_7d / n if n else 0.0,
+        "clean_14d_count": clean_14d,
+        "clean_14d_pct": clean_14d / n if n else 0.0,
+        "clean_either_count": clean_either,
+        "clean_either_pct": clean_either / n if n else 0.0,
+        "contaminated_both_count": contaminated_both,
+        "contaminated_both_pct": contaminated_both / n if n else 0.0,
+        "package_audits": package_audits
     }
 
 

@@ -188,6 +188,21 @@ US Retail Sales is never released in isolation. Packages bundle an average of **
 - **During 12 H4 (48 active hours)**: Paths encounter a Median of **9 subsequent USD packages** and **9 subsequent EUR packages** (Total Median = 18 later macro events).
 - *Hazard*: Post-announcement drift cannot be cleanly attributed to the initial retail surprise when trades absorb multiple subsequent FOMC speeches, initial claims, and ECB commentary.
 
+### 4. Sub-Sample Attrition on the Strict Agreement Candidate ($N = 49$)
+When evaluating proposed filtering rules on the **$N = 49$ strict-agreement packages** ($S_H \times S_C > 0$: 27 POS/POS, 22 NEG/NEG), the sample experiences severe attrition:
+1. **Friday Exclusion**:
+   - Exactly **15 of the 49 packages (30.6%)** are Friday releases (exiting across the weekend closure).
+   - Excluding Friday releases leaves **34 packages** ($49 - 15 = 34$).
+2. **Strict Same-Week 14-H4 Lookback Failure**:
+   - Exactly **12 of the 49 packages (24.5%)** occur on Monday or Tuesday and accumulate fewer than 14 completed H4 bars within the same calendar week (3 Mondays with 4 blocks, 9 Tuesdays with 10 blocks).
+   - Imposing a strict same-week lookback leaves **37 packages** ($49 - 12 = 37$).
+3. **Cross-Currency Collision Exclusion**:
+   - Exactly **30 of the 49 packages (61.2%)** collide with simultaneous non-USD releases at the identical timestamp (25 CAD only, 2 EUR only, 3 CAD + EUR).
+   - Excluding colliding releases leaves **19 packages** ($49 - 30 = 19$).
+4. **Combined Intersection Hazard**:
+   - Imposing Friday exclusion, strict same-week lookback, AND cross-currency collision exclusion simultaneously reduces the candidate sample to **exactly 6 packages**, destroying statistical viability.
+   - *Conclusion*: Any sub-filtering proposal must be explicitly balanced against degrees of freedom and sample collapse.
+
 ---
 
 ## 7. Comparative Benchmark: Verified German Ifo vs US Retail Sales
@@ -196,17 +211,17 @@ Every cell below is verified directly against immutable project evidence (`evide
 
 | Operational Dimension | German Ifo Pilot (Verified Evidence) | US Retail Sales (Audited Candidate) |
 |---|---|---|
-| **Co-Released Indicators** | **2 Series**: Ifo Climate (`276030003`) + Expectations (`276030001`) | **2 Series**: Headline (`840020010`) + Core (`840020011`) |
+| **Co-Released Indicators** | **CESifo 3-Series Bundle**: Ifo Climate (`276030003`), Expectations (`276030001`), **Current Situation (`276030002`)** *(Signal used Climate + Expectations; Current Situation co-released at same second)* | **Headline + Core**: Headline (`840020010`) + Core (`840020011`) *(Bundled with Mean 12.2 total series at same second)* |
 | **Total Pre-2023 Packages** | 96 packages | 96 packages |
 | **Missing Forecast Exclusions** | 43 packages (pre-Nov 2018 lacked MT5 forecasts) | 28 packages (pre-May 2017 lacked MT5 forecasts) |
 | **Complete AFP Sample** | $N = 45$ complete forecast packages | **$N = 68$ complete forecast packages** |
 | **Actionable Strict Agreement** | **$N = 40$** (18 Long, 22 Short EURUSD) | **$N = 49$** (27 Short, 22 Long EURUSD) |
 | **Active Conflict Exclusions** | 3 packages (6.7% of complete forecasts) | 9 packages (13.2% of complete forecasts) |
-| **Cross-Currency Collisions** | **4 of 40 (10.0%)** have same-time GBP collisions (`Yes (GBP)`) | **39 of 68 (57.4%)** have same-time CAD / EUR collisions |
-| **Weekday Distribution (Actionable)** | Mon (15), Tue (7), Fri (**6 = 15.0%**), Wed (6), Thu (6) | Mon (5), Tue (11), Wed (17), Thu (13), Fri (**22 = 32.4%**) |
+| **Cross-Currency Collisions** | **4 of 40 (10.0%)** have same-time GBP collisions (`Yes (GBP)`) | **30 of 49 (61.2%)** on strict agreement; **39 of 68 (57.4%)** on complete AFP |
+| **Weekday Distribution (Actionable)** | Mon (15), Tue (7), Fri (**6 = 15.0%**), Wed (6), Thu (6) | Strict ($N=49$): Fri (**15 = 30.6%**), Wed (12), Thu (10), Tue (9), Mon (3)<br>AFP ($N=68$): Fri (**22 = 32.4%**), Wed (17), Thu (13), Tue (11), Mon (5) |
 | **Enforced Entry Delays** | **30 min** (11:30 $\to$ 12:00, 23 rows) / **210 min** (12:30 $\to$ 16:00, 17 rows) | **30 min** (15:30 $\to$ 16:00, 47 rows) / **210 min** (16:30 $\to$ 20:00, 21 rows) |
-| **Forward Path Completeness (6 H4)** | 40 / 40 (100.0% of actionable) | **68 / 68 (100.0% of complete AFP)** |
-| **Forward Weekend Crossings (6 H4)** | 0 of 40 (Friday entries had no weekend gap in test) | **22 of 68 (32.4%)** cross Friday–Monday closure |
+| **Forward Path Completeness (6 H4)** | 40 / 40 (100.0% of actionable) | **68 / 68 (100.0% of complete AFP)**; **49 / 49 (100.0% of strict agreement)** |
+| **Forward Weekend Crossings (6 H4)** | **6 of 40 (15.0%)** cross weekend closure *(All 6 Friday episodes cross; corrected from prior 0/40 reporting error)* | Strict: **15 of 49 (30.6%)** cross weekend closure<br>AFP: **22 of 68 (32.4%)** cross weekend closure |
 | **Trial Disposition / Status** | **STATE 3: NO CONVINCING EVIDENCE** ($p = 0.9575$) | **Candidate Question (Price-Blind Audit)** |
 
 ---
@@ -215,5 +230,6 @@ Every cell below is verified directly against immutable project evidence (`evide
 
 1. **Disclosure of Prior Schema Inspection**: During initial schema verification, lines 1–5 of `data/pinned/FyodorResearchExport_v3_20260923_234930_server/candles/candles_EURUSD_H1.csv` were inspected via tool to verify column headers and confirm that column 0 corresponds to `time`.
 2. **Zero Price-Outcome Computation**: No price returns, directional drift, win rates, MFE/MAE, or backtest metrics have ever been calculated for this candidate.
-3. **Genuine Field-0 Timestamp-Only Streaming**: Subsequent candle processing is performed strictly via `stream_candle_timestamps_only`, which extracts only the field-0 substring before the first comma (`line.split(',', 1)[0]`), ensuring that columns 1..N (OHLC prices, spreads, volumes) are never tokenized or processed.
-4. **Pre-2023 Boundary Sealing**: All timestamps $\ge 1672531200$ remain strictly sealed.
+3. **Genuine Field-0 Timestamp-Only Streaming**: Subsequent candle processing is performed strictly via `stream_candle_timestamps_only`. During stream iteration over `candles_EURUSD_H1.csv`, Python reads each raw text line into a temporary string buffer (standard file I/O). The parser immediately extracts solely the field-0 substring before the first comma (`line[:comma_idx]`) and converts it to an integer Unix timestamp. Columns 1..N containing Bid/Ask OHLC prices, tick volumes, and spreads are never parsed as floats, never tokenized into price structures, and never stored in memory.
+4. **Pre-2023 Boundary Sealing**: Calendar metadata row counts across the full export (141 total, 96 pre-2023, 45 post-2022) were cataloged for structural reconciliation. However, all post-2022 price series, OHLC candles, and event outcomes remain strictly sealed and uninspected.
+

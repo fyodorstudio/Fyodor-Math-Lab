@@ -6,9 +6,10 @@ AUDIT DISCLOSURE:
 During initial repository schema verification, lines 1-5 of candles_EURUSD_H1.csv
 were viewed via tool to verify header names and confirm that column 0 corresponds to 'time'.
 Zero OHLC prices, volumes, spreads, or price returns were analyzed or computed.
-Subsequent candle processing strictly utilizes `stream_candle_timestamps_only`, which
-extracts solely the field-0 substring before the first comma, completely ignoring and
-never parsing columns 1..N.
+Subsequent candle processing strictly utilizes `stream_candle_timestamps_only`. During iteration,
+each raw line text is buffered in memory by Python's file reader, but solely the field-0 substring
+before the first comma (`line[:comma_idx]`) is converted to an integer Unix timestamp.
+Columns 1..N (Bid/Ask OHLC prices, tick volumes, spreads) are never parsed as prices or stored in data structures.
 """
 
 import csv
@@ -99,7 +100,10 @@ def stream_candle_timestamps_only(
 ) -> Iterator[int]:
     """
     Streams FX candle file reading STRICTLY the field-0 substring before the first comma.
-    Never parses, tokenizes, or stores OHLC prices, volumes, or spreads.
+    Line text is temporarily buffered in memory during stream iteration (standard file I/O),
+    but solely the field-0 substring before the first comma is converted to an integer Unix timestamp.
+    Columns 1..N (Bid/Ask OHLC prices, tick volumes, spreads) are never parsed as floats,
+    never tokenized into price structures, and never stored in memory.
     Fails closed immediately if any timestamp >= split_timestamp is encountered during discovery.
     """
     with open(filepath, "r", encoding="utf-8") as f:
