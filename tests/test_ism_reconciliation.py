@@ -1,18 +1,25 @@
 """
 Synthetic Unit Tests for ISM Reconciliation Engine
 Tests headline surprise classification, multi-component contingency matrix,
-S&P Global 900-second lead detection, collision filtering, and active H1 path logic.
+S&P Global 900-second lead detection, collision filtering, transition validation,
+and strict price-blind timestamp reader constraints.
 """
 
 import unittest
+import tempfile
+import os
 from src.ism_reconciliation import (
     audit_ism_headline,
     audit_headline_prices_paid_matrix,
     audit_sp_global,
     audit_foreign_currency_collisions,
+    audit_calendar_metadata,
+    validate_h1_path_transitions,
     audit_candle_paths_from_timestamps,
     SECONDS_IN_H1,
+    SPLIT_TIMESTAMP,
 )
+from src.parsers import stream_candle_timestamps_only
 
 
 class TestIsmReconciliation(unittest.TestCase):
@@ -129,37 +136,120 @@ class TestIsmReconciliation(unittest.TestCase):
         self.assertEqual(collisions[0]["event_id"], "124040006")
         self.assertTrue(collisions[0]["is_actionable"])
 
-    def test_audit_candle_paths_active_bars_and_weekend_gap(self):
-        # Create synthetic candle timestamps:
-        # Start at 0, generate consecutive 1-hour timestamps
-        # Insert a weekend gap at bar 10 (gap of 48 hours)
-        # Total bars: 60 bars
-        t0 = 100000
-        candle_ts = []
+    def test_path_with_missing_weekday(self):
+        # Wednesday 2020-09-16 12:00 UTC = 1600257600
+        # Create a 24-bar sequence with a missing 24-hour gap between bar 5 and bar 6 (Wednesday to Thursday)
+        t0 = 1600257600
+        bars = []
         curr = t0
-        for i in range(60):
-            candle_ts.append(curr)
-            if i == 10:
-                # Weekend gap: add 48 hours instead of 1 hour
+        for i in range(24):
+            bars.append(curr)
+            if i == 5:
+                # Arbitrary weekday gap of 24h
+                curr += 24 * SECONDS_IN_H1
+            else:
+                curr += SECONDS_IN_H1
+
+        is_valid, crosses_weekend, reason = validate_h1_path_transitions(bars, split_timestamp=SPLIT_TIMESTAMP)
+        self.assertFalse(is_valid)
+        self.assertIn("weekday data gap", reason)
+
+        # In full path audit, package must be marked incomplete
+        res = audit_candle_paths_from_timestamps(bars, [t0 - SECONDS_IN_H1], split_timestamp=SPLIT_TIMESTAMP)
+        self.assertEqual(res["paths_24_complete"], 0)
+
+    def test_path_with_valid_weekend_closure(self):
+        # Friday 2020-09-18 20:00 UTC = 1600459200
+        # 4 bars on Friday (20:00, 21:00, 22:00, 23:00)
+        # Gap from Friday 23:00 to Sunday 23:00 (48h)
+        # 20 bars on Sunday/Monday
+        t0 = 1600459200
+        bars = []
+        curr = t0
+        for i in range(24):
+            bars.append(curr)
+            if i == 3:
+                # Weekend gap: Friday 23:00 to Sunday 23:00 (48 hours)
                 curr += 48 * SECONDS_IN_H1
             else:
                 curr += SECONDS_IN_H1
 
-        # Release at t0 - 3600 -> entry at t0 (bar 0)
-        release_ts = t0 - 3600
-        path_res = audit_candle_paths_from_timestamps(candle_ts, [release_ts])
+        is_valid, crosses_weekend, reason = validate_h1_path_transitions(bars, split_timestamp=SPLIT_TIMESTAMP)
+        self.assertTrue(is_valid)
+        self.assertTrue(crosses_weekend)
+        self.assertEqual(reason, "Valid path")
 
-        self.assertEqual(path_res["evaluated_packages"], 1)
-        self.assertEqual(path_res["paths_24_complete"], 1)
-        self.assertEqual(path_res["weekend_cross_24"], 1)  # Crosses the gap at bar 10
-        self.assertEqual(path_res["paths_48_complete"], 1)
-        self.assertEqual(path_res["weekend_cross_48"], 1)
+        res = audit_candle_paths_from_timestamps(bars, [t0 - SECONDS_IN_H1], split_timestamp=SPLIT_TIMESTAMP)
+        self.assertEqual(res["paths_24_complete"], 1)
+        self.assertEqual(res["weekend_cross_24"], 1)
 
-        details = path_res["details"][0]
-        self.assertEqual(details["entry_ts"], t0)
-        self.assertTrue(details["crosses_weekend_24"])
-        # Final active bar for 24-bar horizon is bar index 23
-        self.assertEqual(details["final_bar_open_24"], candle_ts[23])
+    def test_path_crossing_split(self):
+        # SPLIT_TIMESTAMP = 1672531200
+        # Bar sequence starting 10 hours before split, extending past split
+        t_start = SPLIT_TIMESTAMP - 10 * SECONDS_IN_H1
+        bars = [t_start + i * SECONDS_IN_H1 for i in range(24)]
+
+        is_valid, _, reason = validate_h1_path_transitions(bars, split_timestamp=SPLIT_TIMESTAMP)
+        self.assertFalse(is_valid)
+        self.assertIn("at or beyond split", reason)
+
+    def test_duplicate_or_unsorted_timestamps(self):
+        t0 = 1600000000
+        # Duplicate bar
+        bars_dup = [t0, t0 + 3600, t0 + 3600, t0 + 7200]
+        valid_dup, _, reason_dup = validate_h1_path_transitions(bars_dup, split_timestamp=SPLIT_TIMESTAMP)
+        self.assertFalse(valid_dup)
+        self.assertIn("Duplicate or unsorted", reason_dup)
+
+        # Unsorted bar (t1 > t2)
+        bars_unsorted = [t0 + 3600, t0, t0 + 7200]
+        valid_unsorted, _, reason_unsorted = validate_h1_path_transitions(bars_unsorted, split_timestamp=SPLIT_TIMESTAMP)
+        self.assertFalse(valid_unsorted)
+        self.assertIn("Duplicate or unsorted", reason_unsorted)
+
+        # Global audit rejects unsorted candle list
+        with self.assertRaises(ValueError) as ctx:
+            audit_candle_paths_from_timestamps(bars_dup, [t0 - 3600], split_timestamp=SPLIT_TIMESTAMP)
+        self.assertIn("Duplicate or unsorted", str(ctx.exception))
+
+    def test_malformed_non_time_candle_fields(self):
+        # Tests that stream_candle_timestamps_only genuinely reads only column 0
+        # and does not crash or tokenize invalid price/spread garbage
+        content = (
+            "time,open,high,low,close,tick_volume,spread,real_volume\n"
+            "1600000000,INVALID_OPEN,CORRUPT_HIGH,NaN,INF,BAD_VOL,#DIV/0,NULL\n"
+            "1600003600,GARBAGE,GARBAGE,GARBAGE,GARBAGE,GARBAGE,GARBAGE,GARBAGE\n"
+            f"{SPLIT_TIMESTAMP},SPLIT_ROW,CORRUPT,NaN,NaN,0,0,0\n"
+        )
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
+            tmp_path = tmp.name
+            tmp.write(content)
+
+        try:
+            ts = list(stream_candle_timestamps_only(tmp_path, split_timestamp=SPLIT_TIMESTAMP))
+            self.assertEqual(ts, [1600000000, 1600003600])
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+
+    def test_metadata_missing_fields_raises(self):
+        # When a required field like sector_code is missing or empty,
+        # audit_calendar_metadata must raise ValueError and NOT substitute defaults
+        content = (
+            "event_id,event_name,event_code,sector,sector_code,unit,unit_code,importance,importance_code\n"
+            "840040001,ISM Manufacturing PMI,ism-manufacturing-pmi,CALENDAR_SECTOR_BUSINESS,,CALENDAR_UNIT_NONE,0,high,3\n"
+        )
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
+            tmp_path = tmp.name
+            tmp.write(content)
+
+        try:
+            with self.assertRaises(ValueError) as ctx:
+                audit_calendar_metadata(tmp_path)
+            self.assertIn("Missing or empty required metadata field 'sector_code'", str(ctx.exception))
+        finally:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
 
 if __name__ == "__main__":

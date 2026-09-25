@@ -41,8 +41,8 @@ Following the disconfirmation and permanent closure of the US Retail Sales direc
    - *Execution Caveat*: A 60-minute delay substantially reduces immediate release-time spread widening and slippage exposure, but does not guarantee the total absence of execution slippage or spread spikes.
 4. **Clean Currency Isolation (Low Cross-Currency Collision)**:
    Unlike US Retail Sales (which suffered a 57.4% collision rate primarily with Canadian releases), ISM Manufacturing PMI exhibits a **96.9% clean USD isolation rate** (93 of 96 pre-2023 releases are completely free of same-timestamp foreign releases). Exactly 3 release dates exhibit foreign-currency collisions, of which only **1 belongs to the 66 actionable releases** (2022-06-01 CAD BoC rate decision/statement).
-5. **Preceding Informational Confounder: S&P Global 15-Minute Lead**:
-   S&P Global Manufacturing PMI (`840500001`, Revision 3) releases **15 minutes earlier** (9:45 AM NY / 900 seconds prior) on **91 of 96 release dates (94.8%)** and on **61 of the 66 actionable releases with populated forecasts**. We audit this relationship and pre-declare its role as a diagnostic partition rather than an exploratory post-hoc filter.
+5. **Preceding Informational Confounder: S&P Global 15-Minute Lead (Hypothesis)**:
+   S&P Global Manufacturing PMI (`840500001`, Revision 3) releases **15 minutes earlier** (9:45 AM NY / 900 seconds prior) on **91 of 96 release dates (94.8%)** and on **61 of the 66 actionable releases with populated forecasts**. Under the hypothesis that market participants might partially price in manufacturing conditions during those 15 minutes, we audit this timing lead and pre-declare its role as a diagnostic partition rather than an exploratory post-hoc filter.
 6. **Pre-Declared Primary Rule & Explicit Rejection of Concordance**:
    The primary rule is pre-declared on **Headline ISM Manufacturing PMI alone** ($S_H = A - F$). Multi-component concordance (forcing agreement between Headline and Prices Paid) is **explicitly rejected** prior to price inspection, preventing researcher degrees of freedom that would discard 43.3% of the dataset.
 
@@ -86,13 +86,13 @@ Across the 8-year pre-2023 historical span (96 monthly calendar slots from 2015-
 
 ## 3. Package Structure & Surprise Distribution
 
-### 3.1 Surprise Definition
+### 3.1 Surprise Definition & Directional Hypothesis
 Consensus surprise is measured strictly as the difference between Actual and Forecast using raw unrounded scaled integers (`1e6` scale):
 $$S_H = \text{Actual} - \text{Forecast} = A_H - F_H$$
 
-Economic interpretation for USD:
-- $S_H > 0$: **Positive Shock (Hawkish)**. US manufacturing expansion exceeds expectations, indicating stronger aggregate demand and upward interest rate pressure $\implies$ Expected USD appreciation $\implies$ **Short EURUSD**.
-- $S_H < 0$: **Negative Shock (Dovish)**. US manufacturing activity falls short of expectations, indicating economic contraction or slowdown $\implies$ Expected USD depreciation $\implies$ **Long EURUSD**.
+Hypothesized Directional Transmission for USD:
+- $S_H > 0$: **Positive Shock (Hawkish Hypothesis)**. Under the macroeconomic hypothesis that US manufacturing expansion above expectations signals stronger aggregate demand and upward interest rate pressure, expected USD appreciation favors **Short EURUSD**.
+- $S_H < 0$: **Negative Shock (Dovish Hypothesis)**. Under the macroeconomic hypothesis that US manufacturing activity below expectations signals economic contraction or slowdown, expected USD depreciation favors **Long EURUSD**.
 - $S_H = 0.0$: **Neutral Surprise**. Release exactly matches consensus $\implies$ **No directional signal (Excluded)**.
 
 ### 3.2 Pre-2023 Headline Surprise Distribution ($N = 67$)
@@ -143,9 +143,9 @@ Under the standard Elev8 / MetaQuotes 4-hour bar structure, H4 candles open at `
 - In summer, a release at `17:00:00` lands inside the `16:00–20:00` H4 bar. Waiting for the next H4 bar requires waiting until `20:00:00` (**180-minute delay**).
 - In winter, a release at `18:00:00` also lands inside the `16:00–20:00` H4 bar. Waiting for the next H4 bar requires waiting until `20:00:00` (**120-minute delay**).
 
-This introduces two severe technical defects:
+This introduces two technical defects:
 1. **Asymmetrical Execution Latency**: Winter trades enter 2 hours after release; summer trades enter 3 hours after release.
-2. **Excessive Market Absorption Time**: By 120–180 minutes post-release, high-frequency liquidity providers and algorithmic participants have completely re-priced the macro surprise, potentially extinguishing any post-announcement drift.
+2. **Excessive Market Absorption Delay (Microstructure Hypothesis)**: Under the hypothesis that macroeconomic news is rapidly incorporated into liquid FX pairs, an extended 120- to 180-minute delay risks entering after initial price discovery has occurred. However, whether delayed drift exists across different holding horizons remains an empirical question (EURUSD prices around ISM releases remain strictly uninspected).
 
 ### 4.3 Proposed Execution Solution: Uniform 60-Minute H1 Entry
 To resolve this defect, the pre-price design specifies entry at the **Open of the next active H1 candle**:
@@ -263,9 +263,9 @@ To eliminate hindsight bias, we formally record why alternative design choices w
 1. **Rejection of Multi-Component Concordance (Headline + Prices Paid)**:
    - *Rationale*: As demonstrated in Section 3.3, Prices Paid is an inflation survey, not a growth survey. Concordance is only 55.2%. Forcing agreement would drop 29 of 66 actionable releases, slashing power and misrepresenting economic reality during stagflationary regimes. Prices Paid is relegated to diagnostic attribution.
 2. **Rejection of Multi-Component Concordance (Headline + Employment / New Orders)**:
-   - *Rationale*: Employment and New Orders lack consensus forecasts prior to September 2017 in MetaQuotes data (32 missing forecasts). Restricting to 3-way concordance further erodes sample size to $N \approx 35$.
+   - *Rationale*: Employment and New Orders lack consensus forecasts prior to September 2017 in MetaQuotes data (32 missing forecasts). A complete-case audit reveals that across the 63 pre-2023 releases where all three series have consensus forecasts, 3-way surprise concordance holds in **exactly 23 packages** (15 all positive, 8 all negative). If Prices Paid is also required to agree (4-way concordance), the sample collapses to **only 20 packages** (10 all positive, 10 all negative). Restricting to multi-component concordance would discard over 65% of the data ($N = 23$ vs $N = 66$), severely degrading statistical test power. Component series are preserved strictly as post-unblinding attribution diagnostics.
 3. **Rejection of Delayed H4 Entry (20:00 Server Open)**:
-   - *Rationale*: Creates seasonal distortion (180 min wait in summer vs 120 min in winter) and allows 2 to 3 hours of market absorption, defeating the purpose of measuring systematic post-announcement drift.
+   - *Rationale*: Introduces seasonal distortion (180 min wait in summer vs 120 min in winter) and an unneeded 2- to 3-hour delay under the hypothesis of rapid market absorption, whereas the uniform 60-minute H1 entry provides a seasonally consistent baseline.
 4. **Rejection of S&P Global PMI Pooling**:
    - *Rationale*: S&P Global uses different panel methodology and weights. Pooling distinct series violates the laboratory's non-pooling mandate.
 5. **Rejection of S&P Global Directional Pre-Filtering**:
