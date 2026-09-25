@@ -1,35 +1,37 @@
-# US Retail Sales EURUSD Research Protocol (Draft Proposal v0.3)
+# US Retail Sales EURUSD Research Protocol (Draft Proposal v0.4 - Freeze-Ready Pre-Price Design)
 
 > [!CAUTION]
 > **PROTOCOL STATUS: UNFROZEN PROPOSAL REQUIRING CODEX REVIEW & APPROVAL (DO NOT EXECUTE)**  
 > This document is a **draft pre-price research specification**.  
-> All control matching algorithms, exclusion rules, statistical decision gates, directional mappings, and cost proxies are **PROPOSALS FOR REVIEW**, not approved or frozen facts.  
+> All trade mechanics, cost scenarios, statistical decision gates, directional mappings, and friction models are **PROPOSALS FOR REVIEW**, not approved or frozen facts.  
 > **Strict Halt**: No candidate candle prices, returns, winning trades, or directional paths may be read, parsed, or computed under this protocol until formally audited, reconciled, and frozen by Codex.  
 > Chronological Split Boundary: `2023-01-01 00:00:00` broker trade-server time (`timestamp = 1672531200`).  
 > All post-2022 price observations remain strictly sealed.
 
 ---
 
-## 1. Candidate Research Question & Hypothesis (Proposed)
+## 1. Candidate Research Question & Hypothesis
 
-> *Does an unexpected consensus surprise in US consumer retail demand (Retail Sales m/m + Core Retail Sales m/m) produce statistically significant, persistent post-announcement drift on EURUSD across the primary trading day (6 completed H4 blocks / 24 active hours), or is the macroeconomic information immediately absorbed during the announcement bar?*
+### 1.1 Sole Primary Question: Strategy Viability
+> *For the 49 pre-2023 strict-concordance US Retail Sales packages on EURUSD, is the sample mean 6-H4 directional trade return strictly positive AFTER deducting a prespecified execution cost assumption?*
 
-### 1.1 Declared Primary Horizon & Exploratory Horizon
-To avoid multi-horizon data dredging and preserve statistical power:
-- **Primary Horizon**: **6 completed active H4 blocks (24 active hours / 1st trading day)**. All primary hypothesis tests, decision gates, and sample-size evaluations are pegged strictly to 6 H4.
-- **Secondary / Exploratory Horizon**: **12 completed active H4 blocks (48 active hours / 2nd trading day)**. Evaluated strictly as an exploratory persistence check under Holm-Bonferroni family-wise error rate control ($\alpha_{\text{primary}} = 0.025$, $\alpha_{\text{exploratory}} = 0.05$).
+**Explicit Scope Limitation**:
+- This is strictly an empirical test of **directional trading strategy viability** under executable friction.
+- It is **NOT** an estimate of the causal macroeconomic effect of US Retail Sales on exchange rates.
+- It is **NOT** a measure of "excess return versus matched controls."
+- Any observed post-announcement price movement reflects the joint market absorption of the co-released Retail Sales package, bundled same-second indicators, cross-currency collisions, liquidity conditions, and subsequent macroeconomic announcements.
 
-### 1.2 Prior Trials & Researcher Degrees of Freedom Registration
-In accordance with forensic anti-hallucination and research integrity standards, this protocol explicitly registers prior trial history:
+### 1.2 Exploratory 12-H4 Horizon (Descriptive Only)
+- The 12-H4 horizon (48 active trading hours) is evaluated strictly as an **exploratory and descriptive persistence diagnostic**.
+- There is **no separate setup-registration claim**, no secondary hypothesis gate, and no family-wise error adjustment on 12-H4.
+- Performance on 12-H4 will be reported descriptively alongside 6-H4 to observe whether return drift persists, reverses, or attenuates over a two-day holding period.
+
+### 1.3 Prior Trials & Researcher Degrees of Freedom Registration
+In accordance with forensic research integrity standards, this protocol explicitly registers prior trial history:
 1. **Phase 1 Trials**: Formal empirical trials on US CPI and NFP post-announcement drift.
-2. **German Ifo Pilot Trial**: Evaluated German Ifo Business Climate + Expectations on EURUSD ($N = 40$ actionable episodes). Yielded permutation $p = 0.9575$, concluding **State 3: No Convincing Evidence** (`evidence/trials/ifo/FMS_PILOT_IFO_PROTOCOL.md`).
-3. **Multi-Candidate Screening**: The prior inventory (`evidence/inventory/fms_episodes.jsonl`) screened 21 macro series.
-*Governance Mandate*: Investigating US Retail Sales is step $K > 1$ in an ongoing research program. Any reported p-value must be interpreted within this sequential context rather than presented as an unconditioned single trial.
-
-### 1.3 Economic Transmission Rationale
-- **Consumer Demand & Monetary Policy**: Personal consumption accounts for ~70% of US GDP. US Retail Sales is the earliest monthly hard data on goods consumption. A positive retail sales surprise indicates robust consumer demand, upward pressure on terminal interest rates, and higher Treasury yields, implying USD appreciation (**Short EURUSD**, $d = -1$).
-- **Delayed Drift Hypothesis**: If institutional portfolio rebalancing and systematic fixed-income duration adjustments take multiple trading sessions to clear, EURUSD may experience multi-session post-announcement drift.
-- **Null Hypothesis ($H_0$)**: Post-announcement excess log return $\mathbb{E}[\Delta R] \le 0$. Immediate repricing within the announcement bar absorbs all informational content; delayed post-announcement drift does not exceed baseline market drift.
+2. **German Ifo Pilot Trial**: Evaluated German Ifo Business Climate + Expectations on EURUSD ($N = 40$ actionable episodes). Permutation test yielded $p = 0.9575$, concluding **State 3: No Convincing Evidence** (`evidence/trials/ifo/FMS_PILOT_IFO_PROTOCOL.md`).
+3. **Multi-Candidate Screening**: The prior inventory (`evidence/inventory/fms_episodes.jsonl`) screened 21 macroeconomic series across 51 currency pairs.
+*Limitation on Nominal Significance*: Investigating US Retail Sales is step $K > 1$ in an ongoing research program. Any nominal p-value reported from this protocol is conditioned on prior candidate screening and must not be interpreted as an unadjusted, single-trial test.
 
 ---
 
@@ -44,11 +46,11 @@ In accordance with forensic anti-hallucination and research integrity standards,
   - Name: `Core Retail Sales m/m` (`event_id = 840020011`, `revision = 0`, Census Bureau)
 - **Tradable Instrument**: **`EURUSD`** (PERIOD_H1 trade-server time).
 
-### 2.2 Directional Mapping (Proposal Requiring Review)
-Because EURUSD is quoted as EUR (Base) / USD (Quote):
-- **Bullish US Economy (Hawkish Shock)**:
+### 2.2 Directional Mapping (Predeclared Specification)
+Because EURUSD is quoted as EUR (Base Currency) / USD (Quote Currency):
+- **Hawkish US Shock (Strong Consumer Demand)**:
   - Headline POS ($S_H > 0$) & Core POS ($S_C > 0$) $\implies$ **Short EURUSD** ($d_i = -1$).
-- **Bearish US Economy (Dovish Shock)**:
+- **Dovish US Shock (Weak Consumer Demand)**:
   - Headline NEG ($S_H < 0$) & Core NEG ($S_C < 0$) $\implies$ **Long EURUSD** ($d_i = +1$).
 
 ### 2.3 Cryptographic Source Provenance Hashes (Verified Facts)
@@ -68,138 +70,194 @@ Using raw scaled integers (`1e6` scale):
 $$S_H = \text{Actual}_H - \text{Forecast}_H$$
 $$S_C = \text{Actual}_C - \text{Forecast}_C$$
 
-### 3.2 Actionable Co-Release Rule (Unresolved Design Decision)
-- **Option A (Strict Sign Agreement - Recommended Proposal)**:
-  $$\text{sign}(S_H) \times \text{sign}(S_C) > 0$$
-  Requires both headline and core to surprise in the identical direction.
-  - POS/POS (Short EURUSD): **27 packages**
-  - NEG/NEG (Long EURUSD): **22 packages**
-  - Actionable Sample: **$N = 49$** (100% forward path completeness on EURUSD).
-- **Option B (Primary + Non-Conflicting Confirmation)**:
-  $$\text{sign}(S_H) \ne 0 \quad \land \quad \text{sign}(S_H) \times \text{sign}(S_C) \ge 0$$
-  Admits cases where Core surprise is zero ($S_C = 0$) but Headline is directional.
-  - Adds 2 packages (Headline POS / Core ZERO).
-  - Actionable Sample: **$N = 51$**.
-- **Option C (Unfiltered Headline)**:
-  Trade Headline direction regardless of Core surprise ($N = 63$).
+### 3.2 Predeclared Sample: Strict Concordance ($N = 49$)
+The primary candidate sample is strictly restricted to packages exhibiting unequivocal sign agreement:
+$$\text{sign}(S_H) \times \text{sign}(S_C) > 0$$
+- **Positive Consensus Surprise (Short EURUSD, $d = -1$)**: Exactly **27 packages**.
+- **Negative Consensus Surprise (Long EURUSD, $d = +1$)**: Exactly **22 packages**.
+- **Total Actionable Sample**: Exactly **$N = 49$ packages** (100% forward path completeness on EURUSD for both 6 H4 and 12 H4).
 
 ### 3.3 Excluded Categories (Pre-2023 Baseline)
-1. **Active Sign Conflict ($\text{sign}(S_H) \times \text{sign}(S_C) < 0$)**: Exactly **9 packages** (5 POS/NEG, 4 NEG/POS).
-2. **Missing Consensus Forecast**: Exactly **28 packages** (2015 to April 2017).
+1. **Active Sign Conflict ($\text{sign}(S_H) \times \text{sign}(S_C) < 0$)**: Exactly **9 packages** (5 POS/NEG, 4 NEG/POS). Excluded due to contradictory economic transmission signals.
+2. **Missing Consensus Forecast**: Exactly **28 packages** (all 24 packages in 2015–2016, plus 4 in Jan–Apr 2017 before MetaQuotes populated forecasts).
 3. **Double Zero Surprise ($S_H = 0 \land S_C = 0$)**: Exactly **2 packages**.
+4. **Single Zero Surprise ($S_H = 0 \lor S_C = 0$)**: Exactly **8 packages**.
 
 ---
 
-## 4. Execution Timing, Horizon Definitions & Friction Modeling
+## 4. Execution Timing, Bid–Ask Arithmetic & Cost-Sensitivity Scenarios
 
-### 4.1 Temporal Entry Rule (Proposed Specification)
+### 4.1 Temporal Entry Rule
 Entry occurs at the **Open of the next active H4 bar** immediately following completion of the announcement bar window:
 - `15:30:00` release: Announcement H4 window (`12:00:00`–`16:00:00`) completes at `16:00:00`.
   - Entry occurs at the **Open of the 16:00:00 H4 bar** ($T_{\text{entry}} = \mathbf{16:00:00}$, **30-minute delay**; 35 of 49 strict packages).
 - `16:30:00` release: Announcement H4 window (`16:00:00`–`20:00:00`) completes at `20:00:00`.
   - Entry occurs at the **Open of the 20:00:00 H4 bar** ($T_{\text{entry}} = \mathbf{20:00:00}$, **210-minute / 3.5-hour delay**; 14 of 49 strict packages).
 
-### 4.2 Primary & Secondary Holding Horizons
-- **Primary Horizon (6 H4)**: 6 completed active H4 blocks ($B_0, \dots, B_5$, 24 active hours). Theoretical exit proxy is $\text{Close}_{\text{Bid}}(B_5)$.
-- **Secondary Horizon (12 H4)**: 12 completed active H4 blocks ($B_0, \dots, B_{11}$, 48 active hours). Theoretical exit proxy is $\text{Close}_{\text{Bid}}(B_{11})$.
+### 4.2 Holding Horizon & Exit Pricing
+- **Primary 6-H4 Horizon**: 6 completed active H4 blocks ($B_0, \dots, B_5$, 24 active hours).
+- **Exit Timestamp**: $T_{\text{exit}} = T_{\text{entry}} + 6 \times 14400\text{ seconds}$ (in continuous trading) or stepped across the weekend closure.
+- **Exit Bar**: Close of H4 block $B_5$ (which corresponds to the Close of the 6th active H4 bar).
 
-### 4.3 Executable Pricing & Real-World Transaction Friction
-A model measuring $\text{Open}_{\text{Bid}} \to \text{Close}_{\text{Bid}}$ represents a theoretical, friction-free mid/bid benchmark. In physical execution:
-- **Long EURUSD Trade ($d_i = +1$)**:
-  - Enters at **Ask**: $P_{\text{entry, exec}} = \text{Open}_{\text{Bid}} + \text{Spread}_{\text{entry}}$
-  - Exits at **Bid**: $P_{\text{exit, exec}} = \text{Close}_{\text{Bid}}$
-  - Return: $\ln(P_{\text{exit, exec}} / P_{\text{entry, exec}}) \approx \ln(\text{Close}_{\text{Bid}} / \text{Open}_{\text{Bid}}) - \frac{\text{Spread}_{\text{entry}}}{P}$
-- **Short EURUSD Trade ($d_i = -1$)**:
-  - Enters at **Bid**: $P_{\text{entry, exec}} = \text{Open}_{\text{Bid}}$
-  - Exits at **Ask**: $P_{\text{exit, exec}} = \text{Close}_{\text{Bid}} + \text{Spread}_{\text{exit}}$
-  - Return: $-\ln(P_{\text{exit, exec}} / P_{\text{entry, exec}}) \approx -\ln(\text{Close}_{\text{Bid}} / \text{Open}_{\text{Bid}}) - \frac{\text{Spread}_{\text{exit}}}{P}$
+### 4.3 Provenance Verification of Broker Points, Pips, and Spread
+From `candle_symbols.csv` and `FyodorResearchExporterV3.mq5`:
+- **Symbol Digits**: `symbol_digits = 5` (5 decimal places, e.g., 1.10000).
+- **Broker Point Size**: `point = 0.00001` ($10^{-5}$).
+- **EURUSD Standard Pip**: 1 pip = `0.00010` = **10 broker points**.
+- **Spread Column Meaning**: In `candles_EURUSD_H1.csv`, the `spread` field contains the integer count of broker points recorded by MT5 for that bar (`IntegerToString(rates[b].spread)`).
 
-**Execution Friction Mandate**:
-- On EURUSD, typical retail/institutional spreads range from **0.5 to 1.5 pips**.
-- A nominal gross drift hurdle of **1.0 pip is completely wiped out by spread drag**.
-- *Protocol Rule*: Gross drift $\bar{\Delta}_{\text{pips}} \ge 1.0\text{ pip}$ is **REJECTED** as evidence of net profitability. The candidate must demonstrate net executable return after modeling realistic spread friction (or satisfy an unadjusted gross drift hurdle of at least $\bar{\Delta}_{\text{pips}} \ge 2.0\text{ pips}$).
+### 4.4 Bid–Ask Trade Execution Arithmetic
+The historical candle file records Bid prices (`open`, `high`, `low`, `close`). Physical execution incurs the Bid–Ask spread at both entry and exit:
 
-### 4.4 Weekend Handling & Reconciled Sample Attrition
-Among the **49 strict-agreement packages**:
-- Exactly **15 packages (30.6%) are Friday releases**.
-- For 6 H4, all 15 Friday packages cross the Friday 23:00 to Sunday 23:00 market closure, spanning **72 wall-clock hours** (exiting Monday).
-- **Option A (Retain with Matched Weekend Exposure - Recommended)**: Preserves the full $N = 49$ sample.
-- **Option B (Exclude Friday Releases)**: Eliminates weekend gap risk, but removes 15 packages, reducing the sample to **$N = 34$ packages** ($49 - 15 = 34$).
+1. **Long EURUSD Trade ($d_i = +1$, Dovish Shock)**:
+   - **Entry**: Executes at the **Ask** price:
+     $$P_{\text{entry, Ask}} = \text{Open}_{\text{Bid}}(T_{\text{entry}}) + (\text{Spread}_{\text{entry}} \times \text{Point})$$
+   - **Exit**: Executes at the **Bid** price:
+     $$P_{\text{exit, Bid}} = \text{Close}_{\text{Bid}}(T_{\text{exit}})$$
+   - **Directional Net Log Return**:
+     $$R_{\text{net, Long}} = \ln\left(\frac{P_{\text{exit, Bid}}}{P_{\text{entry, Ask}}}\right) = \ln\left(\frac{\text{Close}_{\text{Bid}}}{\text{Open}_{\text{Bid}} + (\text{Spread}_{\text{entry}} \times \text{Point})}\right)$$
+   - **Directional Net Pip Return**:
+     $$\text{Net Pips}_{\text{Long}} = \frac{\text{Close}_{\text{Bid}} - (\text{Open}_{\text{Bid}} + \text{Spread}_{\text{entry}} \times \text{Point})}{10 \times \text{Point}}$$
 
----
+2. **Short EURUSD Trade ($d_i = -1$, Hawkish Shock)**:
+   - **Entry**: Executes at the **Bid** price:
+     $$P_{\text{entry, Bid}} = \text{Open}_{\text{Bid}}(T_{\text{entry}})$$
+   - **Exit**: Executes at the **Ask** price:
+     $$P_{\text{exit, Ask}} = \text{Close}_{\text{Bid}}(T_{\text{exit}}) + (\text{Spread}_{\text{exit}} \times \text{Point})$$
+   - **Directional Net Log Return**:
+     $$R_{\text{net, Short}} = \ln\left(\frac{P_{\text{entry, Bid}}}{P_{\text{exit, Ask}}}\right) = \ln\left(\frac{\text{Open}_{\text{Bid}}}{\text{Close}_{\text{Bid}} + (\text{Spread}_{\text{exit}} \times \text{Point})}\right)$$
+   - **Directional Net Pip Return**:
+     $$\text{Net Pips}_{\text{Short}} = \frac{\text{Open}_{\text{Bid}} - (\text{Close}_{\text{Bid}} + \text{Spread}_{\text{exit}} \times \text{Point})}{10 \times \text{Point}}$$
 
-## 5. Statistical Framework & Control Availability Ledger
+### 4.5 Bar-Level Spread Limitation & Frozen Cost-Sensitivity Scenarios
+> [!WARNING]
+> **BAR-LEVEL SPREAD CAVEAT**:
+> The `spread` column in the pinned H1 candle file records a historical bar attribute (point snapshot). **It does NOT guarantee an executable entry or exit Ask price.** At bar transitions (16:00:00 / 20:00:00) and following macroeconomic releases, executable order-book depth and live spreads fluctuate.
+> Fixed claims of "typical 1.0 pip spread" or "a 2-pip hurdle guarantees profit" are unsupported and rejected.
 
-### 5.1 Price-Blind Control Availability Ledger (Verified Audit)
-The matched calendar control architecture ($T_{\text{entry}} - 7\text{ days}$ or $T_{\text{entry}} - 14\text{ days}$) was audited against the pinned calendar releases for high-impact USD and EUR macroeconomic releases:
+To ensure rigorous evaluation without assuming unverified execution costs, the protocol predeclares **four frozen cost-sensitivity scenarios**:
 
-| Control Window | Clean of High-Impact USD/EUR Releases | Contaminated by High-Impact Releases | Contamination Share |
-|---|---:|---:|---:|
-| **$T - 7\text{ days}$ Control** | **14 / 49** | 35 / 49 | **71.4% Contaminated** |
-| **$T - 14\text{ days}$ Control** | **5 / 49** | 44 / 49 | **89.8% Contaminated** |
-| **At Least One Clean ($T - 7\text{d} \lor T - 14\text{d}$)** | **17 / 49** | 32 / 49 | **65.3% Contaminated in BOTH** |
+| Scenario ID | Scenario Name | Broker Points | EURUSD Pips | Price Deduction ($\Delta P$) | Purpose & Operational Context |
+|---|---|---:|---:|---:|---|
+| **Scenario 0** | **Gross / Frictionless** | 0 pts | 0.0 pips | 0.00000 | Theoretical baseline: measures gross informational drift. |
+| **Scenario 1** | **Prime Institutional** | 5 pts | 0.5 pips | 0.00005 | Best-case ECN / prime institutional execution. |
+| **Scenario 2** | **Standard Retail (Primary Gate)** | 10 pts | 1.0 pip | 0.00010 | Standard retail / median execution friction during normal hours. |
+| **Scenario 3** | **Stressed / Conservative** | 20 pts | 2.0 pips | 0.00020 | Stressed execution (wider post-announcement spread and adverse fill). |
 
-**Forensic Finding**:
-In **32 of the 49 strict-agreement packages (65.3%)**, BOTH the $T - 7\text{d}$ and $T - 14\text{d}$ control windows are contaminated by major high-impact macro releases (including NFP, CPI, PPI, ISM PMI, Fed Interest Rate Decisions, and ECB press conferences).
-- *Downstream Trap*: Subtracting a contaminated control return $R_{\text{ctrl}, i}$ injects exogenous macro shocks from unrelated events into the excess return $\Delta R_i = R_{\text{event}, i} - R_{\text{ctrl}, i}$.
-- *Architectural Decision for Director*:
-  - **Control Choice A (Direct Event Return Permutation - Recommended)**: Test $H_0: \mathbb{E}[R_{\text{event}}] \le 0$ directly using directional sign-flip permutations ($d_i \in \{-1, +1\}$), avoiding synthetic control contamination entirely ($N = 49$).
-  - **Control Choice B (Contaminated Calendar Controls)**: Use $T - 7\text{d}$ / $T - 14\text{d}$ excess returns, accepting that the control absorbs non-announcement macro variance.
-  - **Control Choice C (Strict Clean Control Filtering)**: Enforce clean controls, causing catastrophic sample collapse to **$N = 17$ packages**.
-
-### 5.2 Test Statistic & Permutation Scheme
-- Directional Event Return:
-  $$R_{\text{event}, i} = d_i \cdot \ln\left(\frac{P_{\text{exit}, i}}{P_{\text{entry}, i}}\right)$$
-- If paired control is used:
-  $$\Delta R_i = R_{\text{event}, i} - R_{\text{ctrl}, i}$$
-- Sample Mean:
-  $$\bar{R} = \frac{1}{N} \sum_{i=1}^N R_i$$
-
-### 5.3 Paired Sign-Flip Assumptions & Robustness Fallbacks
-A paired sign-flip permutation test permutes the directional assignments under $H_0$:
-$$R_i^* = \epsilon_i \cdot R_i, \quad \epsilon_i \in \{-1, +1\} \text{ with equal probability } 0.5$$
-- **Underlying Theoretical Assumptions**:
-  1. **Exchangeability under $H_0$**: Under the null hypothesis of no announcement effect, the sign of the return is exchangeable ($\mathbb{P}(R_i) = \mathbb{P}(-R_i)$).
-  2. **Distribution Symmetry**: Returns are assumed symmetric around zero under $H_0$.
-- **Downstream Hazards**: Financial returns exhibit fat tails, volatility clustering, and macroeconomic drift skew that can violate strict symmetry.
-- **Mandatory Fallback Diagnostics**:
-  1. **Wilcoxon Signed-Rank Test**: Non-parametric test evaluating median directional shift without normality assumptions.
-  2. **Student's Paired t-Test**: Standard parametric test for benchmark comparison.
-  3. **Stationary Block Bootstrap**: Preserves temporal autocorrelation and heteroskedasticity structure.
-  *Failure Rule*: If the sign-flip permutation rejects $H_0$ but fallback tests fail ($p \ge 0.05$), the candidate must be declared **distributionally fragile**.
-
-### 5.4 Decision Gate Hierarchy (Primary 6 H4 Horizon)
-- **Step 1 (Inconclusive / Negative Drift)**: If permutation $p \ge 0.10$ OR $\bar{R} \le 0$, immediately declare **State 3: No Convincing Evidence**. Hard stop.
-- **Step 2 (Borderline / Economically Fragile)**: If $p \ge 0.05$ OR event mean gross drift $\bar{\Delta}_{\text{pips}} < 2.0\text{ pips}$ (insufficient to clear spread friction) OR win rate $< 55\%$, conclude fragile anomaly.
-- **Step 3 (Plausible Anomaly)**: Requires Holm-Bonferroni adjusted $p < 0.025$, $\bar{\Delta}_{\text{pips}} \ge 2.0\text{ pips}$ gross, positive net return after spread deduction, and win rate $\ge 55\%$.
+**Reporting Mandate**: All experimental outputs must report mean returns, pips, t-statistics, and win rates across **all four scenarios simultaneously**. To be considered viable, a strategy must clear **Scenario 2 (Standard Retail, 10 points / 1.0 pip)** with a strictly positive net return.
 
 ---
 
-## 6. Pre-Declared Attribution & Confounder Covariates
+## 5. Statistical Framework & Primary Hypothesis Test
 
-To address the severe downstream hazards documented in [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md), the following interaction covariates are pre-registered:
-1. **Canadian Macro Collision Indicator ($I_{\text{CAD}} \in \{0, 1\}$)**:
-   - 61.2% of strict packages (30 of 49) collide with simultaneous Canadian releases. Sub-group analysis must report performance partitioned by $I_{\text{CAD}}$.
-2. **Same-Timestamp Bundle Size ($N_{\text{bundle}}$)**:
-   - Mean of 12.2 series released simultaneously (including Import Price Index, Export Price Index, NY Empire State Manufacturing).
-3. **Subsequent Macro Event Overlap Count ($K_{\text{later}}$)**:
-   - Evaluates whether drift attenuates or compounds in episodes with high vs low subsequent event counts (Median 10 events over 6 H4).
-*Attribution Mandate*: The research deliverable must report all bundled and subsequent covariates. The team is strictly forbidden from claiming sole causality of EURUSD price movements to retail sales.
+### 5.1 Primary Test Statistic & Estimand
+Let $R_{\text{net}, i}(c)$ be the directional net log return of trade episode $i \in \{1, \dots, N\}$ under cost scenario $c$.
+- **Sample Estimand**: The sample mean net directional return:
+  $$\bar{R}_{\text{net}}(c) = \frac{1}{N} \sum_{i=1}^N R_{\text{net}, i}(c)$$
+- **Sample Standard Deviation** ($s$, with $N - 1$ degrees of freedom):
+  $$s(c) = \sqrt{\frac{1}{N - 1} \sum_{i=1}^N \left(R_{\text{net}, i}(c) - \bar{R}_{\text{net}}(c)\right)^2}$$
+- **Standard Error of the Mean**:
+  $$\text{SE}(c) = \frac{s(c)}{\sqrt{N}}$$
+
+### 5.2 Hypothesis Formulation & Test Method
+- **Null Hypothesis ($H_0$)**: Expected net directional return is non-positive:
+  $$H_0: \mu_{\text{net}}(c) \le 0$$
+- **Alternative Hypothesis ($H_1$)**: Expected net directional return is strictly positive:
+  $$H_1: \mu_{\text{net}}(c) > 0$$
+- **Primary Statistical Test**: **1-Sample Student's t-Test** (1-sided test against zero):
+  $$t(c) = \frac{\bar{R}_{\text{net}}(c)}{\text{SE}(c)}$$
+  $$p(c) = 1 - F_{t_{N-1}}(t(c))$$
+  where $F_{t_{N-1}}$ is the cumulative distribution function of the Student's t distribution with $N - 1 = 48$ degrees of freedom.
+
+### 5.3 Uncertainty Interval
+- **Primary Confidence Interval**: 95% two-sided Student's t confidence interval:
+  $$\left[\bar{R}_{\text{net}}(c) - t_{0.975, 48} \cdot \text{SE}(c), \quad \bar{R}_{\text{net}}(c) + t_{0.975, 48} \cdot \text{SE}(c)\right]$$
+  where $t_{0.975, 48} \approx 2.0106$.
+- **Descriptive Bootstrap Interval**: Reported alongside the parametric interval as a descriptive check using a 100,000-iteration percentile bootstrap.
+
+### 5.4 Test Assumptions & Explicit Scientific Honesty
+1. **Independence Assumption**: Trade episodes occur approximately once per month (~30 days apart). Temporal autocorrelation between consecutive monthly episodes is assumed negligible.
+2. **Central Limit Theorem for Sample Mean**: While individual FX returns exhibit excess kurtosis (fat tails), the sample mean $\bar{R}_{\text{net}}$ across $N = 49$ independent episodes is approximately normally distributed under the Central Limit Theorem.
+3. **Prohibition on Misleading Statistical Terminology**:
+   - Directional assignments ($d_i \in \{-1, +1\}$) are **NOT randomized by nature**; they are deterministic functions of macroeconomic releases.
+   - The 1-sample t-test is **NOT a paired t-test** (there is no paired control trade in the primary test).
+   - Non-parametric tests such as the Wilcoxon signed-rank test are **NOT assumption-free**; they assume that the underlying distribution of differences is continuous and symmetric around its pseudo-median.
+
+### 5.5 Descriptive Robustness Checks (Secondary Diagnostics)
+To verify that parametric significance is not driven by a single extreme outlier:
+1. **Wilcoxon Signed-Rank Test**: Evaluates median directional shift against zero under the assumption of distributional symmetry.
+2. **Sign-Test / Sign-Flip Permutation**: Evaluates whether the number of positive trades exceeds chance, assuming reflection symmetry under $H_0$.
+3. **Outlier Jackknife**: Leave-one-out recomputation of $\bar{R}_{\text{net}}$ and $t$ to verify that significance does not collapse upon removal of any single episode.
 
 ---
 
-## 7. Reconciled Open Design Decisions for Codex Steering
+## 6. Predeclared Research Boundaries & Confounder Diagnostics
 
-All sample-size cells below are reconciled directly from the package ledger against the **$N = 49$ strict-agreement packages**:
+### 6.1 Predeclared Inclusions and Retentions
+1. **Strict Concordance Sample ($N = 49$)**: All primary testing is pegged to the 49 packages with $S_H \times S_C > 0$.
+2. **Omission of ATR Lookback**: Pure fixed-horizon return study; no 14-H4 pre-entry volatility lookback is applied.
+3. **Friday Releases Retained ($N = 15$)**: All 15 Friday releases are retained in the primary sample. However, results **must be reported separately for Friday ($N = 15$) vs Non-Friday ($N = 34$)** to diagnose the empirical effect of 72-hour weekend gap exposure.
 
-| Decision | Option A (Preserve Sample) | Option B (Filter / Exclude) | Option C (Alternative) | Strategic Trade-Off & Reconciled Impact |
-|---|---|---|---|---|
-| **1. Co-Release Rule** | **Strict Concordance ($N = 49$)**<br>(27 POS / 22 NEG) | Non-Conflicting ($N = 51$)<br>(adds 2 Headline POS/Core ZERO) | Unfiltered Headline ($N = 63$)<br>(ignores Core surprise) | Signal cleanliness vs sample size.<br>Strict agreement is cleanest transmission test. |
-| **2. Weekend Exposure** | **Retain Full Sample ($N = 49$)**<br>(includes 15 Friday releases, 72h exposure) | Discard Friday Releases (**$N = 34$**)<br>(leaves $49 - 15 = 34$ packages) | — | Power vs weekend gap carry risk.<br>Discarding Fridays removes 30.6% of data. |
-| **3. Pre-Entry Lookback** | **Omit Lookback ($N = 49$)**<br>(pure forward return question) | Strict Same-Week Lookback (**$N = 37$**)<br>(fails 12 Mon/Tue releases; $49 - 12 = 37$) | — | Unnecessary 14-H4 lookback penalizes Monday/Tuesday releases for prior weekend gap. |
-| **4. CAD Collisions** | **Stratify as Covariate ($N = 49$)**<br>(report $I_{\text{CAD}} = 0$ vs $1$) | Exclude Collisions (**$N = 19$**)<br>(removes 30 collisions; $49 - 30 = 19$) | — | Attribution purity vs severe sample collapse.<br>Excluding CAD leaves only 19 trades. |
-| **5. Control Architecture** | **Direct Event Return ($N = 49$)**<br>(test $H_0: \mathbb{E}[R_{\text{event}}] \le 0$) | Contaminated Calendar Control ($N = 49$)<br>($T-7\text{d}$ / $T-14\text{d}$, 65.3% contaminated) | Clean Calendar Control Only (**$N = 17$**)<br>(drops 32 contaminated controls) | Avoiding control contamination vs paired excess return benchmark. |
-| **6. Combined Strict Filter** | — | **Impose All Exclusions ($N = 6$)**<br>(Non-Fri + Lookback + Zero Collision) | — | **Sample Destruction**: Imposing all filters destroys the sample ($N = 6$). |
+### 6.2 Predeclared Limitations (Not Used to Post-Hoc Optimize)
+1. **Simultaneous Cross-Currency Collisions (30 of 49 packages)**:
+   - 25 packages collide with Canadian releases (CAD), 2 with Eurozone releases (EUR), and 3 with both CAD and EUR.
+   - *Governance Rule*: Collisions are retained in the primary test. Results will be partitioned by $I_{\text{collision}} \in \{0, 1\}$ (19 clean vs 30 colliding) as an attribution limitation, **NOT used to optimize or post-hoc filter the primary rule**.
+2. **Same-Timestamp Macroeconomic Bundling (Mean 12.2 series)**:
+   - Retail Sales is released simultaneously with Import Price Index, Export Price Index, and regional manufacturing surveys. Sole causal attribution to retail sales is strictly prohibited.
+3. **Subsequent Macro Event Exposure (Median 10 later events)**:
+   - Trades absorb subsequent economic releases during the 24-hour holding period. Reported as an empirical market reality.
+
+### 6.3 Diagnostic Calendar Control Availability Audit (Labeled Diagnostic Only)
+The calendar control audit evaluated whether non-announcement matching ($T - 7\text{d}$ or $T - 14\text{d}$) was feasible:
+- $T - 7\text{d}$ clean of high-impact USD/EUR releases: **14 / 49 (28.6%)**.
+- $T - 14\text{d}$ clean of high-impact USD/EUR releases: **5 / 49 (10.2%)**.
+- At least one clean: **17 / 49 (34.7%)**.
+- Contaminated in BOTH windows: **32 / 49 (65.3%)**.
+> [!NOTE]
+> **REMOVAL FROM PRIMARY TEST**:
+> Matched calendar controls are **REMOVED from the primary hypothesis test**. The "17 clean" screening only checked calendar event tags; it did not verify matched candle-path continuity or execution spread feasibility. Furthermore, subtracting a control window that is contaminated 65.3% of the time by NFP, CPI, or FOMC decisions injects severe exogenous noise. The control availability ledger is retained strictly as an informational diagnostic.
+
+---
+
+## 7. Formal Pre-Price Decision Gate Hierarchy
+
+The empirical evaluation of the primary 6-H4 horizon across the 49 pre-2023 packages will result in exactly one of the following three mutually exclusive dispositions:
+
+```
+                                  [ Pre-2023 Evaluation: N = 49 Packages ]
+                                                     |
+                     +-------------------------------+-------------------------------+
+                     |                                                               |
+        Mean Net Return <= 0 OR                                            Mean Net Return > 0 AND
+           1-Sided p >= 0.10                                                  1-Sided p < 0.10
+                     |                                                               |
+                     v                                               +---------------+---------------+
+        [ DISCONFIRMED / NEGATIVE ]                                  |                               |
+       (State 3: No Convincing Evid.)                       0.05 <= p < 0.10 OR             p < 0.05 AND Win Rate >= 53%
+             * HARD STOP *                                 Win Rate < 50% OR               AND Positive under Scenario 2
+       Post-2022 remains SEALED                            Fails Scenario 2                          |
+                                                                     |                               v
+                                                                     v                   [ PROMISING DISCOVERY CANDIDATE ]
+                                                           [ INCONCLUSIVE / FRAGILE ]      (Candidate for Holdout Check)
+                                                                 * HARD STOP *               * NOT A REGISTERED SETUP *
+                                                           Post-2022 remains SEALED         Holdout Protocol Freeze Required
+```
+
+### Complete Pre-Price Decision Matrix
+
+| Empirical Disposition | Quantitative Criteria (Scenario 2: Standard Retail 1.0 Pip) | Scientific Verdict & Downstream Action | Post-2022 Holdout Action |
+|---|---|---|---|
+| **1. Negative / Disconfirmed (State 3)** | $\bar{R}_{\text{net}}(c_2) \le 0$ **OR** 1-sided $p(c_2) \ge 0.10$ | **No Convincing Evidence**: Directional retail drift is absent or absorbed by retail execution friction. Candidate rejected. Closed as negative empirical result. | **STRICTLY SEALED**. Zero inspection permitted. Investigation concludes. |
+| **2. Inconclusive / Economically Fragile** | $\bar{R}_{\text{net}}(c_2) > 0$ **AND** ($0.05 \le p(c_2) < 0.10$ **OR** win rate $< 50\%$ **OR** positive under Scenario 0/1 but negative under Scenario 2) | **Fragile / Statistically Insufficient**: Drift fails standard significance hurdles or cannot reliably clear standard retail transaction friction. | **STRICTLY SEALED**. Candidate is not robust enough to risk consuming holdout data. No setup registered. |
+| **3. Promising Discovery Result** | $\bar{R}_{\text{net}}(c_2) > 0$ **AND** 1-sided $p(c_2) < 0.05$ **AND** win rate $\ge 53\%$ **AND** $\bar{R}_{\text{net}} > 0$ in both Friday and Non-Friday partitions | **Candidate for Holdout Verification**: Evidence of post-announcement drift surviving standard retail friction. **NOT A REGISTERED SETUP.** | **ELIGIBLE FOR FORMAL HOLDOUT FREEZE**. Candidate earns the right to a formal, frozen holdout verification audit on post-2022 data. |
+
+### Governance Rules for a Promising Discovery Result
+1. **NOT A REGISTERED SETUP**:
+   A promising discovery result in pre-2023 data does **NOT** constitute a production trading strategy, an approved signal, or a registered setup.
+2. **Untouched Post-2022 Holdout Verification**:
+   The candidate must be tested against the untouched post-2022 holdout ($N = 45$ sealed packages, `2023-01-01` to `2026-09-23`) under the **exact, unchanged, frozen rule** (6 H4 horizon, entry at next active H4 bar, strict concordance, Scenario 2 friction).
+3. **Demo Forward Testing**:
+   If and only if the candidate survives the post-2022 holdout with positive net return and non-degraded win rate, it may be drafted into live forward paper/demo execution.
 
 ---
 
@@ -207,10 +265,13 @@ All sample-size cells below are reconciled directly from the package ledger agai
 
 - [x] Pinned raw calendar hash verified (`76062b8f...`)
 - [x] Pinned EURUSD H1 candle hash verified (`893aa193...`)
-- [x] Package deduplication and sign contingency verified ($N=96, N_{\text{AFP}}=68, N_{\text{strict}}=49$)
-- [x] Strict subsample attrition cells verified ($49 \to 34$ Friday, $49 \to 37$ lookback, $49 \to 19$ collision, $N = 6$ combined)
-- [x] German Ifo benchmark reconciled (6/40 weekend crossings, CESifo 3-series bundle)
-- [x] Control window availability audited (65.3% contaminated in both 7d/14d)
-- [x] Price blindness strictly preserved (zero price reads, field-0 substring extraction only)
-- [ ] Codex Quant Director audit & approval of unresolved design choices
-- [ ] Formal protocol freeze before price exploration
+- [x] Provenance verified: EURUSD 5 digits, point = 0.00001, pip = 10 broker points (`candle_symbols.csv`)
+- [x] Long/Short Bid–Ask execution arithmetic defined and synthetically unit-tested (`tests/test_strategy_viability_arithmetic.py`)
+- [x] 1-sample Student's t viability statistic and confidence interval defined and synthetically unit-tested
+- [x] Frozen cost-sensitivity scenarios specified (0, 5, 10, 20 points)
+- [x] Matched calendar controls removed from primary test; diagnostic availability ledger documented (65.3% contamination)
+- [x] 12-H4 horizon designated strictly exploratory/descriptive; inconsistent fixed Holm thresholds removed
+- [x] Prior candidate searches ($K=21$, CPI/NFP Phase 1, German Ifo failure) registered as nominal p-value limitation
+- [x] Complete decision table provided with explicit distinction between discovery candidate and registered setup
+- [x] Price blindness strictly preserved (zero price reads, zero backtests run, holdout strictly sealed)
+- [ ] Codex Quant Director audit & formal protocol freeze
