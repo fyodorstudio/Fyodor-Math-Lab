@@ -84,6 +84,15 @@ COST_SCENARIOS = {
     "Scenario_E": 3.0    # 3.0 pips / 30 pts (Combined sensitivity hurdle)
 }
 
+# Fixed friction costs in exact integer broker points (1 pip = 10 pts)
+COST_SCENARIOS_POINTS = {
+    "Scenario_A": 0,
+    "Scenario_B": 5,
+    "Scenario_C": 10,
+    "Scenario_D": 20,
+    "Scenario_E": 30
+}
+
 
 def compute_file_sha256(filepath: str) -> str:
     """
@@ -136,6 +145,95 @@ def get_implementation_provenance() -> Dict[str, Any]:
         "git_head_commit": head_commit,
         "git_status_clean": not is_dirty,
         "has_uncommitted_changes": is_dirty
+    }
+
+
+def verify_freeze_packet_authorization(
+    freeze_packet_path: str,
+    expected_protocol_ref: str = PROTOCOL_REFERENCE,
+    expected_runner_commit: Optional[str] = None,
+    check_git_committed: bool = True
+) -> Dict[str, Any]:
+    """
+    Verifies that the provided freeze packet:
+    1. Exists on disk.
+    2. Is tracked in Git without uncommitted working tree modifications.
+    3. Has explicit authorized governance status (not PENDING or DRAFT).
+    4. Explicitly references the governing protocol.
+    5. Explicitly references the approved runner commit SHA.
+
+    A bare boolean flag (allow_unblinded_run=True) is strictly insufficient to authorize
+    empirical unblinded candidate price reading.
+    """
+    if not os.path.isfile(freeze_packet_path):
+        raise FileNotFoundError(f"Freeze packet not found at path: '{freeze_packet_path}'")
+
+    repo_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
+    if check_git_committed:
+        try:
+            res_track = subprocess.run(
+                ["git", "ls-files", "--error-unmatch", freeze_packet_path],
+                capture_output=True, text=True, cwd=repo_dir
+            )
+            if res_track.returncode != 0:
+                raise PermissionError(
+                    f"Freeze packet '{freeze_packet_path}' is not tracked in Git repository. "
+                    f"Formal discovery execution requires a committed freeze packet."
+                )
+
+            res_diff = subprocess.run(
+                ["git", "status", "--porcelain", freeze_packet_path],
+                capture_output=True, text=True, cwd=repo_dir
+            )
+            status_text = res_diff.stdout.strip()
+            if status_text:
+                raise PermissionError(
+                    f"Freeze packet '{freeze_packet_path}' has uncommitted changes in Git working tree: "
+                    f"{status_text}. Working tree must be clean."
+                )
+        except PermissionError:
+            raise
+        except Exception as e:
+            raise PermissionError(
+                f"Failed to verify Git tracking of freeze packet '{freeze_packet_path}': {e}"
+            )
+
+    with open(freeze_packet_path, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    is_authorized = (
+        "GOVERNANCE STATUS: AUTHORIZED" in content or
+        "AUTHORIZED FOR PRE-2023 DISCOVERY RUN" in content
+    )
+    is_pending = "PENDING" in content or "DRAFT PROPOSAL" in content
+
+    if not is_authorized or is_pending:
+        raise PermissionError(
+            f"Freeze packet '{freeze_packet_path}' governance status is not authorized "
+            f"(marked pending, draft, or lacks explicit authorization)."
+        )
+
+    protocol_base = os.path.basename(expected_protocol_ref).replace(".md", "")
+    if protocol_base not in content and expected_protocol_ref not in content:
+        raise PermissionError(
+            f"Freeze packet '{freeze_packet_path}' does not reference expected governing protocol "
+            f"'{expected_protocol_ref}'."
+        )
+
+    if expected_runner_commit:
+        commit_short = expected_runner_commit[:7]
+        if expected_runner_commit not in content and commit_short not in content:
+            raise PermissionError(
+                f"Freeze packet '{freeze_packet_path}' does not reference approved runner commit "
+                f"'{expected_runner_commit}'."
+            )
+
+    return {
+        "freeze_packet_path": os.path.normpath(freeze_packet_path).replace("\\", "/"),
+        "is_authorized": True,
+        "governing_protocol": expected_protocol_ref,
+        "runner_commit": expected_runner_commit
     }
 
 
@@ -316,6 +414,8 @@ class CandlePriceIndex:
                 except ValueError:
                     raise ValueError(f"Line {line_num}: Malformed timestamp field '{ts_str}'")
 
+                # Hard split barrier & logical parsing isolation:
+                # Breaks immediately before parsing columns 1..N of post-split row
                 if ts >= split_timestamp:
                     break
 
@@ -537,6 +637,7 @@ def compute_pip_statistics(
     """
     Computes 1-sample Student's t viability statistics on pip returns.
     Primary test: H0: mu <= 0 vs H1: mu > 0 (1-sided).
+    Uses scipy.stats.t.sf for high-precision survival-function upper tail evaluation.
 
     Input Validation:
     - Rejects non-finite values (NaN, Inf).
@@ -584,7 +685,8 @@ def compute_pip_statistics(
         }
 
     t_stat = mean_pips / std_err
-    p_val_1sided = float(1.0 - stats.t.cdf(t_stat, df=n - 1))
+    # Upper tail survival function P(T >= t) preferred over 1.0 - cdf(t)
+    p_val_1sided = float(stats.t.sf(t_stat, df=n - 1))
 
     # 1-sided 95% lower confidence bound: [ci_95_1sided_lower, infinity)
     crit_t_95_1sided = float(stats.t.ppf(1.0 - alpha, df=n - 1))
@@ -595,8 +697,8 @@ def compute_pip_statistics(
     ci_95_2sided_lower = mean_pips - crit_t_95_2sided * std_err
     ci_95_2sided_upper = mean_pips + crit_t_95_2sided * std_err
 
-    # Win rate (proportion of strictly positive returns)
-    wins = sum(1 for r in pip_returns if r > 0.0)
+    # Integer-point safe win count: strictly positive broker point difference
+    wins = sum(1 for r in pip_returns if round(r * EURUSD_POINTS_PER_PIP) > 0)
     win_rate = wins / n
 
     return {
@@ -716,13 +818,124 @@ def classify_ism_discovery_outcome(
             "is_promising": True
         }
     else:
-        # Mathematical fallback (cannot be reached with real numbers)
         return {
             "case_id": "Fail-Closed",
             "disposition": "FAIL_CLOSED_INVALID",
             "verdict": "Unclassified mathematical boundary. Fails closed.",
             "is_promising": False
         }
+
+
+def preflight_verification(
+    calendar_path: str,
+    candle_path: str,
+    freeze_packet_path: Optional[str] = None,
+    allow_unblinded_run: bool = False,
+    is_synthetic_test: bool = False,
+    expected_calendar_sha256: Optional[str] = EXPECTED_PINNED_SOURCES["calendar_releases"]["sha256"],
+    expected_candle_sha256: Optional[str] = EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"],
+    split_timestamp: int = HARD_SPLIT_TIMESTAMP,
+    force_dirty_check: Optional[bool] = None,
+    check_freeze_git: bool = True
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """
+    Executes an unyielding price-blind preflight audit BEFORE touching or parsing candle prices:
+    1. Implementation state: must be clean Git status and known commit SHA.
+    2. Freeze authorization: requires an explicit committed freeze packet with approved status.
+    3. Input file hashing: exact cryptographic match against approved SHA-256 digests.
+    4. Pre-price calendar accounting: exactly 96 total, 67 complete A/F/P, 66 actionable,
+       28 positive, 38 negative, 1 zero surprise.
+    """
+    # Gate 1: Explicit unblinding authorization check
+    if not is_synthetic_test:
+        if not allow_unblinded_run:
+            raise PermissionError(
+                "Unblinded empirical execution is strictly prohibited prior to formal protocol freeze. "
+                "Pinned candidate prices remain sealed."
+            )
+
+    # Gate 2: Freeze Packet Authorization check
+    freeze_info = None
+    if not is_synthetic_test:
+        if not freeze_packet_path:
+            raise PermissionError(
+                "Unblinded empirical execution requires an explicit committed freeze packet. "
+                "A bare allow_unblinded_run=True boolean is strictly insufficient."
+            )
+
+    # Gate 3: Implementation State Cleanliness
+    provenance = get_implementation_provenance()
+    should_check_dirty = force_dirty_check if force_dirty_check is not None else (not is_synthetic_test)
+    if should_check_dirty:
+        if provenance["has_uncommitted_changes"] or force_dirty_check is True:
+            raise RuntimeError(
+                "Implementation state is dirty (uncommitted changes detected). "
+                "Formal pre-2023 discovery requires a clean committed working tree."
+            )
+        if provenance["git_head_commit"] == "UNKNOWN":
+            raise RuntimeError("Cannot verify Git HEAD commit SHA for implementation provenance.")
+
+    # Gate 4: Freeze Packet Content and Commit Authorization
+    if not is_synthetic_test:
+        freeze_info = verify_freeze_packet_authorization(
+            freeze_packet_path=freeze_packet_path,
+            expected_protocol_ref=PROTOCOL_REFERENCE,
+            expected_runner_commit=provenance["git_head_commit"],
+            check_git_committed=check_freeze_git
+        )
+
+    # Gate 4: Cryptographic File Digest Verification
+    cal_sha256 = compute_file_sha256(calendar_path)
+    if not is_synthetic_test or expected_calendar_sha256 is not None:
+        if expected_calendar_sha256 and cal_sha256 != expected_calendar_sha256:
+            raise ValueError(
+                f"Calendar file '{calendar_path}' SHA-256 '{cal_sha256}' does not match "
+                f"expected approved hash '{expected_calendar_sha256}'."
+            )
+
+    candle_sha256 = compute_file_sha256(candle_path)
+    if not is_synthetic_test or expected_candle_sha256 is not None:
+        if expected_candle_sha256 and candle_sha256 != expected_candle_sha256:
+            raise ValueError(
+                f"EURUSD candle file '{candle_path}' SHA-256 '{candle_sha256}' does not match "
+                f"expected approved hash '{expected_candle_sha256}'."
+            )
+
+    # Gate 5: Pre-Price Calendar Sample Accounting Verification
+    cal_data = load_ism_packages_from_calendar_csv(
+        calendar_csv_path=calendar_path,
+        split_timestamp=split_timestamp
+    )
+    acc = cal_data["sample_accounting"]
+    if not is_synthetic_test:
+        if (
+            acc["total_pre2023_releases"] != FROZEN_ISM_TOTAL_PRE2023 or
+            acc["complete_afp_releases"] != FROZEN_ISM_COMPLETE_AFP or
+            acc["missing_forecast_releases"] != FROZEN_ISM_INCOMPLETE or
+            acc["actionable_releases"] != FROZEN_ISM_ACTIONABLE or
+            acc["positive_surprises"] != FROZEN_ISM_POSITIVE_SURPRISE or
+            acc["negative_surprises"] != FROZEN_ISM_NEGATIVE_SURPRISE or
+            acc["zero_surprises"] != FROZEN_ISM_ZERO_SURPRISE
+        ):
+            raise ValueError(
+                f"Pre-price calendar sample accounting mismatch in '{calendar_path}'. "
+                f"Expected: total={FROZEN_ISM_TOTAL_PRE2023}, complete={FROZEN_ISM_COMPLETE_AFP}, "
+                f"missing={FROZEN_ISM_INCOMPLETE}, actionable={FROZEN_ISM_ACTIONABLE} "
+                f"(pos={FROZEN_ISM_POSITIVE_SURPRISE}, neg={FROZEN_ISM_NEGATIVE_SURPRISE}, "
+                f"zero={FROZEN_ISM_ZERO_SURPRISE}). Got: {acc}."
+            )
+
+    preflight_metadata = {
+        "calendar_sha256": cal_sha256,
+        "candle_sha256": candle_sha256,
+        "calendar_verified": (not is_synthetic_test and cal_sha256 == expected_calendar_sha256),
+        "candle_verified": (not is_synthetic_test and candle_sha256 == expected_candle_sha256),
+        "freeze_packet_info": freeze_info,
+        "provenance": provenance,
+        "is_synthetic_test": is_synthetic_test
+    }
+
+    return cal_data, preflight_metadata
 
 
 class IsmCalculationRunner:
@@ -738,11 +951,12 @@ class IsmCalculationRunner:
         actionable_packages: List[Dict[str, Any]],
         price_index: CandlePriceIndex,
         expected_sample_size: Optional[int] = FROZEN_ISM_ACTIONABLE,
-        sample_accounting: Optional[Dict[str, Any]] = None
+        sample_accounting: Optional[Dict[str, Any]] = None,
+        require_48h1_completeness: bool = True
     ) -> Dict[str, Any]:
         """
         Executes strategy calculation entirely from in-memory synthetic packages and price index.
-        Ideal for pure price-blind unit tests without reading pinned historical files.
+        Uses exact integer broker point arithmetic to prevent floating-point break-even noise.
         """
         episodes_24h1: List[Dict[str, Any]] = []
         episodes_48h1: List[Dict[str, Any]] = []
@@ -771,18 +985,26 @@ class IsmCalculationRunner:
             open_price = entry_bar.open
             close_price_24 = exit_bar_24.close
 
-            # Gross Directional Pip Return
-            gross_pip_24 = direction * (close_price_24 - open_price) / EURUSD_PIP_SIZE
+            # Decimal/integer-point-safe arithmetic:
+            # 1 point = 0.00001 (5th decimal digit); 1 pip = 10 points
+            open_pts = round(open_price / EURUSD_POINT)
+            close_pts_24 = round(close_price_24 / EURUSD_POINT)
+            point_diff_24 = direction * (close_pts_24 - open_pts)  # exact integer points
+            gross_pip_24 = point_diff_24 / EURUSD_POINTS_PER_PIP
             gross_pips_24.append(gross_pip_24)
 
-            # 5 Cost Scenarios (cost deducted once in pips)
+            # 5 Cost Scenarios (cost in integer broker points deducted once)
             trade_net_pips_24: Dict[str, float] = {}
-            for sc_name, sc_cost in COST_SCENARIOS.items():
-                net_p = gross_pip_24 - sc_cost
+            for sc_name, sc_cost_pips in COST_SCENARIOS.items():
+                sc_cost_pts = COST_SCENARIOS_POINTS[sc_name]
+                net_pts_24 = point_diff_24 - sc_cost_pts  # exact integer points
+                net_p = net_pts_24 / EURUSD_POINTS_PER_PIP
                 trade_net_pips_24[sc_name] = net_p
                 scenarios_net_pips_24[sc_name].append(net_p)
 
-            # Subgroup collection (Friday vs Non-Friday)
+            # Break-even check under Scenario C: strictly positive integer point difference
+            is_win_c_24 = (point_diff_24 - COST_SCENARIOS_POINTS["Scenario_C"]) > 0
+
             if weekday == "Friday":
                 friday_sc_c_pips_24.append(trade_net_pips_24["Scenario_C"])
             else:
@@ -801,23 +1023,31 @@ class IsmCalculationRunner:
                 "crosses_weekend": crosses_weekend_24,
                 "gross_pips": gross_pip_24,
                 "net_pips_by_scenario": trade_net_pips_24,
-                "is_win_scenario_c": trade_net_pips_24["Scenario_C"] > 0.0
+                "is_win_scenario_c": is_win_c_24
             }
             episodes_24h1.append(episode_24)
 
-            # 2. Descriptive 48-Active-H1 Horizon (if available)
-            try:
+            # 2. Descriptive 48-Active-H1 Horizon
+            # Fail closed on any broken or missing path if 48-H1 completeness is required
+            if require_48h1_completeness:
                 bars_48, crosses_weekend_48 = price_index.resolve_active_h1_path(entry_ts, num_bars=48)
                 exit_bar_48 = bars_48[47]
                 close_price_48 = exit_bar_48.close
-                gross_pip_48 = direction * (close_price_48 - open_price) / EURUSD_PIP_SIZE
+
+                close_pts_48 = round(close_price_48 / EURUSD_POINT)
+                point_diff_48 = direction * (close_pts_48 - open_pts)
+                gross_pip_48 = point_diff_48 / EURUSD_POINTS_PER_PIP
                 gross_pips_48.append(gross_pip_48)
 
                 trade_net_pips_48: Dict[str, float] = {}
-                for sc_name, sc_cost in COST_SCENARIOS.items():
-                    net_p = gross_pip_48 - sc_cost
+                for sc_name, sc_cost_pips in COST_SCENARIOS.items():
+                    sc_cost_pts = COST_SCENARIOS_POINTS[sc_name]
+                    net_pts_48 = point_diff_48 - sc_cost_pts
+                    net_p = net_pts_48 / EURUSD_POINTS_PER_PIP
                     trade_net_pips_48[sc_name] = net_p
                     scenarios_net_pips_48[sc_name].append(net_p)
+
+                is_win_c_48 = (point_diff_48 - COST_SCENARIOS_POINTS["Scenario_C"]) > 0
 
                 episodes_48h1.append({
                     "release_timestamp": rel_ts,
@@ -832,11 +1062,54 @@ class IsmCalculationRunner:
                     "crosses_weekend": crosses_weekend_48,
                     "gross_pips": gross_pip_48,
                     "net_pips_by_scenario": trade_net_pips_48,
-                    "is_win_scenario_c": trade_net_pips_48["Scenario_C"] > 0.0
+                    "is_win_scenario_c": is_win_c_48
                 })
-            except Exception:
-                # 48-H1 is exploratory; if unavailable, skip without breaking primary
-                pass
+            else:
+                # Synthetic fixtures where 48-H1 bars are not provisioned
+                try:
+                    bars_48, crosses_weekend_48 = price_index.resolve_active_h1_path(entry_ts, num_bars=48)
+                    exit_bar_48 = bars_48[47]
+                    close_price_48 = exit_bar_48.close
+
+                    close_pts_48 = round(close_price_48 / EURUSD_POINT)
+                    point_diff_48 = direction * (close_pts_48 - open_pts)
+                    gross_pip_48 = point_diff_48 / EURUSD_POINTS_PER_PIP
+                    gross_pips_48.append(gross_pip_48)
+
+                    trade_net_pips_48 = {}
+                    for sc_name, sc_cost_pips in COST_SCENARIOS.items():
+                        sc_cost_pts = COST_SCENARIOS_POINTS[sc_name]
+                        net_pts_48 = point_diff_48 - sc_cost_pts
+                        net_p = net_pts_48 / EURUSD_POINTS_PER_PIP
+                        trade_net_pips_48[sc_name] = net_p
+                        scenarios_net_pips_48[sc_name].append(net_p)
+
+                    is_win_c_48 = (point_diff_48 - COST_SCENARIOS_POINTS["Scenario_C"]) > 0
+
+                    episodes_48h1.append({
+                        "release_timestamp": rel_ts,
+                        "weekday": weekday,
+                        "direction": direction,
+                        "direction_label": dir_label,
+                        "entry_timestamp": entry_ts,
+                        "entry_open_price": open_price,
+                        "exit_bar_timestamp": exit_bar_48.timestamp,
+                        "exit_close_timestamp": exit_bar_48.timestamp + SECONDS_IN_H1,
+                        "exit_close_price": close_price_48,
+                        "crosses_weekend": crosses_weekend_48,
+                        "gross_pips": gross_pip_48,
+                        "net_pips_by_scenario": trade_net_pips_48,
+                        "is_win_scenario_c": is_win_c_48
+                    })
+                except (ValueError, KeyError, PermissionError):
+                    pass
+
+        # Fail closed if 48-H1 completeness was required but unresolved
+        if require_48h1_completeness and len(episodes_48h1) != len(actionable_packages):
+            raise RuntimeError(
+                f"48-H1 path completeness failure: expected {len(actionable_packages)} complete paths, "
+                f"resolved {len(episodes_48h1)}. Fails closed."
+            )
 
         # Compute Primary Summary Statistics (24-H1)
         primary_scenario_stats: Dict[str, Any] = {}
@@ -917,34 +1190,68 @@ class IsmCalculationRunner:
         self,
         calendar_path: str,
         candle_path: str,
+        freeze_packet_path: Optional[str] = None,
         allow_unblinded_run: bool = False,
-        output_json_path: Optional[str] = None
+        is_synthetic_test: bool = False,
+        output_json_path: Optional[str] = None,
+        expected_calendar_sha256: Optional[str] = EXPECTED_PINNED_SOURCES["calendar_releases"]["sha256"],
+        expected_candle_sha256: Optional[str] = EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"],
+        expected_sample_size: Optional[int] = FROZEN_ISM_ACTIONABLE,
+        force_dirty_check: Optional[bool] = None,
+        require_48h1_completeness: bool = True
     ) -> Dict[str, Any]:
         """
         Executes discovery calculation from CSV files on disk.
-        Enforces strict safety guard: cannot read pinned candidate candle file without
-        allow_unblinded_run=True.
+
+        FAIL-CLOSED SAFETY PREFLIGHT:
+        Before parsing ANY pinned candle price field:
+        1. Verifies exact SHA-256 for calendar and candle files; rejects mismatches immediately.
+        2. Verifies clean committed Git state and calendar accounting (96/67/66/28/38/1).
+        3. Requires committed authorized freeze packet; bare allow_unblinded_run=True is rejected.
+        4. Verifies output file immutability (does not overwrite existing output artifacts).
         """
-        # Load calendar packages
-        cal_data = load_ism_packages_from_calendar_csv(
-            calendar_csv_path=calendar_path,
-            split_timestamp=self.split_timestamp
+        # 1. Output immutability check
+        if output_json_path and os.path.exists(output_json_path):
+            raise FileExistsError(
+                f"Discovery artifact already exists at '{output_json_path}'. "
+                f"Overwriting discovery artifacts is strictly prohibited to preserve immutable records."
+            )
+
+        # 2. Price-blind preflight verification BEFORE opening candle file
+        exp_cal_sha = None if is_synthetic_test else expected_calendar_sha256
+        exp_candle_sha = None if is_synthetic_test else expected_candle_sha256
+
+        cal_data, preflight_meta = preflight_verification(
+            calendar_path=calendar_path,
+            candle_path=candle_path,
+            freeze_packet_path=freeze_packet_path,
+            allow_unblinded_run=allow_unblinded_run,
+            is_synthetic_test=is_synthetic_test,
+            expected_calendar_sha256=exp_cal_sha,
+            expected_candle_sha256=exp_candle_sha,
+            split_timestamp=self.split_timestamp,
+            force_dirty_check=force_dirty_check
         )
 
-        # Load candle prices
+        # 3. Load candle price index (enforces logical parsing isolation at split boundary)
         price_index = CandlePriceIndex.from_csv(
             filepath=candle_path,
             split_timestamp=self.split_timestamp,
-            allow_unblinded_run=allow_unblinded_run
+            allow_unblinded_run=allow_unblinded_run or is_synthetic_test
         )
 
+        # 4. Execute calculations across episodes
         result = self.execute_from_fixtures(
             actionable_packages=cal_data["actionable_packages"],
             price_index=price_index,
-            expected_sample_size=FROZEN_ISM_ACTIONABLE,
-            sample_accounting=cal_data["sample_accounting"]
+            expected_sample_size=expected_sample_size,
+            sample_accounting=cal_data["sample_accounting"],
+            require_48h1_completeness=require_48h1_completeness
         )
 
+        result["preflight_verification"] = preflight_meta
+
+        # 5. Write immutable discovery output artifact
         if output_json_path:
             out_dir = os.path.dirname(os.path.abspath(output_json_path))
             os.makedirs(out_dir, exist_ok=True)

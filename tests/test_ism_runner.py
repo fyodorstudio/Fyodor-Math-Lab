@@ -9,8 +9,18 @@ Verifies:
 6. Sample accounting on synthetic calendar packages (96 total, 67 complete, 66 actionable, 1 zero excluded).
 7. One-sample t-test, p-value, and confidence interval arithmetic.
 8. Every mutually exclusive decision category (Cases 1 through 5).
-9. Fail-closed behavior (s=0, NaN/inf, undefined stats, sample count mismatch).
+9. Fail-closed boundary behavior (s=0, NaN/inf, undefined stats, sample count mismatch).
 10. Strict safety guard prohibiting reading pinned candidate candles without explicit authorization.
+11. 1-pip break-even case with exact integer-point safe arithmetic.
+12. scipy.stats.t.sf survival function for one-sided p-value precision.
+13. Descriptive 48-H1 fails closed on broken or missing paths (no silent omission).
+14. Preflight rejects bad calendar SHA-256 before reading candles.
+15. Preflight rejects bad candle SHA-256 before parsing prices.
+16. Preflight rejects calendar count mismatches before parsing prices.
+17. Preflight rejects missing, uncommitted, pending, or commit-mismatched freeze packets.
+18. Preflight rejects dirty implementation state.
+19. End-to-end synthetic CSV test of execute_from_paths with post-split malformed sentinel.
+20. Immutable output behavior: rejects overwriting an existing discovery artifact.
 
 Zero empirical candidate candle prices are parsed or executed in this test suite.
 """
@@ -29,10 +39,15 @@ from src.ism_runner import (
     load_ism_packages_from_calendar_csv,
     compute_pip_statistics,
     classify_ism_discovery_outcome,
+    preflight_verification,
+    verify_freeze_packet_authorization,
     HARD_SPLIT_TIMESTAMP,
     HEADLINE_EVENT_ID,
+    EURUSD_POINT,
+    EURUSD_POINTS_PER_PIP,
     EURUSD_PIP_SIZE,
     COST_SCENARIOS,
+    COST_SCENARIOS_POINTS,
     FROZEN_ISM_TOTAL_PRE2023,
     FROZEN_ISM_COMPLETE_AFP,
     FROZEN_ISM_INCOMPLETE,
@@ -40,6 +55,8 @@ from src.ism_runner import (
     FROZEN_ISM_POSITIVE_SURPRISE,
     FROZEN_ISM_NEGATIVE_SURPRISE,
     FROZEN_ISM_ZERO_SURPRISE,
+    EXPECTED_PINNED_SOURCES,
+    PROTOCOL_REFERENCE
 )
 from src.candle_coverage import SECONDS_IN_H1
 
@@ -70,13 +87,11 @@ class TestIsmRunner(unittest.TestCase):
           If close > open, profit is positive.
         """
         runner = IsmCalculationRunner()
-        base_ts = 1500000000  # arbitrary pre-2023 timestamp
+        base_ts = 1500000000
 
-        # Create 24 consecutive H1 candles
         bars = []
         for i in range(24):
             ts = base_ts + i * SECONDS_IN_H1
-            # Entry open at 1.10000, final close at 1.09000 (drop of 100 pips)
             o = 1.10000 if i == 0 else 1.09500
             c = 1.09000 if i == 23 else 1.09500
             bars.append(create_synthetic_candle(ts, o, c))
@@ -91,10 +106,11 @@ class TestIsmRunner(unittest.TestCase):
             "direction_label": "SHORT_EURUSD",
             "weekday": "Tuesday"
         }]
-        res_short = runner.execute_from_fixtures(pkg_short, price_index, expected_sample_size=None)
+        res_short = runner.execute_from_fixtures(
+            pkg_short, price_index, expected_sample_size=None, require_48h1_completeness=False
+        )
         ep_short = res_short["primary_24h1_results"]["episodes"][0]
         self.assertAlmostEqual(ep_short["gross_pips"], 100.0, places=5)
-        # Scenario C net pips = 100.0 - 1.0 = 99.0
         self.assertAlmostEqual(ep_short["net_pips_by_scenario"]["Scenario_C"], 99.0, places=5)
 
         # 2. Dovish Long EURUSD: entry open 1.10000, exit close 1.09000 -> price dropped 100 pips -> -100 gross pips
@@ -105,10 +121,11 @@ class TestIsmRunner(unittest.TestCase):
             "direction_label": "LONG_EURUSD",
             "weekday": "Tuesday"
         }]
-        res_long = runner.execute_from_fixtures(pkg_long, price_index, expected_sample_size=None)
+        res_long = runner.execute_from_fixtures(
+            pkg_long, price_index, expected_sample_size=None, require_48h1_completeness=False
+        )
         ep_long = res_long["primary_24h1_results"]["episodes"][0]
         self.assertAlmostEqual(ep_long["gross_pips"], -100.0, places=5)
-        # Scenario C net pips = -100.0 - 1.0 = -101.0
         self.assertAlmostEqual(ep_long["net_pips_by_scenario"]["Scenario_C"], -101.0, places=5)
 
     def test_cost_deducted_once_across_scenarios(self):
@@ -118,7 +135,6 @@ class TestIsmRunner(unittest.TestCase):
         runner = IsmCalculationRunner()
         base_ts = 1500000000
 
-        # Construct 24 bars: Open 1.10000, Close 1.10500 (+50 pips for Long)
         bars = []
         for i in range(24):
             ts = base_ts + i * SECONDS_IN_H1
@@ -134,7 +150,9 @@ class TestIsmRunner(unittest.TestCase):
             "direction_label": "LONG_EURUSD",
             "weekday": "Wednesday"
         }]
-        res = runner.execute_from_fixtures(pkg, price_index, expected_sample_size=None)
+        res = runner.execute_from_fixtures(
+            pkg, price_index, expected_sample_size=None, require_48h1_completeness=False
+        )
         ep = res["primary_24h1_results"]["episodes"][0]
 
         gross = ep["gross_pips"]
@@ -148,24 +166,15 @@ class TestIsmRunner(unittest.TestCase):
     def test_24_active_h1_path_crossing_valid_weekend(self):
         """
         Tests resolving 24 active H1 bars across a Friday-to-Sunday weekend closure.
-        Friday 2021-10-01 18:00 (timestamp 1633111200):
-        - Friday bars: 18:00, 19:00, 20:00, 21:00, 22:00 (5 bars: 1633111200 to 1633125600)
-        - Weekend gap: Friday 23:00 to Sunday 23:00 (timestamp 1633129200 -> 1633302000, 48h gap)
-        - Sunday/Monday bars: 19 bars from Sunday 23:00 (1633302000 to 1633366800)
-        Total 24 active bars.
         """
-        runner = IsmCalculationRunner()
         fri_entry_ts = 1633111200  # 2021-10-01 18:00:00 UTC (Friday)
 
         bars = []
-        # 5 Friday bars (18:00, 19:00, 20:00, 21:00, 22:00)
         for i in range(5):
             ts = fri_entry_ts + i * SECONDS_IN_H1
             bars.append(create_synthetic_candle(ts, 1.16000, 1.16000))
 
-        # Sunday 23:00 resume
         sun_resume_ts = 1633302000  # 2021-10-03 23:00:00 UTC (Sunday 23:00)
-        # 19 Sunday/Monday bars
         for i in range(19):
             ts = sun_resume_ts + i * SECONDS_IN_H1
             bars.append(create_synthetic_candle(ts, 1.16000, 1.16000))
@@ -183,15 +192,12 @@ class TestIsmRunner(unittest.TestCase):
 
     def test_invalid_weekday_gap_rejection(self):
         """
-        Tests that an arbitrary weekday gap (e.g. Wednesday 18:00 to Friday 18:00 missing Thursday)
-        is rejected by resolve_active_h1_path.
+        Tests that an arbitrary weekday gap is rejected by resolve_active_h1_path.
         """
-        # Wednesday 2021-09-29 18:00:00 UTC
         wed_entry_ts = 1632938400
         bars = []
         for i in range(5):
             bars.append(create_synthetic_candle(wed_entry_ts + i * SECONDS_IN_H1, 1.16000, 1.16000))
-        # Jump 48 hours to Friday
         fri_ts = wed_entry_ts + 5 * SECONDS_IN_H1 + 48 * SECONDS_IN_H1
         for i in range(19):
             bars.append(create_synthetic_candle(fri_ts + i * SECONDS_IN_H1, 1.16000, 1.16000))
@@ -205,17 +211,10 @@ class TestIsmRunner(unittest.TestCase):
         """
         Tests strict split boundary exit close constraint:
         SPLIT_TIMESTAMP = 1672531200 (2023-01-01 00:00:00 broker server time).
-        1. A bar at or beyond split timestamp cannot be added to CandlePriceIndex.
-        2. A trade whose 24th active bar opens at 1672527600 (2022-12-31 23:00:00)
-           has exit close at 1672531200 <= 1672531200 -> VALID.
-        3. A trade whose 24th active bar opens at 1672531200 has exit close at 1672534800 > split -> REJECTED.
         """
-        # 1. Bar at split rejected
         with self.assertRaises(PermissionError):
             CandlePriceIndex.from_bars([create_synthetic_candle(HARD_SPLIT_TIMESTAMP, 1.05000, 1.05000)])
 
-        # 2. 24 bars ending exactly at 2022-12-31 23:00:00 (ts = 1672531200 - 3600 = 1672527600)
-        # Entry starts 23 hours earlier at 1672527600 - 23 * 3600 = 1672444800
         start_ts = HARD_SPLIT_TIMESTAMP - 24 * SECONDS_IN_H1
         valid_bars = [create_synthetic_candle(start_ts + i * SECONDS_IN_H1, 1.05000, 1.05000) for i in range(24)]
         valid_index = CandlePriceIndex.from_bars(valid_bars)
@@ -223,18 +222,12 @@ class TestIsmRunner(unittest.TestCase):
         self.assertEqual(len(resolved), 24)
         self.assertEqual(resolved[-1].timestamp + SECONDS_IN_H1, HARD_SPLIT_TIMESTAMP)
 
-        # 3. Path whose exit close exceeds split:
-        # If we have 23 bars before split, resolving 24 bars raises ValueError due to insufficient bars
         with self.assertRaises(ValueError):
             valid_index.resolve_active_h1_path(start_ts + SECONDS_IN_H1, num_bars=24)
 
     def test_sample_accounting_from_synthetic_calendar(self):
         """
-        Tests load_ism_packages_from_calendar_csv on a synthetic CSV containing:
-        - 96 releases total
-        - 29 incomplete (missing forecast)
-        - 67 complete A/F/P: 28 positive, 38 negative, 1 zero surprise
-        - 66 actionable (zero surprise excluded)
+        Tests load_ism_packages_from_calendar_csv on a synthetic CSV.
         """
         with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as tmp:
             tmp_path = tmp.name
@@ -242,22 +235,18 @@ class TestIsmRunner(unittest.TestCase):
 
             base_ts = 1420070400  # 2015-01-01 UTC
             step_ts = 25 * 86400  # ~25 days apart
-            # 29 incomplete
             for i in range(29):
                 ts = base_ts + i * step_ts
                 tmp.write(f"{HEADLINE_EVENT_ID},{ts},date_{i},50000000,,49000000\n")
 
-            # 28 positive surprises
             for i in range(28):
                 ts = base_ts + (29 + i) * step_ts
                 tmp.write(f"{HEADLINE_EVENT_ID},{ts},date_{29+i},55000000,50000000,49000000\n")
 
-            # 38 negative surprises
             for i in range(38):
                 ts = base_ts + (29 + 28 + i) * step_ts
                 tmp.write(f"{HEADLINE_EVENT_ID},{ts},date_{57+i},45000000,50000000,49000000\n")
 
-            # 1 zero surprise
             ts_zero = base_ts + 95 * step_ts
             tmp.write(f"{HEADLINE_EVENT_ID},{ts_zero},date_95,50000000,50000000,49000000\n")
 
@@ -274,7 +263,6 @@ class TestIsmRunner(unittest.TestCase):
 
             actionable = cal_data["actionable_packages"]
             self.assertEqual(len(actionable), 66)
-            # Check directions
             for p in actionable[:28]:
                 self.assertEqual(p["direction"], -1)
                 self.assertEqual(p["direction_label"], "SHORT_EURUSD")
@@ -300,7 +288,7 @@ class TestIsmRunner(unittest.TestCase):
         expected_std = math.sqrt(expected_var)
         expected_se = expected_std / math.sqrt(n)
         expected_t = expected_mean / expected_se
-        expected_p_1sided = float(1.0 - stats.t.cdf(expected_t, df=n - 1))
+        expected_p_1sided = float(stats.t.sf(expected_t, df=n - 1))
         expected_ci_2sided_lower = expected_mean - float(stats.t.ppf(0.975, df=n - 1)) * expected_se
         expected_ci_2sided_upper = expected_mean + float(stats.t.ppf(0.975, df=n - 1)) * expected_se
 
@@ -319,12 +307,7 @@ class TestIsmRunner(unittest.TestCase):
 
     def test_mutually_exclusive_decision_categories(self):
         """
-        Tests that every mathematical scenario maps to exactly one mutually exclusive case:
-        - Case 1: mean_gross <= 0 -> DISCONFIRMED_ADVERSE
-        - Case 2: mean_gross > 0 and mean_net_c <= 0 -> INCONCLUSIVE_FRICTION_DECAY
-        - Case 3: mean_net_c > 0 and p >= 0.10 -> INCONCLUSIVE_INSUFFICIENT_EVIDENCE
-        - Case 4: mean_net_c > 0 and 0.05 <= p < 0.10 -> INCONCLUSIVE_FRAGILE
-        - Case 5: mean_net_c > 0 and p < 0.05 -> PROMISING_DISCOVERY_CANDIDATE
+        Tests that every mathematical scenario maps to exactly one mutually exclusive case.
         """
         # Case 1: mean gross <= 0.0
         c1 = classify_ism_discovery_outcome(
@@ -376,7 +359,6 @@ class TestIsmRunner(unittest.TestCase):
         Tests that zero variance, NaN/inf, undefined stats, and sample count mismatches
         fail closed and NEVER evaluate to PROMISING_DISCOVERY_CANDIDATE.
         """
-        # Zero variance: s=0.0
         fc_zero_var = classify_ism_discovery_outcome(
             mean_gross_pips=5.0, mean_net_pips_c=4.0, p_value_c=0.01, sample_std_c=0.0,
             sample_size=66, expected_sample_size=66
@@ -384,7 +366,6 @@ class TestIsmRunner(unittest.TestCase):
         self.assertEqual(fc_zero_var["disposition"], "FAIL_CLOSED_INVALID")
         self.assertFalse(fc_zero_var["is_promising"])
 
-        # NaN return
         fc_nan = classify_ism_discovery_outcome(
             mean_gross_pips=float("nan"), mean_net_pips_c=4.0, p_value_c=0.01, sample_std_c=10.0,
             sample_size=66, expected_sample_size=66
@@ -392,7 +373,6 @@ class TestIsmRunner(unittest.TestCase):
         self.assertEqual(fc_nan["disposition"], "FAIL_CLOSED_INVALID")
         self.assertFalse(fc_nan["is_promising"])
 
-        # Sample size mismatch (e.g. 50 instead of 66)
         fc_mismatch = classify_ism_discovery_outcome(
             mean_gross_pips=5.0, mean_net_pips_c=4.0, p_value_c=0.01, sample_std_c=10.0,
             sample_size=50, expected_sample_size=66
@@ -400,12 +380,10 @@ class TestIsmRunner(unittest.TestCase):
         self.assertEqual(fc_mismatch["disposition"], "FAIL_CLOSED_INVALID")
         self.assertFalse(fc_mismatch["is_promising"])
 
-        # compute_pip_statistics on identical values (zero variance)
         res_zero = compute_pip_statistics([5.0] * 20)
         self.assertFalse(res_zero["is_valid"])
         self.assertIn("Zero sample variance", res_zero["error"])
 
-        # compute_pip_statistics on sample with NaN
         res_nan = compute_pip_statistics([1.0, 2.0, float("nan"), 4.0])
         self.assertFalse(res_nan["is_valid"])
         self.assertIn("non-finite", res_nan["error"])
@@ -427,6 +405,383 @@ class TestIsmRunner(unittest.TestCase):
                 candle_path=pinned_path,
                 allow_unblinded_run=False
             )
+
+    def test_break_even_1pip_point_safe_arithmetic(self):
+        """
+        Tests the 1-pip break-even case with exact integer broker point arithmetic.
+        Verifies that a move of exactly 10 broker points (1.0 pip) generates exactly 0.0 net pips
+        under Scenario C, and is strictly NOT classified as a win.
+        """
+        runner = IsmCalculationRunner()
+        base_ts = 1500000000
+
+        # Create 24 bars: Open 1.10010, Close 1.10000 (drop of 10 points / 1 pip)
+        bars = []
+        for i in range(24):
+            ts = base_ts + i * SECONDS_IN_H1
+            o = 1.10010 if i == 0 else 1.10005
+            c = 1.10000 if i == 23 else 1.10005
+            bars.append(create_synthetic_candle(ts, o, c))
+
+        price_index = CandlePriceIndex.from_bars(bars)
+
+        # 1. Hawkish Short: direction = -1
+        # Gross points = (-1) * (110000 - 110010) = +10 points = 1.0 pip
+        # Scenario C net points = 10 - 10 = 0 points = 0.0 pips
+        pkg_short = [{
+            "timestamp": base_ts - SECONDS_IN_H1,
+            "entry_timestamp": base_ts,
+            "direction": -1,
+            "direction_label": "SHORT_EURUSD",
+            "weekday": "Monday"
+        }]
+        res = runner.execute_from_fixtures(
+            pkg_short, price_index, expected_sample_size=None, require_48h1_completeness=False
+        )
+        ep = res["primary_24h1_results"]["episodes"][0]
+        self.assertEqual(ep["gross_pips"], 1.0)
+        self.assertEqual(ep["net_pips_by_scenario"]["Scenario_C"], 0.0)
+        self.assertFalse(ep["is_win_scenario_c"])
+
+        # 2. Dovish Long: direction = +1
+        # Open 1.10000, Close 1.10010 -> +10 points = 1.0 pip
+        bars_long = []
+        for i in range(24):
+            ts = base_ts + i * SECONDS_IN_H1
+            o = 1.10000 if i == 0 else 1.10005
+            c = 1.10010 if i == 23 else 1.10005
+            bars_long.append(create_synthetic_candle(ts, o, c))
+        index_long = CandlePriceIndex.from_bars(bars_long)
+
+        pkg_long = [{
+            "timestamp": base_ts - SECONDS_IN_H1,
+            "entry_timestamp": base_ts,
+            "direction": 1,
+            "direction_label": "LONG_EURUSD",
+            "weekday": "Monday"
+        }]
+        res_l = runner.execute_from_fixtures(
+            pkg_long, index_long, expected_sample_size=None, require_48h1_completeness=False
+        )
+        ep_l = res_l["primary_24h1_results"]["episodes"][0]
+        self.assertEqual(ep_l["gross_pips"], 1.0)
+        self.assertEqual(ep_l["net_pips_by_scenario"]["Scenario_C"], 0.0)
+        self.assertFalse(ep_l["is_win_scenario_c"])
+
+        # 3. Test win rate in compute_pip_statistics on [0.0, 1.0, -1.0]
+        stats_sample = compute_pip_statistics([0.0, 1.0, -1.0])
+        self.assertTrue(stats_sample["is_valid"])
+        self.assertEqual(stats_sample["win_count"], 1)  # only 1.0 is a win, 0.0 is break-even
+        self.assertAlmostEqual(stats_sample["win_rate"], 1.0 / 3.0, places=6)
+
+    def test_scipy_survival_function_p_value(self):
+        """
+        Verifies that compute_pip_statistics utilizes scipy.stats.t.sf directly.
+        """
+        sample = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+        res = compute_pip_statistics(sample)
+        t_stat = res["t_statistic"]
+        expected_sf = float(stats.t.sf(t_stat, df=len(sample) - 1))
+        self.assertEqual(res["p_value_1sided"], expected_sf)
+
+    def test_descriptive_48h1_fails_closed_on_broken_path(self):
+        """
+        Verifies that when require_48h1_completeness=True, any broken or missing 48-H1 path
+        fails closed with an error rather than being silently omitted.
+        """
+        runner = IsmCalculationRunner()
+        base_ts = 1500000000
+
+        # Only provide 24 bars, so 48-H1 path is incomplete
+        bars = [create_synthetic_candle(base_ts + i * SECONDS_IN_H1, 1.10000, 1.10000) for i in range(24)]
+        price_index = CandlePriceIndex.from_bars(bars)
+
+        pkg = [{
+            "timestamp": base_ts - SECONDS_IN_H1,
+            "entry_timestamp": base_ts,
+            "direction": 1,
+            "direction_label": "LONG_EURUSD",
+            "weekday": "Tuesday"
+        }]
+
+        # With require_48h1_completeness=True (default for discovery), must fail closed
+        with self.assertRaises(ValueError) as ctx:
+            runner.execute_from_fixtures(pkg, price_index, expected_sample_size=None, require_48h1_completeness=True)
+        self.assertIn("Insufficient forward active bars", str(ctx.exception))
+
+    def test_preflight_rejects_bad_calendar_sha256(self):
+        """
+        Verifies preflight rejects calendar file with mismatched SHA-256 before opening candle file.
+        """
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as cal_tmp:
+            cal_tmp.write("dummy,calendar\n")
+            cal_path = cal_tmp.name
+
+        try:
+            with self.assertRaises(ValueError) as ctx:
+                preflight_verification(
+                    calendar_path=cal_path,
+                    candle_path="nonexistent_candle.csv",
+                    is_synthetic_test=True,
+                    expected_calendar_sha256="0000000000000000000000000000000000000000000000000000000000000000"
+                )
+            self.assertIn("does not match expected approved hash", str(ctx.exception))
+        finally:
+            if os.path.exists(cal_path):
+                os.remove(cal_path)
+
+    def test_preflight_rejects_bad_candle_sha256(self):
+        """
+        Verifies preflight rejects candle file with mismatched SHA-256 before parsing prices.
+        """
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as cal_tmp:
+            cal_tmp.write("event_id,timestamp,timestamp_server_text,actual_raw_scaled_1e6,forecast_raw_scaled_1e6,previous_raw_scaled_1e6\n")
+            cal_path = cal_tmp.name
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as candle_tmp:
+            candle_tmp.write("time,open,high,low,close\n")
+            candle_path = candle_tmp.name
+
+        try:
+            from src.ism_runner import compute_file_sha256
+            cal_sha = compute_file_sha256(cal_path)
+
+            with self.assertRaises(ValueError) as ctx:
+                preflight_verification(
+                    calendar_path=cal_path,
+                    candle_path=candle_path,
+                    is_synthetic_test=True,
+                    expected_calendar_sha256=cal_sha,
+                    expected_candle_sha256="ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+                )
+            self.assertIn("EURUSD candle file", str(ctx.exception))
+            self.assertIn("does not match expected approved hash", str(ctx.exception))
+        finally:
+            if os.path.exists(cal_path):
+                os.remove(cal_path)
+            if os.path.exists(candle_path):
+                os.remove(candle_path)
+
+    def test_preflight_rejects_bad_calendar_counts(self):
+        """
+        Verifies preflight rejects calendar with wrong release counts before parsing candle prices.
+        """
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as cal_tmp:
+            cal_tmp.write("event_id,timestamp,actual_raw_scaled_1e6,forecast_raw_scaled_1e6,previous_raw_scaled_1e6\n")
+            cal_tmp.write(f"{HEADLINE_EVENT_ID},1500000000,50000000,48000000,49000000\n")
+            cal_path = cal_tmp.name
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as candle_tmp:
+            candle_tmp.write("time,open,high,low,close\n")
+            candle_path = candle_tmp.name
+
+        from src.ism_runner import get_implementation_provenance
+        prov = get_implementation_provenance()
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".md") as pkt_tmp:
+            pkt_tmp.write(
+                f"# ISM Freeze Packet\n"
+                f"> GOVERNANCE STATUS: AUTHORIZED FOR PRE-2023 DISCOVERY RUN ONLY\n"
+                f"Protocol: docs/DRAFT_ISM_PMI_PROTOCOL.md\n"
+                f"Runner Commit: {prov['git_head_commit']}\n"
+            )
+            pkt_path = pkt_tmp.name
+
+        try:
+            from src.ism_runner import compute_file_sha256
+            cal_sha = compute_file_sha256(cal_path)
+            candle_sha = compute_file_sha256(candle_path)
+
+            with self.assertRaises(ValueError) as ctx:
+                preflight_verification(
+                    calendar_path=cal_path,
+                    candle_path=candle_path,
+                    is_synthetic_test=False,
+                    expected_calendar_sha256=cal_sha,
+                    expected_candle_sha256=candle_sha,
+                    allow_unblinded_run=True,
+                    freeze_packet_path=pkt_path,
+                    check_freeze_git=False,
+                    force_dirty_check=False
+                )
+            self.assertIn("calendar sample accounting mismatch", str(ctx.exception))
+        finally:
+            if os.path.exists(cal_path):
+                os.remove(cal_path)
+            if os.path.exists(candle_path):
+                os.remove(candle_path)
+            if os.path.exists(pkt_path):
+                os.remove(pkt_path)
+
+    def test_preflight_rejects_missing_or_unapproved_freeze_packet(self):
+        """
+        Verifies preflight rejects execution without an authorized freeze packet.
+        """
+        # 1. Bare boolean allow_unblinded_run=True without freeze packet
+        with self.assertRaises(PermissionError) as ctx1:
+            preflight_verification(
+                calendar_path="data/pinned/FyodorResearchExport_v3_20260923_234930_server/calendar_releases.csv",
+                candle_path="data/pinned/FyodorResearchExport_v3_20260923_234930_server/candles/candles_EURUSD_H1.csv",
+                allow_unblinded_run=True,
+                freeze_packet_path=None,
+                is_synthetic_test=False
+            )
+        self.assertIn("requires an explicit committed freeze packet", str(ctx1.exception))
+
+        # 2. Non-existent freeze packet
+        with self.assertRaises(FileNotFoundError):
+            verify_freeze_packet_authorization("nonexistent_freeze_packet.md", check_git_committed=False)
+
+        # 3. Freeze packet with PENDING status
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".md") as pkt_tmp:
+            pkt_tmp.write("# ISM Freeze Packet\n> GOVERNANCE STATUS: PENDING APPROVAL\nProtocol: docs/DRAFT_ISM_PMI_PROTOCOL.md\nCommit: b06ce62\n")
+            pkt_path = pkt_tmp.name
+
+        try:
+            with self.assertRaises(PermissionError) as ctx3:
+                verify_freeze_packet_authorization(pkt_path, check_git_committed=False)
+            self.assertIn("governance status is not authorized", str(ctx3.exception))
+        finally:
+            if os.path.exists(pkt_path):
+                os.remove(pkt_path)
+
+        # 4. Freeze packet referencing wrong runner commit
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".md") as pkt_tmp2:
+            pkt_tmp2.write("# ISM Freeze Packet\n> GOVERNANCE STATUS: AUTHORIZED FOR PRE-2023 DISCOVERY RUN ONLY\nProtocol: docs/DRAFT_ISM_PMI_PROTOCOL.md\nRunner Commit: 0000000\n")
+            pkt_path2 = pkt_tmp2.name
+
+        try:
+            with self.assertRaises(PermissionError) as ctx4:
+                verify_freeze_packet_authorization(
+                    pkt_path2,
+                    expected_runner_commit="b06ce62",
+                    check_git_committed=False
+                )
+            self.assertIn("does not reference approved runner commit", str(ctx4.exception))
+        finally:
+            if os.path.exists(pkt_path2):
+                os.remove(pkt_path2)
+
+    def test_preflight_rejects_dirty_implementation_state(self):
+        """
+        Verifies preflight rejects execution when Git working tree is dirty.
+        """
+        with self.assertRaises(RuntimeError) as ctx:
+            preflight_verification(
+                calendar_path="dummy.csv",
+                candle_path="dummy.csv",
+                is_synthetic_test=True,
+                force_dirty_check=True
+            )
+        self.assertIn("Implementation state is dirty", str(ctx.exception))
+
+    def test_end_to_end_synthetic_csv_with_post_split_sentinel(self):
+        """
+        End-to-end synthetic test of execute_from_paths:
+        - Synthetic calendar CSV with actionable packages.
+        - Synthetic candle CSV with valid bars covering 48 active hours for all packages,
+          followed by a post-split row at 1672531200 containing malformed non-numeric sentinel text.
+        - Verifies that execute_from_paths runs completely, outputs deterministic JSON,
+          and NEVER parses or converts the post-split price sentinel.
+        """
+        runner = IsmCalculationRunner()
+        base_ts = 1500000000
+
+        # Create synthetic calendar CSV with 2 actionable releases (1 pos, 1 neg)
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as cal_f:
+            cal_f.write("event_id,timestamp,timestamp_server_text,actual_raw_scaled_1e6,forecast_raw_scaled_1e6,previous_raw_scaled_1e6\n")
+            cal_f.write(f"{HEADLINE_EVENT_ID},{base_ts},date_0,55000000,50000000,49000000\n")
+            rel_ts_2 = base_ts + 100 * SECONDS_IN_H1
+            cal_f.write(f"{HEADLINE_EVENT_ID},{rel_ts_2},date_1,45000000,50000000,49000000\n")
+            cal_csv_path = cal_f.name
+
+        # Create synthetic candle CSV covering both episodes (48 bars each)
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as candle_f:
+            candle_f.write("time,open,high,low,close,tick_volume,spread,real_volume\n")
+
+            # Bars for episode 1 (from base_ts + 3600 for 50 bars)
+            e1_entry = base_ts + SECONDS_IN_H1
+            for i in range(50):
+                ts = e1_entry + i * SECONDS_IN_H1
+                candle_f.write(f"{ts},1.10000,1.10500,1.09500,1.09800,100,10,0\n")
+
+            # Bars for episode 2 (from rel_ts_2 + 3600 for 50 bars)
+            e2_entry = rel_ts_2 + SECONDS_IN_H1
+            for i in range(50):
+                ts = e2_entry + i * SECONDS_IN_H1
+                candle_f.write(f"{ts},1.10000,1.10500,1.09500,1.10200,100,10,0\n")
+
+            # Post-split row with MALFORMED NON-NUMERIC PRICE SENTINEL
+            # If the parser ever tokenized or converted columns 1..N of post-split rows,
+            # this would raise ValueError: could not convert string to float: 'SENTINEL_NON_NUMERIC'
+            candle_f.write(f"{HARD_SPLIT_TIMESTAMP},SENTINEL_OPEN,SENTINEL_HIGH,SENTINEL_LOW,SENTINEL_CLOSE,0,0,0\n")
+            candle_csv_path = candle_f.name
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as out_f:
+            out_json_path = out_f.name
+        # Remove output file so execute_from_paths can create it cleanly
+        os.remove(out_json_path)
+
+        try:
+            result = runner.execute_from_paths(
+                calendar_path=cal_csv_path,
+                candle_path=candle_csv_path,
+                allow_unblinded_run=True,
+                is_synthetic_test=True,
+                output_json_path=out_json_path,
+                expected_sample_size=None,
+                require_48h1_completeness=True
+            )
+
+            # Assert execution succeeded without crashing on the post-split sentinel
+            self.assertEqual(result["schema_version"], "1.0.0")
+            episodes = result["primary_24h1_results"]["episodes"]
+            self.assertEqual(len(episodes), 2)
+            self.assertTrue(os.path.isfile(out_json_path))
+
+            # Verify episode 1 arithmetic
+            ep1 = episodes[0]
+            self.assertEqual(ep1["direction"], -1)
+            self.assertEqual(ep1["entry_open_price"], 1.10000)
+            self.assertEqual(ep1["exit_close_price"], 1.09800)
+            # drop of 20 pips for short -> +20 gross pips
+            self.assertEqual(ep1["gross_pips"], 20.0)
+            self.assertEqual(ep1["net_pips_by_scenario"]["Scenario_C"], 19.0)
+            self.assertTrue(ep1["is_win_scenario_c"])
+
+            # Verify 48-H1 episodes were resolved
+            episodes_48 = result["descriptive_48h1_results"]["episodes"]
+            self.assertEqual(len(episodes_48), 2)
+
+        finally:
+            if os.path.exists(cal_csv_path):
+                os.remove(cal_csv_path)
+            if os.path.exists(candle_csv_path):
+                os.remove(candle_csv_path)
+            if os.path.exists(out_json_path):
+                os.remove(out_json_path)
+
+    def test_immutable_output_file_cannot_be_overwritten(self):
+        """
+        Verifies that execute_from_paths raises FileExistsError if the output file already exists.
+        """
+        runner = IsmCalculationRunner()
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as out_tmp:
+            out_tmp.write('{"existing": "record"}\n')
+            out_path = out_tmp.name
+
+        try:
+            with self.assertRaises(FileExistsError) as ctx:
+                runner.execute_from_paths(
+                    calendar_path="dummy_cal.csv",
+                    candle_path="dummy_candle.csv",
+                    is_synthetic_test=True,
+                    output_json_path=out_path
+                )
+            self.assertIn("already exists", str(ctx.exception))
+            self.assertIn("Overwriting discovery artifacts is strictly prohibited", str(ctx.exception))
+        finally:
+            if os.path.exists(out_path):
+                os.remove(out_path)
 
 
 if __name__ == "__main__":
