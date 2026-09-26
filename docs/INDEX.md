@@ -10,8 +10,9 @@ These documents define current research boundaries, protocols under active revie
 
 - [`README.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/README.md): Repository entrance, governance rules, directory classification, and provenance manifest.
 - [`docs/INDEX.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/INDEX.md): This classification index.
-- [`docs/RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md): Active maintained macro research roadmap, decision sequence, and parked state-signature and price-zone questions.
+- [`docs/RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md): Active maintained macro research roadmap, event-family progress, setup objective, and priority H1 entry/stop/target questions.
 - [`docs/ISM_PMI_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/ISM_PMI_FEASIBILITY.md): Comprehensive price-blind feasibility investigation and pre-price architecture design for US ISM Manufacturing PMI (`USD:US:840040001:r0`) on EURUSD.
+- [`docs/DRAFT_ISM_PMI_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_ISM_PMI_PROTOCOL.md): Unfrozen, narrower fixed-exit ISM proposal; it does not test target-before-stop odds or reward-to-risk.
 - [`docs/NEXT_FAMILY_PRICE_BLIND_SHORTLIST.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/NEXT_FAMILY_PRICE_BLIND_SHORTLIST.md): Price-blind data suitability evaluation of US GDP vs US ISM Manufacturing PMI; ranks ISM conditionally suitable ($N=67$) and parks GDP due to unpooled sample deficiency ($N=22$).
 - [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md): Historical price-blind feasibility investigation of US Retail Sales m/m (`USD:US:840020010:r0`) and Core Retail Sales m/m (`USD:US:840020011:r0`) on EURUSD.
 - [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md): Pre-price design protocol v0.5 for US Retail Sales (executed and concluded).

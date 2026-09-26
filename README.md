@@ -6,11 +6,12 @@ A clean, reproducible, research-only environment for empirical macroeconomic eve
 
 ## 1. Project Identity & Purpose
 
-This repository is dedicated strictly to **rigorous, price-blind macroeconomic research**. It is curated from verified historical artifacts and is governed by strict anti-overfitting, anti-hallucination, and chronological isolation protocols.
+This repository investigates macro-event patterns in H1 FX prices. Its practical objective is a precisely defined entry, stop, target, and expiry whose historical target-before-stop frequency and reward-to-risk justify a frozen demo-account forward test. A historical pattern is not a guarantee of future profit.
 
 - **No Web Application**: Legacy H1 web applications, interactive dashboards, and UI servers are deliberately excluded.
-- **Strictly Price-Blind Feasibility**: Initial investigations are strictly pre-price and pre-backtest. Candidate selection is based purely on data completeness, economic transmission rationale, and physical execution feasibility.
-- **No Optimization / Hunting**: Zero parameter sweeps, zero indicator mining, and zero directional threshold tuning.
+- **Price-Blind Feasibility First**: Check source integrity, calendar definitions, and H1 coverage before inspecting a candidate's prices.
+- **Discovery Is Allowed**: Explore entry times, stop/target zones, and other patterns on designated discovery data. Record the full search, then freeze a selected rule before assessing later data. Discovery performance is not independent validation.
+- **Gross Price-Path Focus**: Historical target-before-stop odds, reward-to-risk, and price-path geometry are the research target. Broker spread, slippage, commissions, and financing are outside the primary historical screen; the owner will assess those separately before any real-money decision. Do not label gross results executable net profit.
 - **Maintained Research Roadmap**: The active staged sequence, holdout audit policies, and parked research hypotheses are maintained in [`docs/RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RESEARCH_ROADMAP.md). Zero registered setups or profitability evidence currently exist.
 
 ---
@@ -22,9 +23,8 @@ This repository is dedicated strictly to **rigorous, price-blind macroeconomic r
    - All observations on or after `1672531200` remain strictly sealed as a future holdout. Candle timestamps on or after this boundary are never evaluated during discovery.
 2. **Candle Inspection Policy & Audit Disclosure**:
    - **Prior Inspection Disclosure**: During initial schema verification, lines 1–5 of `candles_EURUSD_H1.csv` were inspected via tool to verify column headers and confirm that column 0 corresponds to `time`.
-   - **Zero Price-Outcome Computation**: No price returns, directional drift, win rates, MFE/MAE, or backtest metrics have ever been read or calculated.
-   - **Field-0 Streaming**: Candidate candle processing strictly consumes the field-0 substring before the first comma (`line.split(',', 1)[0]`), ensuring columns 1..N (OHLC prices, volumes, spreads) are never tokenized or parsed.
-   - Price columns remain completely uninspected for outcomes prior to formal protocol pre-registration.
+   - **Candidate-Specific Boundary**: Archived Phase 1, Ifo, and Retail Sales trials did calculate historical price outcomes. The active ISM candidate has not yet had its price outcomes calculated; its pre-price inventory uses timestamps only. Full-file integrity hashing reads opaque bytes, not interpreted returns.
+   - A designated discovery search may inspect pre-2023 H1 OHLC after its scope and output accounting are recorded. The post-2022 holdout remains separate until a selected rule is locked and authorized for validation.
 3. **Data Integrity Covenant**:
    - Zero synthetic, mock, or pseudo-random data is used for empirical analysis.
    - Every metric, count, and sign is deterministically computed from verified raw source files on disk.

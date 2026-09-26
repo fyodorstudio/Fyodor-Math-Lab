@@ -4,7 +4,27 @@
 > **GOVERNANCE STATUS: RESEARCH IN PROGRESS (NO VERIFIED PROFITABLE SETUP)**
 > **No registered setup, profitable edge, or executable trading recommendation exists in this repository.**
 > Prior trials (Phase 1 CPI/NFP, German Ifo pilot trial with $p = 0.9575$, and US Retail Sales discovery trial with mean -2.63 pips and $p = 0.6513$) yielded no actionable trading setups.
-> The active candidate investigation is advancing to US ISM Manufacturing PMI (`USD:US:840040001:r0`) in price-blind feasibility. Candidate prices, spreads, and holdout outcomes remain completely uninspected and sealed.
+> The active candidate investigation is US ISM Manufacturing PMI (`USD:US:840040001:r0`). ISM price outcomes have not been calculated; the post-2022 holdout remains sealed.
+
+## Research Objective and What Counts as Progress
+
+The owner's target is **not** a guarantee or a 100% win rate. It is an H1 macro-event setup with an observable entry rule, stop zone, target zone, maximum holding time, historical probability of **target before stop**, and quoted reward-to-risk (target distance divided by stop distance). Gross H1 price-path behavior is the primary research question. The owner will evaluate spread, slippage, commissions, and financing separately; research must not relabel gross results as executable net profit.
+
+Searching historical discovery data for a promising pattern is legitimate. A favorable pattern found during that search is a **discovery**, including if luck helped produce it. It becomes stronger evidence only when the exact selected rule and all selection choices are recorded, and the rule then survives data not used to choose it. Three similar examples are an interesting lead, not a measured target-before-stop probability. No setup is registered for demo testing until its entry/stop/target/expiry rule and later validation are documented.
+
+The existing ISM draft protocol asks a **narrower** question: whether entering one hour after a release and exiting after 24 active H1 bars has positive mean directional return under an assumed one-pip deduction. It does **not** test stop/target ordering, entry-time selection, zone width, or reward-to-risk. Its result cannot alone answer the owner's setup question; a separate H1 price-path discovery and frozen validation design is needed. Do not silently rewrite completed trials or call a fixed-exit result a target/stop setup.
+
+### Event-family progress (broad grouping)
+
+| Family | Rule actually examined or prepared | Current result | Target-before-stop and R:R? |
+|---|---|---|---|
+| US inflation (headline/core CPI and core PCE) | Large positive versus large negative forecast surprises; compare delayed H1 response after the first bar, chiefly through H12 | CPI contrast not convincing; core CPI/PCE comparisons underpowered | Not tested |
+| US labor (Nonfarm Payrolls) | Same large-surprise delayed-H1 contrast | No convincing delayed effect | Not tested |
+| German Ifo | Business Climate and Expectations surprises same nonzero sign; trade EURUSD in that direction from the next H4 open to the sixth active H4 close | Pilot found no convincing evidence | Not tested |
+| US Retail Sales | Headline and core surprises same nonzero sign; trade EURUSD in that direction from the next H4 open to the sixth active H4 close | Pre-2023 discovery adverse; closed under its predeclared fixed-exit rule | Not tested |
+| US ISM Manufacturing PMI | Headline forecast-surprise sign sets EURUSD direction; entry one active H1 after release; proposed fixed exit after 24 active H1 bars (48 H1 descriptive) | Pre-price feasibility and runner ready for review; **no ISM price outcome yet** | Not tested |
+
+Thus **four broad families have some historical price analysis; a fifth, ISM, is prepared but has no price result. Zero families have completed the requested target-before-stop/R:R setup test.** US GDP was screened for data suitability only, not tested on prices. These counts describe this repository's audited work, not all work the owner ever attempted.
 
 ---
 
@@ -41,9 +61,15 @@ The repository executes a strictly staged, unidirectional research pipeline:
     - Post-2022 historical outcomes were not evaluated and remain sealed (full-file hashing and calendar scanning occurred)
                       |
                       v
-[6] Next Candidate: US ISM Manufacturing PMI Feasibility      [ACTIVE SCREENING]
-    - Price-blind feasibility pass on USD:US:840040001:r0
-    - Calendar fields and candle timestamps only; zero OHLC/returns parsed
+[6] Next Candidate: US ISM Manufacturing PMI                  [PRE-PRICE READY]
+    - Price-blind feasibility on USD:US:840040001:r0 complete
+    - Draft fixed-exit test exists; zero ISM OHLC outcomes calculated
+                      |
+                      v
+[7] H1 Entry / Stop / Target Discovery                         [NOT STARTED]
+    - Separate, explicit search on discovery-period paths
+    - Freeze one candidate; then validate on later history
+    - Registration, if warranted, means demo-forward eligibility only
 ```
 
 ---
@@ -78,33 +104,33 @@ The Project Director has proposed exploring whether macroeconomic releases exhib
   $$M = \text{Actual} - \text{Previous} = A - P$$
 
 ### 3.2 Candidate Hypothesis
-For releases within the **same exact macroeconomic series or co-released family**, do episodes exhibiting prospectively defined, similar relative $(S, M)$ state signatures produce higher win rates or positive mean directional net trade returns compared to dissimilar states or unconditional baselines?
+For releases within the **same exact macroeconomic series or co-released family**, do episodes with similar relative $(S, M)$ state signatures show different gross H1 target-before-stop frequencies or reward-to-risk from other states? A signature selected during discovery must be defined exactly before later validation.
 
-- **Expectancy Over Perfection**: The hypothesis does **not** demand or assume a 100% win rate. It tests whether specific macro states offer positive net trade expectancy after deducting realistic bid–ask spread, slippage, and overnight financing friction.
+- **Expectancy Over Perfection**: The hypothesis does **not** demand or assume a 100% win rate. A future gross-price-path study may ask whether a state improves target-before-stop frequency and reward-to-risk. Execution costs are a separate owner-managed assessment, not silently included in historical gross results.
 
 ### 3.3 Mandatory Methodological Guardrails
-To prevent data mining and retrospective selection bias, any future trial investigating state signatures must adhere to these non-negotiable standards:
-1. **Prior-Only Binning**: State similarity bins (e.g. quintiles, sign quadrants, or standardized $z$-score thresholds) must be specified **prospectively using prior-only historical data** (rolling lookback) before inspecting subsequent price outcomes.
-2. **Exhaustive Denominator Accounting**: The study must explicitly report all qualifying and non-qualifying episodes across the entire historical series. Filtering out adverse outcomes by post-hoc tightening similarity criteria is strictly prohibited.
-3. **No Retrospective Cluster Cherry-Picking**: An investigator cannot inspect the historical scatter plot, identify a favorable 2- or 3-case cluster of past winning trades, and retroactively declare it a "recurring signature."
-4. **Independent Protocol & Holdout**: If pursued, this inquiry requires an independent protocol charter, a separate multiplicity adjustment ($K$-trial penalty), and validation on genuinely untouched data.
-5. **Zero Interaction with Current Retail Sales Study**: Momentum ($M = A - P$) is strictly barred from being injected into the current Retail Sales pre-price design as a post-hoc filter.
+To make discovery interpretable and later validation meaningful, a future state-signature study must:
+1. **Discovery Then Locking**: State-similarity bins (e.g. quintiles, sign quadrants, or standardized $z$-score thresholds) may be explored on discovery data, but the selected exact definition must be locked before later validation. Any rolling threshold used at trade time must depend on prior-only history.
+2. **Exhaustive Denominator Accounting**: Report all qualifying and non-qualifying episodes across the discovery series. Exploratory tightening is allowed, but every tested definition and its unfavorable outcomes must remain visible.
+3. **Discovery Versus Validation**: Investigators may inspect and select favorable historical clusters in designated discovery data, provided the whole search and denominator are recorded. A selected 2- or 3-case cluster is a hypothesis, not an independently validated recurring signature.
+4. **Independent Protocol & Holdout**: Record how many definitions were explored; do not present a best-of-many discovery result as if it were a single prespecified test. Lock the chosen rule before a separate validation period.
+5. **Preserve Closed Trials**: Do not revise the completed Retail Sales trial by adding momentum as though it had been part of that original rule. A new Retail Sales signature would be a new exploratory study.
 
 ### 3.4 Questions to Resolve Before a Separate State-Signature Protocol
 - Define the exact series, units, calendar vintage, and whether `Previous` means the value visible at release time or a later revised value. A retrospective calendar export alone does not establish point-in-time availability.
 - Define a small, fixed set of scale-aware states within each series; an equal numeric difference across unlike indicators or changed units is not necessarily a similar economic surprise. State membership must use only information available before the trade.
-- Predefine trade direction, entry, exit, friction, comparator, and the minimum number of independent episodes. Three matching outcomes are a lead, not a registration threshold; the relevant evidence is the complete conditional return distribution and uncertainty after costs.
+- Before validation, lock trade direction, entry, stop, target, expiry, comparator, and a minimum independent-episode count. Three matching outcomes are a lead, not a registration threshold; relevant evidence includes the full target-first/stop-first distribution and its uncertainty. Cost assessment is separate.
 - Record every attempted family, state definition, horizon, and pair before testing. A future trial needs an explicit selection/multiplicity policy and genuinely new validation evidence; do not recycle the current Retail Sales outcomes into a second confirmation claim.
 
 ---
 
-## 4. Parked Idea: Price Zones and Post-Release Response Paths
+## 4. Priority Next Design: Price Zones and Post-Release Response Paths
 
-The owner previously used support/resistance-aware stop-loss and take-profit levels and tracked event responses over 1, 2, 3, ... 60 or more candles. **H1 is the preferred granularity for any new response-path investigation; H4 describes the old implementation, not a current requirement.** Preserve these as **unvalidated research ideas**, separate from the active ISM price-blind design. A support or resistance level is conceived as a **zone with width**, where price may reverse or break through; neither outcome is assumed to have a demonstrated probability or positive expectancy here.
+The owner previously used support/resistance-aware stop-loss and take-profit levels and tracked event responses over 1, 2, 3, ... 60 or more candles. **H1 is the preferred granularity for any new response-path investigation; H4 describes the old implementation, not a current requirement.** These are now priority **unvalidated research ideas**, separate from the existing ISM fixed-exit draft. A support or resistance level is conceived as a **zone with width**, where price may reverse or break through; neither outcome is assumed to have a demonstrated probability here.
 
-Any future test must define zones using only completed **pre-entry H1 bars**: the lookback, swing/level algorithm, zone width, touch/break rule, and invalidation must be frozen before evaluating subsequent returns. Stop, target, and expiry must be set from information available at entry. H1 OHLC cannot always reveal whether a stop or target was hit first within the same bar; use a prespecified conservative resolution or obtain finer point-in-time data. Spread, slippage, gaps, and financing remain execution limitations.
+For each candidate, define zones using only completed **pre-entry H1 bars**: the lookback, swing/level algorithm, zone width, touch/break rule, and invalidation. Stop, target, and expiry must use information available at entry. Discovery may compare multiple documented entry delays, zone widths, stops, and targets; record every combination and outcome, then lock one rule before later validation. Report target-first, stop-first, neither-hit-by-expiry, and same-bar ambiguous counts separately. H1 OHLC cannot reveal whether stop or target was hit first within the same bar; use a prespecified conservative rule or mark those episodes unresolved. Report gross target/stop distances, reward-to-risk, observed win frequency, uncertainty, and realized R-multiple where determinable. Execution costs remain outside this price-path screen.
 
-The multi-horizon response curve may be reported descriptively (directional return, absolute move, maximum favorable/adverse excursion, and time to excursion), but scanning dozens of horizons and selecting the best one is a new multiple-testing exercise, **not** one prespecified setup. A tradable hypothesis needs one primary horizon or a predeclared correction scheme, an explicit comparator, and fresh validation. Do not retrofit zones, stops, targets, or horizons onto the already failed Retail Sales discovery as a rescue attempt.
+The multi-horizon response curve may be reported descriptively (directional return, absolute move, maximum favorable/adverse excursion, and time to excursion). Scanning horizons and selecting the best is legitimate **discovery**, not independent confirmation; disclose the search and validate the selected exact rule later. Do not relabel the already failed Retail Sales fixed-exit trial as a successful stop/target test. A genuinely different Retail Sales zone hypothesis would require a new, clearly exploratory study rather than retroactive alteration of its closed record.
 
 ---
 
@@ -119,5 +145,5 @@ This repository maintains an unbroken forensic record of all prior candidate tri
 | **Retail Sales Feasibility** | US Retail Sales m/m + Core on EURUSD | Completed; 49 strict-concordance packages, 68/68 paths clean | [`docs/RETAIL_SALES_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FEASIBILITY.md) |
 | **Retail Sales Protocol & Freeze Packet** | Directional Strategy Viability on EURUSD | Frozen at commit `b674a0c`; authorized for pre-2023 discovery only | [`docs/DRAFT_RETAIL_SALES_PROTOCOL.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/DRAFT_RETAIL_SALES_PROTOCOL.md) & [`docs/RETAIL_SALES_FREEZE_PACKET.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_FREEZE_PACKET.md) |
 | **Retail Sales Discovery Trial** | Pre-2023 Discovery Execution on EURUSD | **DISCONFIRMED_ADVERSE** (Scenario C mean -2.63 pips, $p=0.6513$, 25/49 wins). Closed; holdout sealed. | [`docs/RETAIL_SALES_CLOSURE_NOTE.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/RETAIL_SALES_CLOSURE_NOTE.md) & [`evidence/trials/retail_sales/retail_sales_pre2023_discovery.json`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/evidence/trials/retail_sales/retail_sales_pre2023_discovery.json) |
-| **ISM Manufacturing Feasibility** | US ISM Manufacturing PMI on EURUSD | Active price-blind feasibility screening ($N=66$ actionable packages); zero prices read | [`docs/ISM_PMI_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/ISM_PMI_FEASIBILITY.md) |
+| **ISM Manufacturing Feasibility** | US ISM Manufacturing PMI on EURUSD | Price-blind feasibility complete ($N=66$ actionable packages); zero ISM price outcomes calculated | [`docs/ISM_PMI_FEASIBILITY.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/docs/ISM_PMI_FEASIBILITY.md) |
 | **Historical Planning Archive** | Legacy FMS Roadmap (2026-09-24) | Archived reference snapshot | [`reference/planning-history/FMS_RESEARCH_ROADMAP.md`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/reference/planning-history/FMS_RESEARCH_ROADMAP.md) |
