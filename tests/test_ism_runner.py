@@ -595,13 +595,14 @@ class TestIsmRunner(unittest.TestCase):
                 preflight_verification(
                     calendar_path=cal_path,
                     candle_path=candle_path,
-                    is_synthetic_test=False,
+                    is_synthetic_test=True,
                     expected_calendar_sha256=cal_sha,
                     expected_candle_sha256=candle_sha,
                     allow_unblinded_run=True,
                     freeze_packet_path=pkt_path,
                     check_freeze_git=False,
-                    force_dirty_check=False
+                    force_dirty_check=False,
+                    check_frozen_accounting=True
                 )
             self.assertIn("calendar sample accounting mismatch", str(ctx.exception))
         finally:
@@ -782,6 +783,228 @@ class TestIsmRunner(unittest.TestCase):
         finally:
             if os.path.exists(out_path):
                 os.remove(out_path)
+
+
+    def test_freeze_packet_two_commit_sequence(self):
+        """
+        Tests the real two-commit Git sequence:
+        1. Commit 1: Modifies and commits runner and protocol files.
+        2. Freeze packet is drafted pinning Commit 1 (the runner commit).
+        3. Commit 2: Commits the freeze packet to Git (changing HEAD to Commit 2).
+        4. Verifies preflight & freeze packet authorization pass cleanly at Commit 2 because
+           the runner was not modified after Commit 1, and Commit 1 is an ancestor of Commit 2.
+        5. Commit 3: A subsequent commit modifies the runner file.
+        6. Verifies that preflight & freeze packet authorization now fail because the runner
+           was modified after the approved commit.
+        """
+        import shutil
+        import subprocess
+        temp_dir = tempfile.mkdtemp()
+        try:
+            # 1. Initialize temporary Git repository
+            subprocess.run(["git", "init"], cwd=temp_dir, check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.name", "Audit Test"], cwd=temp_dir, check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.email", "audit@test.local"], cwd=temp_dir, check=True, capture_output=True)
+
+            # Create minimal file structure
+            os.makedirs(os.path.join(temp_dir, "src"), exist_ok=True)
+            os.makedirs(os.path.join(temp_dir, "docs"), exist_ok=True)
+
+            runner_file = os.path.join(temp_dir, "src", "ism_runner.py")
+            proto_file = os.path.join(temp_dir, "docs", "DRAFT_ISM_PMI_PROTOCOL.md")
+            with open(runner_file, "w") as f:
+                f.write("# runner v1.0.0\n")
+            with open(proto_file, "w") as f:
+                f.write("# protocol v1.0.0\n")
+
+            # Commit 1: Approved implementation
+            subprocess.run(["git", "add", "."], cwd=temp_dir, check=True, capture_output=True)
+            subprocess.run(["git", "commit", "-m", "Commit 1: approve runner"], cwd=temp_dir, check=True, capture_output=True)
+            res1 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=temp_dir, check=True, capture_output=True, text=True)
+            commit_1 = res1.stdout.strip()
+
+            # 2. Draft Freeze Packet referencing Commit 1
+            pkt_file = os.path.join(temp_dir, "docs", "ISM_PMI_FREEZE_PACKET.md")
+            with open(pkt_file, "w") as f:
+                f.write(
+                    f"# ISM Freeze Packet\n"
+                    f"> GOVERNANCE STATUS: AUTHORIZED FOR PRE-2023 DISCOVERY RUN ONLY\n"
+                    f"Governing Protocol: docs/DRAFT_ISM_PMI_PROTOCOL.md\n"
+                    f"Runner Commit: {commit_1}\n"
+                )
+
+            # 3. Commit 2: Freeze packet committed
+            subprocess.run(["git", "add", "docs/ISM_PMI_FREEZE_PACKET.md"], cwd=temp_dir, check=True, capture_output=True)
+            subprocess.run(["git", "commit", "-m", "Commit 2: commit freeze packet"], cwd=temp_dir, check=True, capture_output=True)
+            res2 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=temp_dir, check=True, capture_output=True, text=True)
+            commit_2 = res2.stdout.strip()
+
+            self.assertNotEqual(commit_1, commit_2)
+
+            # 4. Verify freeze packet authorization succeeds at Commit 2
+            from src.ism_runner import verify_freeze_packet_authorization, get_implementation_provenance
+            freeze_info = verify_freeze_packet_authorization(
+                freeze_packet_path=pkt_file,
+                expected_protocol_ref="docs/DRAFT_ISM_PMI_PROTOCOL.md",
+                expected_runner_commit=commit_1,
+                check_git_committed=True,
+                repo_dir=temp_dir
+            )
+            self.assertTrue(freeze_info["is_authorized"])
+            self.assertEqual(freeze_info["runner_commit"], commit_1)
+
+            # 5. Commit 3: Subsequent modification to runner
+            with open(runner_file, "a") as f:
+                f.write("# unauthorized alteration\n")
+            subprocess.run(["git", "add", "src/ism_runner.py"], cwd=temp_dir, check=True, capture_output=True)
+            subprocess.run(["git", "commit", "-m", "Commit 3: modify runner"], cwd=temp_dir, check=True, capture_output=True)
+            res3 = subprocess.run(["git", "rev-parse", "HEAD"], cwd=temp_dir, check=True, capture_output=True, text=True)
+            commit_3 = res3.stdout.strip()
+
+            # Provenance now records runner_last_commit == commit_3
+            prov3 = get_implementation_provenance(repo_dir=temp_dir)
+            self.assertEqual(prov3["git_runner_last_commit"], commit_3)
+
+            # Verification against freeze packet referencing commit_1 must now fail
+            with self.assertRaises(PermissionError) as ctx:
+                verify_freeze_packet_authorization(
+                    freeze_packet_path=pkt_file,
+                    expected_protocol_ref="docs/DRAFT_ISM_PMI_PROTOCOL.md",
+                    expected_runner_commit=commit_3,
+                    check_git_committed=True,
+                    repo_dir=temp_dir
+                )
+            self.assertIn("does not reference approved runner commit", str(ctx.exception))
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_synthetic_mode_rejects_pinned_real_candle_file(self):
+        """
+        Verifies that execute_from_paths rejects the real pinned EURUSD H1 candle file
+        even when is_synthetic_test=True is passed.
+        """
+        pinned_candle_path = "data/pinned/FyodorResearchExport_v3_20260923_234930_server/candles/candles_EURUSD_H1.csv"
+        runner = IsmCalculationRunner()
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as cal_tmp:
+            cal_tmp.write("dummy,calendar\n")
+            cal_path = cal_tmp.name
+
+        try:
+            with self.assertRaises(PermissionError) as ctx:
+                runner.execute_from_paths(
+                    calendar_path=cal_path,
+                    candle_path=pinned_candle_path,
+                    allow_unblinded_run=True,
+                    is_synthetic_test=True
+                )
+            self.assertIn("Synthetic test mode strictly prohibits using real pinned candidate candle data", str(ctx.exception))
+            self.assertIn("Pinned candidate prices remain sealed", str(ctx.exception))
+        finally:
+            if os.path.exists(cal_path):
+                os.remove(cal_path)
+
+    def test_synthetic_mode_rejects_renamed_copy_of_pinned_candles(self):
+        """
+        Verifies that execute_from_paths and CandlePriceIndex.from_csv reject a renamed copy
+        of the pinned real EURUSD H1 candle file by content hash.
+        """
+        import shutil
+        pinned_candle_path = "data/pinned/FyodorResearchExport_v3_20260923_234930_server/candles/candles_EURUSD_H1.csv"
+
+        # Create a renamed copy in temporary directory with an innocent name
+        with tempfile.NamedTemporaryFile("wb", delete=False, suffix=".csv") as tmp_copy:
+            copy_path = tmp_copy.name
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as cal_tmp:
+            cal_tmp.write("dummy,calendar\n")
+            cal_path = cal_tmp.name
+
+        try:
+            shutil.copyfile(pinned_candle_path, copy_path)
+
+            # 1. execute_from_paths with is_synthetic_test=True must reject the renamed copy by content hash
+            runner = IsmCalculationRunner()
+            with self.assertRaises(PermissionError) as ctx1:
+                runner.execute_from_paths(
+                    calendar_path=cal_path,
+                    candle_path=copy_path,
+                    allow_unblinded_run=True,
+                    is_synthetic_test=True
+                )
+            self.assertIn("Synthetic test mode strictly prohibits using real pinned candidate candle data", str(ctx1.exception))
+            self.assertIn("matches approved pinned EURUSD candles", str(ctx1.exception))
+
+            # 2. CandlePriceIndex.from_csv with allow_unblinded_run=False must reject renamed copy by content hash
+            with self.assertRaises(PermissionError) as ctx2:
+                CandlePriceIndex.from_csv(copy_path, allow_unblinded_run=False)
+            self.assertIn("matches pinned EURUSD H1 candles", str(ctx2.exception))
+            self.assertIn("Pinned candidate prices remain sealed", str(ctx2.exception))
+        finally:
+            if os.path.exists(copy_path):
+                os.remove(copy_path)
+            if os.path.exists(cal_path):
+                os.remove(cal_path)
+
+    def test_production_rejects_caller_supplied_expected_hashes(self):
+        """
+        Verifies that in production mode (is_synthetic_test=False), caller-supplied expected hashes
+        cannot override or replace the approved pinned hashes.
+        """
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as cal_tmp:
+            cal_tmp.write("dummy,cal\n")
+            cal_path = cal_tmp.name
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".csv") as candle_tmp:
+            candle_tmp.write("dummy,candle\n")
+            candle_path = candle_tmp.name
+
+        from src.ism_runner import get_implementation_provenance
+        prov = get_implementation_provenance()
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".md") as pkt_tmp:
+            pkt_tmp.write(
+                f"# ISM Freeze Packet\n"
+                f"> GOVERNANCE STATUS: AUTHORIZED FOR PRE-2023 DISCOVERY RUN ONLY\n"
+                f"Protocol: docs/DRAFT_ISM_PMI_PROTOCOL.md\n"
+                f"Runner Commit: {prov['git_runner_last_commit']}\n"
+            )
+            pkt_path = pkt_tmp.name
+
+        try:
+            # 1. Caller supplies non-matching expected_calendar_sha256
+            with self.assertRaises(ValueError) as ctx1:
+                preflight_verification(
+                    calendar_path=cal_path,
+                    candle_path=candle_path,
+                    is_synthetic_test=False,
+                    expected_calendar_sha256="0000000000000000000000000000000000000000000000000000000000000000",
+                    allow_unblinded_run=True,
+                    freeze_packet_path=pkt_path,
+                    check_freeze_git=False,
+                    force_dirty_check=False
+                )
+            self.assertIn("In production, caller-supplied expected hashes must not replace approved pinned hashes", str(ctx1.exception))
+
+            # 2. Caller supplies non-matching expected_candle_sha256
+            with self.assertRaises(ValueError) as ctx2:
+                preflight_verification(
+                    calendar_path=cal_path,
+                    candle_path=candle_path,
+                    is_synthetic_test=False,
+                    expected_candle_sha256="0000000000000000000000000000000000000000000000000000000000000000",
+                    allow_unblinded_run=True,
+                    freeze_packet_path=pkt_path,
+                    check_freeze_git=False,
+                    force_dirty_check=False
+                )
+            self.assertIn("In production, caller-supplied expected hashes must not replace approved pinned hashes", str(ctx2.exception))
+        finally:
+            if os.path.exists(cal_path):
+                os.remove(cal_path)
+            if os.path.exists(candle_path):
+                os.remove(candle_path)
+            if os.path.exists(pkt_path):
+                os.remove(pkt_path)
 
 
 if __name__ == "__main__":

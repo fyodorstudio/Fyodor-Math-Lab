@@ -112,11 +112,21 @@ def compute_file_sha256(filepath: str) -> str:
     return hasher.hexdigest()
 
 
-def get_implementation_provenance() -> Dict[str, Any]:
+def get_implementation_provenance(
+    repo_dir: Optional[str] = None,
+    runner_rel_path: str = "src/ism_runner.py",
+    protocol_rel_path: str = PROTOCOL_REFERENCE
+) -> Dict[str, Any]:
     """
-    Dynamically inspects Git repository state to record the exact implementation identity.
+    Dynamically inspects Git repository state to record the exact implementation identity:
+    1. Current Git HEAD commit.
+    2. The commit that last modified the approved runner implementation (runner_rel_path).
+    3. The commit that last modified the governing protocol document (protocol_rel_path).
+    4. Working tree cleanliness (must be COMMITTED_CLEAN with zero uncommitted changes).
     """
-    repo_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if repo_dir is None:
+        repo_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
     try:
         res_head = subprocess.run(
             ["git", "rev-parse", "HEAD"],
@@ -125,6 +135,28 @@ def get_implementation_provenance() -> Dict[str, Any]:
         head_commit = res_head.stdout.strip()
     except Exception:
         head_commit = "UNKNOWN"
+
+    try:
+        res_runner = subprocess.run(
+            ["git", "log", "-1", "--format=%H", "--", runner_rel_path],
+            capture_output=True, text=True, check=True, cwd=repo_dir
+        )
+        runner_last_commit = res_runner.stdout.strip()
+        if not runner_last_commit:
+            runner_last_commit = "UNKNOWN"
+    except Exception:
+        runner_last_commit = "UNKNOWN"
+
+    try:
+        res_proto = subprocess.run(
+            ["git", "log", "-1", "--format=%H", "--", protocol_rel_path],
+            capture_output=True, text=True, check=True, cwd=repo_dir
+        )
+        protocol_last_commit = res_proto.stdout.strip()
+        if not protocol_last_commit:
+            protocol_last_commit = "UNKNOWN"
+    except Exception:
+        protocol_last_commit = "UNKNOWN"
 
     try:
         res_status = subprocess.run(
@@ -143,6 +175,8 @@ def get_implementation_provenance() -> Dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "git_checkout_state": git_checkout_state,
         "git_head_commit": head_commit,
+        "git_runner_last_commit": runner_last_commit,
+        "git_protocol_last_commit": protocol_last_commit,
         "git_status_clean": not is_dirty,
         "has_uncommitted_changes": is_dirty
     }
@@ -152,7 +186,9 @@ def verify_freeze_packet_authorization(
     freeze_packet_path: str,
     expected_protocol_ref: str = PROTOCOL_REFERENCE,
     expected_runner_commit: Optional[str] = None,
-    check_git_committed: bool = True
+    expected_protocol_commit: Optional[str] = None,
+    check_git_committed: bool = True,
+    repo_dir: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Verifies that the provided freeze packet:
@@ -161,6 +197,7 @@ def verify_freeze_packet_authorization(
     3. Has explicit authorized governance status (not PENDING or DRAFT).
     4. Explicitly references the governing protocol.
     5. Explicitly references the approved runner commit SHA.
+    6. Ensures the approved runner commit is an ancestor of (or equal to) Git HEAD.
 
     A bare boolean flag (allow_unblinded_run=True) is strictly insufficient to authorize
     empirical unblinded candidate price reading.
@@ -168,7 +205,8 @@ def verify_freeze_packet_authorization(
     if not os.path.isfile(freeze_packet_path):
         raise FileNotFoundError(f"Freeze packet not found at path: '{freeze_packet_path}'")
 
-    repo_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if repo_dir is None:
+        repo_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
     if check_git_committed:
         try:
@@ -221,7 +259,7 @@ def verify_freeze_packet_authorization(
             f"'{expected_protocol_ref}'."
         )
 
-    if expected_runner_commit:
+    if expected_runner_commit and expected_runner_commit != "UNKNOWN":
         commit_short = expected_runner_commit[:7]
         if expected_runner_commit not in content and commit_short not in content:
             raise PermissionError(
@@ -229,11 +267,45 @@ def verify_freeze_packet_authorization(
                 f"'{expected_runner_commit}'."
             )
 
+    if expected_protocol_commit and expected_protocol_commit != "UNKNOWN":
+        proto_short = expected_protocol_commit[:7]
+        if "Protocol Commit" in content or "protocol_commit" in content:
+            if expected_protocol_commit not in content and proto_short not in content:
+                raise PermissionError(
+                    f"Freeze packet '{freeze_packet_path}' does not reference approved protocol commit "
+                    f"'{expected_protocol_commit}'."
+                )
+
+    # Verify approved runner commit ancestry with respect to HEAD
+    try:
+        res_head = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True, text=True, cwd=repo_dir
+        )
+        if res_head.returncode == 0:
+            current_head = res_head.stdout.strip()
+            if expected_runner_commit and expected_runner_commit != "UNKNOWN":
+                if expected_runner_commit != current_head:
+                    res_anc = subprocess.run(
+                        ["git", "merge-base", "--is-ancestor", expected_runner_commit, current_head],
+                        capture_output=True, cwd=repo_dir
+                    )
+                    if res_anc.returncode != 0:
+                        raise PermissionError(
+                            f"Approved runner commit '{expected_runner_commit}' is not an ancestor of current Git HEAD "
+                            f"'{current_head}'."
+                        )
+    except PermissionError:
+        raise
+    except Exception:
+        pass
+
     return {
         "freeze_packet_path": os.path.normpath(freeze_packet_path).replace("\\", "/"),
         "is_authorized": True,
         "governing_protocol": expected_protocol_ref,
-        "runner_commit": expected_runner_commit
+        "runner_commit": expected_runner_commit,
+        "protocol_commit": expected_protocol_commit
     }
 
 
@@ -376,17 +448,17 @@ class CandlePriceIndex:
                 f"Cannot override split boundary beyond {HARD_SPLIT_TIMESTAMP} during pre-2023 discovery."
             )
 
-        norm_path = os.path.normpath(filepath).replace("\\", "/")
-        if not allow_unblinded_run:
-            if "data/pinned" in norm_path or PINNED_CANDLE_FILENAME in norm_path:
-                raise PermissionError(
-                    "Unblinded empirical execution on pinned candidate candle prices is strictly prohibited "
-                    "prior to protocol freeze. Pinned candidate prices remain sealed."
-                )
-
         actual_sha256 = compute_file_sha256(filepath)
         expected_pinned_sha = EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"]
         is_verified_pinned = (actual_sha256 == expected_pinned_sha)
+
+        norm_path = os.path.normpath(filepath).replace("\\", "/")
+        if not allow_unblinded_run:
+            if is_verified_pinned or "data/pinned" in norm_path or PINNED_CANDLE_FILENAME in norm_path:
+                raise PermissionError(
+                    "Unblinded empirical execution on pinned candidate candle prices is strictly prohibited "
+                    "prior to protocol freeze (matches pinned EURUSD H1 candles). Pinned candidate prices remain sealed."
+                )
 
         bars: List[CandleBar] = []
         with open(filepath, "r", encoding="utf-8") as f:
@@ -836,14 +908,21 @@ def preflight_verification(
     expected_candle_sha256: Optional[str] = EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"],
     split_timestamp: int = HARD_SPLIT_TIMESTAMP,
     force_dirty_check: Optional[bool] = None,
-    check_freeze_git: bool = True
+    check_freeze_git: bool = True,
+    check_frozen_accounting: Optional[bool] = None,
+    expected_runner_commit: Optional[str] = None,
+    expected_protocol_commit: Optional[str] = None,
+    repo_dir: Optional[str] = None
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Executes an unyielding price-blind preflight audit BEFORE touching or parsing candle prices:
-    1. Implementation state: must be clean Git status and known commit SHA.
-    2. Freeze authorization: requires an explicit committed freeze packet with approved status.
-    3. Input file hashing: exact cryptographic match against approved SHA-256 digests.
-    4. Pre-price calendar accounting: exactly 96 total, 67 complete A/F/P, 66 actionable,
+    1. Authorization flag: explicit unblinding permission required unless synthetic test.
+    2. Freeze packet presence: explicit path required unless synthetic test.
+    3. Implementation state: must be clean Git status and known commit SHA.
+    4. Freeze authorization: validates freeze packet status, protocol ref, approved runner commit, and ancestry.
+    5. Input file hashing: exact cryptographic match against approved SHA-256 digests;
+       rejects real pinned candle data in synthetic mode. Caller-supplied hashes cannot replace pinned hashes in production.
+    6. Pre-price calendar accounting: exactly 96 total, 67 complete A/F/P, 66 actionable,
        28 positive, 38 negative, 1 zero surprise.
     """
     # Gate 1: Explicit unblinding authorization check
@@ -864,7 +943,7 @@ def preflight_verification(
             )
 
     # Gate 3: Implementation State Cleanliness
-    provenance = get_implementation_provenance()
+    provenance = get_implementation_provenance(repo_dir=repo_dir)
     should_check_dirty = force_dirty_check if force_dirty_check is not None else (not is_synthetic_test)
     if should_check_dirty:
         if provenance["has_uncommitted_changes"] or force_dirty_check is True:
@@ -877,37 +956,90 @@ def preflight_verification(
 
     # Gate 4: Freeze Packet Content and Commit Authorization
     if not is_synthetic_test:
+        runner_commit_to_verify = expected_runner_commit or provenance["git_runner_last_commit"]
+        protocol_commit_to_verify = expected_protocol_commit or provenance["git_protocol_last_commit"]
+
+        if expected_runner_commit and provenance["git_runner_last_commit"] != "UNKNOWN":
+            commit_short = expected_runner_commit[:7]
+            if not provenance["git_runner_last_commit"].startswith(commit_short):
+                raise PermissionError(
+                    f"Runner implementation in 'src/ism_runner.py' was modified after approved commit "
+                    f"'{expected_runner_commit}'. Most recent commit modifying runner is "
+                    f"'{provenance['git_runner_last_commit']}'."
+                )
+
         freeze_info = verify_freeze_packet_authorization(
             freeze_packet_path=freeze_packet_path,
             expected_protocol_ref=PROTOCOL_REFERENCE,
-            expected_runner_commit=provenance["git_head_commit"],
-            check_git_committed=check_freeze_git
+            expected_runner_commit=runner_commit_to_verify,
+            expected_protocol_commit=protocol_commit_to_verify,
+            check_git_committed=check_freeze_git,
+            repo_dir=repo_dir
         )
 
-    # Gate 4: Cryptographic File Digest Verification
+    # Gate 5: Cryptographic File Digest Verification
+    pinned_cal_sha = EXPECTED_PINNED_SOURCES["calendar_releases"]["sha256"]
+    pinned_candle_sha = EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"]
+
+    # In production: caller-supplied expected hashes MUST NOT replace approved pinned hashes
+    if not is_synthetic_test:
+        if expected_calendar_sha256 is not None and expected_calendar_sha256 != pinned_cal_sha:
+            raise ValueError(
+                f"Caller-supplied expected calendar hash '{expected_calendar_sha256}' does not match "
+                f"approved pinned hash '{pinned_cal_sha}'. In production, caller-supplied expected hashes "
+                f"must not replace approved pinned hashes."
+            )
+        if expected_candle_sha256 is not None and expected_candle_sha256 != pinned_candle_sha:
+            raise ValueError(
+                f"Caller-supplied expected candle hash '{expected_candle_sha256}' does not match "
+                f"approved pinned hash '{pinned_candle_sha}'. In production, caller-supplied expected hashes "
+                f"must not replace approved pinned hashes."
+            )
+
+    # Check calendar digest first before touching candle file
     cal_sha256 = compute_file_sha256(calendar_path)
-    if not is_synthetic_test or expected_calendar_sha256 is not None:
+    if is_synthetic_test:
         if expected_calendar_sha256 and cal_sha256 != expected_calendar_sha256:
             raise ValueError(
                 f"Calendar file '{calendar_path}' SHA-256 '{cal_sha256}' does not match "
                 f"expected approved hash '{expected_calendar_sha256}'."
             )
+    else:
+        if cal_sha256 != pinned_cal_sha:
+            raise ValueError(
+                f"Calendar file '{calendar_path}' SHA-256 '{cal_sha256}' does not match "
+                f"approved pinned hash '{pinned_cal_sha}'."
+            )
 
+    # Check candle digest
     candle_sha256 = compute_file_sha256(candle_path)
-    if not is_synthetic_test or expected_candle_sha256 is not None:
+    if is_synthetic_test:
+        if candle_sha256 == pinned_candle_sha:
+            raise PermissionError(
+                f"Synthetic test mode strictly prohibits using real pinned candidate candle data "
+                f"(content hash '{candle_sha256}' matches approved pinned EURUSD candles). "
+                f"Pinned candidate prices remain sealed."
+            )
         if expected_candle_sha256 and candle_sha256 != expected_candle_sha256:
             raise ValueError(
                 f"EURUSD candle file '{candle_path}' SHA-256 '{candle_sha256}' does not match "
                 f"expected approved hash '{expected_candle_sha256}'."
             )
+    else:
+        if candle_sha256 != pinned_candle_sha:
+            raise ValueError(
+                f"EURUSD candle file '{candle_path}' SHA-256 '{candle_sha256}' does not match "
+                f"approved pinned hash '{pinned_candle_sha}'."
+            )
 
-    # Gate 5: Pre-Price Calendar Sample Accounting Verification
+    # Gate 6: Pre-Price Calendar Sample Accounting Verification
     cal_data = load_ism_packages_from_calendar_csv(
         calendar_csv_path=calendar_path,
         split_timestamp=split_timestamp
     )
     acc = cal_data["sample_accounting"]
-    if not is_synthetic_test:
+    should_check_accounting = check_frozen_accounting if check_frozen_accounting is not None else (not is_synthetic_test)
+    if should_check_accounting:
         if (
             acc["total_pre2023_releases"] != FROZEN_ISM_TOTAL_PRE2023 or
             acc["complete_afp_releases"] != FROZEN_ISM_COMPLETE_AFP or
@@ -928,8 +1060,8 @@ def preflight_verification(
     preflight_metadata = {
         "calendar_sha256": cal_sha256,
         "candle_sha256": candle_sha256,
-        "calendar_verified": (not is_synthetic_test and cal_sha256 == expected_calendar_sha256),
-        "candle_verified": (not is_synthetic_test and candle_sha256 == expected_candle_sha256),
+        "calendar_verified": (not is_synthetic_test and cal_sha256 == pinned_cal_sha),
+        "candle_verified": (not is_synthetic_test and candle_sha256 == pinned_candle_sha),
         "freeze_packet_info": freeze_info,
         "provenance": provenance,
         "is_synthetic_test": is_synthetic_test
@@ -1198,7 +1330,10 @@ class IsmCalculationRunner:
         expected_candle_sha256: Optional[str] = EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"],
         expected_sample_size: Optional[int] = FROZEN_ISM_ACTIONABLE,
         force_dirty_check: Optional[bool] = None,
-        require_48h1_completeness: bool = True
+        require_48h1_completeness: bool = True,
+        expected_runner_commit: Optional[str] = None,
+        expected_protocol_commit: Optional[str] = None,
+        repo_dir: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Executes discovery calculation from CSV files on disk.
@@ -1209,6 +1344,7 @@ class IsmCalculationRunner:
         2. Verifies clean committed Git state and calendar accounting (96/67/66/28/38/1).
         3. Requires committed authorized freeze packet; bare allow_unblinded_run=True is rejected.
         4. Verifies output file immutability (does not overwrite existing output artifacts).
+        5. In synthetic test mode, strictly rejects real pinned EURUSD candles by content hash.
         """
         # 1. Output immutability check
         if output_json_path and os.path.exists(output_json_path):
@@ -1217,9 +1353,19 @@ class IsmCalculationRunner:
                 f"Overwriting discovery artifacts is strictly prohibited to preserve immutable records."
             )
 
-        # 2. Price-blind preflight verification BEFORE opening candle file
-        exp_cal_sha = None if is_synthetic_test else expected_calendar_sha256
-        exp_candle_sha = None if is_synthetic_test else expected_candle_sha256
+        # 2. Reject pinned real candle data in synthetic mode immediately by content hash
+        if is_synthetic_test:
+            candle_sha = compute_file_sha256(candle_path)
+            if candle_sha == EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"]:
+                raise PermissionError(
+                    f"Synthetic test mode strictly prohibits using real pinned candidate candle data "
+                    f"(content hash '{candle_sha}' matches approved pinned EURUSD candles). "
+                    f"Pinned candidate prices remain sealed."
+                )
+
+        # 3. Price-blind preflight verification BEFORE opening candle file
+        exp_cal = expected_calendar_sha256 if (not is_synthetic_test or expected_calendar_sha256 != EXPECTED_PINNED_SOURCES["calendar_releases"]["sha256"]) else None
+        exp_candle = expected_candle_sha256 if (not is_synthetic_test or expected_candle_sha256 != EXPECTED_PINNED_SOURCES["raw_candles_eurusd"]["sha256"]) else None
 
         cal_data, preflight_meta = preflight_verification(
             calendar_path=calendar_path,
@@ -1227,17 +1373,20 @@ class IsmCalculationRunner:
             freeze_packet_path=freeze_packet_path,
             allow_unblinded_run=allow_unblinded_run,
             is_synthetic_test=is_synthetic_test,
-            expected_calendar_sha256=exp_cal_sha,
-            expected_candle_sha256=exp_candle_sha,
+            expected_calendar_sha256=exp_cal,
+            expected_candle_sha256=exp_candle,
             split_timestamp=self.split_timestamp,
-            force_dirty_check=force_dirty_check
+            force_dirty_check=force_dirty_check,
+            expected_runner_commit=expected_runner_commit,
+            expected_protocol_commit=expected_protocol_commit,
+            repo_dir=repo_dir
         )
 
-        # 3. Load candle price index (enforces logical parsing isolation at split boundary)
+        # 4. Load candle price index (enforces logical parsing isolation at split boundary)
         price_index = CandlePriceIndex.from_csv(
             filepath=candle_path,
             split_timestamp=self.split_timestamp,
-            allow_unblinded_run=allow_unblinded_run or is_synthetic_test
+            allow_unblinded_run=allow_unblinded_run
         )
 
         # 4. Execute calculations across episodes
