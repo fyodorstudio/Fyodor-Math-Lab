@@ -48,7 +48,8 @@
   const tabButtons = [tabBtnEventTable, tabBtnCandidateResearch];
 
   const selResearchStudy = document.getElementById('selResearchStudy');
-  const studyContentCpi = document.getElementById('studyContentCpi');
+  const studyContentCpiBaseline = document.getElementById('studyContentCpiBaseline');
+  const studyContentCpiMomentum = document.getElementById('studyContentCpiMomentum');
   const studyContentPending = document.getElementById('studyContentPending');
   const pendingStudyTitle = document.getElementById('pendingStudyTitle');
   const pendingStudyDesc = document.getElementById('pendingStudyDesc');
@@ -665,11 +666,17 @@
   function updateResearchStudy() {
     if (!selResearchStudy) return;
     const study = selResearchStudy.value;
-    if (study === 'US_CPI_EURUSD') {
-      if (studyContentCpi) studyContentCpi.style.display = 'block';
+    if (study === 'US_CPI_EURUSD_AF_H24' || study === 'US_CPI_EURUSD') {
+      if (studyContentCpiBaseline) studyContentCpiBaseline.style.display = 'block';
+      if (studyContentCpiMomentum) studyContentCpiMomentum.style.display = 'none';
+      if (studyContentPending) studyContentPending.style.display = 'none';
+    } else if (study === 'US_CPI_EURUSD_AP_H60') {
+      if (studyContentCpiBaseline) studyContentCpiBaseline.style.display = 'none';
+      if (studyContentCpiMomentum) studyContentCpiMomentum.style.display = 'block';
       if (studyContentPending) studyContentPending.style.display = 'none';
     } else {
-      if (studyContentCpi) studyContentCpi.style.display = 'none';
+      if (studyContentCpiBaseline) studyContentCpiBaseline.style.display = 'none';
+      if (studyContentCpiMomentum) studyContentCpiMomentum.style.display = 'none';
       if (studyContentPending) {
         studyContentPending.style.display = 'block';
         const optText = selResearchStudy.options[selResearchStudy.selectedIndex].text;

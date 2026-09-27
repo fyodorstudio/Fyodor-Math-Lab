@@ -47,23 +47,31 @@ These are exploratory, in-sample, OHLC-based results. Two trades touched both st
 
 The numerical source of truth is the [simulation report](../../TABLE%20VIEWER/cpi_setup/cpi_simulation_report.md), [277-episode decision ledger](../../TABLE%20VIEWER/cpi_setup/cpi_decision_ledger.csv), and [trade ledger](../../TABLE%20VIEWER/cpi_setup/cpi_trade_ledger.csv). Preserve this baseline unchanged when evaluating new variants.
 
-## Next candidate: A−P momentum, H60 (specified, not calculated)
+## Separate exploratory variant: A−P momentum, H60
 
-This is a separate exploratory pass, not a correction to the A−F baseline above. Keep the same US headline and core CPI m/m release pairing, EURUSD, Retail Sales collision exclusion, exact next-H1 entry, pre-release ATR(14), 1.0 × ATR stop, 1.5 × ATR target, and conservative stop-first intrabar rule. Change only the signal and expiry:
+This post-hoc trial preserves the CPI pairing, EURUSD, Retail Sales collision exclusion, exact next-H1 entry, pre-release ATR(14), 1.0 × ATR stop, 1.5 × ATR target, and conservative stop-first intrabar rule. Its signal is **actual minus exported previous** for both headline and core; both positive means short EURUSD, both negative means long, and mixed/equal/missing means no trade. Forecast is context, not an eligibility requirement. `revised_previous` is diagnostic only; its historical point-in-time availability is unproven. See the [MQL5 calendar structure reference](https://www.mql5.com/en/docs/constants/structures/mqlcalendar).
 
-- For **both** headline and core, `actual > previous` means short EURUSD; `actual < previous` means long EURUSD. Mixed, equal, or missing values produce no signal. Forecast is recorded for context but is not required for eligibility.
-- Expire at the close of the 60th **observed H1 candle** only if neither stop nor target has been hit. Require the exact entry candle and enough forward bars; audit missing-data gaps separately from normal market closures instead of hiding either in the bar count.
-- Use the exported `previous` field for the primary A−P signal. Retain `revised_previous` in the audit ledger and report its presence and any sign disagreement; do not silently substitute it, and do not discard an episode merely because it exists. Check historical point-in-time availability before describing the result as live-replicable. MT5 exposes `previous`, `revised_previous`, and the release's own `revision` as distinct fields; they are not interchangeable. See the [MQL5 calendar structure reference](https://www.mql5.com/en/docs/constants/structures/mqlcalendar).
+| A−P/H60 result from pinned 2015–September 2026 data | Conservative trial |
+| --- | ---: |
+| Inflation-family episodes / eligible unshared CPI episodes | 277 / 127 |
+| Directional trades: short / long | 55: 26 / 29 |
+| Target first / stop first | 23 / 32 |
+| Win rate | 41.8% |
+| Total gross return | +2.50 R; +40.9 pips |
+| Same-H1-bar stop-and-target ambiguity | 4 trades, counted as stops |
+| H60 timeouts / latest stop-or-target exit | 0 / H23 |
 
-Recount the entire CPI episode funnel and write this variant's own ledgers and report. The 36 A−F trades and their H18 latest exit do **not** imply the A−P candidate has the same N or that H60 is irrelevant to it. No A−P H60 price result exists yet.
+The trial inspected historical prices and several target multiples **before** its protocol was written. The +2.50 R margin is thin: one target becoming a stop removes 2.50 R. The 8 trades coinciding with Initial Jobless Claims contribute +4.50 R; the remaining 47 **without Initial Jobless Claims** contribute −2.00 R, but they are not solitary CPI releases. This subgroup contrast was discovered after viewing outcomes and is not an approved filter. No trade reached H24, so lengthening this particular stop/target rule from H24 to H60 would not have changed its recorded exits.
+
+The [A−P trial protocol](../../evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/protocol.md), [277-episode decision ledger](../../evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_decision_ledger.csv), [55-trade ledger](../../evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_trade_ledger.csv), and [simulation report](../../evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_simulation_report.md) are separate from the byte-preserved A−F baseline. These historical gross figures are for manual audit, **not** a registered setup or independently validated profit claim.
 
 ## Next investigations — separate from the baseline
 
 | Question | What we know now | What to examine next |
 | --- | --- | --- |
 | **Retail Sales collision** | Of the 12 excluded shared timestamps, four lack a required forecast, seven have mixed/zero CPI surprises, and **one** has both CPI surprises above forecast. Removing only the collision filter would therefore add **one eligible signal**, not 12. Its trade outcome has not been evaluated here. | Display all 12 as a separate co-release cohort, including the Retail Sales values and whether their surprise agrees or conflicts with CPI. Audit that one additional candidate without folding it into the 36-trade baseline. |
-| **A versus P** | The current entry rule does not use previous readings. The raw calendar has a `previous` field, but its availability and point-in-time meaning must be checked before treating it as live-usable context. | For headline and core separately, show A − P alongside A − F, missingness, and direction agreement. First describe the existing 36 trades and non-trades; any A − P gate becomes a **new, explicitly named variant**, not a retrofit. |
-| **H60 horizon** | The Event Table can show H1–H60 displacement. All 36 baseline trades already hit stop or target by H18, so extending **only** the H24 expiry to H60 would change none of their outcomes. | Inspect the H1–H60 paths as price behavior. A 60-bar stop/target simulation matters only if the entry, stop, target, or exit rule changes; report that as a separate variant with full path coverage checks. |
+| **A versus P** | The original A−F rule gave 36 trades and +4.00 gross R; the separate A−P/H60 rule gave 55 trades and +2.50 gross R. Neither is independently validated, and they select different episodes. | Inspect where A−F and A−P agree or conflict, including both headline and core and any same-time releases. Any combined rule is a new named trial, not a retrofit. |
+| **H60 horizon** | The Event Table shows H1–H60 displacement. Baseline trades exited by H18; all 55 A−P trades exited by H23. | Use H1–H60 paths to study longer behavior, but changing the expiry alone cannot alter the current stop/target results. Any new entry or exit rule needs its own trial. |
 
 Keep cohort sizes, individual episodes, and gross outcomes visible. Do not promote whichever subset looks best after seeing its returns into the original baseline. If a new variant looks promising, name and specify it before any subsequent prospective demo evaluation.
 

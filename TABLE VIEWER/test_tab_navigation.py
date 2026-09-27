@@ -88,7 +88,8 @@ class TestTabNavigationAndParity(unittest.TestCase):
 
         # Candidate Research selector
         self.assertIn('id="selResearchStudy"', self.html_content)
-        self.assertIn('value="US_CPI_EURUSD"', self.html_content)
+        self.assertIn('US_CPI_EURUSD_AF_H24', self.html_content)
+        self.assertIn('US_CPI_EURUSD_AP_H60', self.html_content)
 
         # Verify selResearchStudy is inside tabPanelCandidateResearch
         p2_start = self.html_content.find('id="tabPanelCandidateResearch"')
@@ -100,12 +101,15 @@ class TestTabNavigationAndParity(unittest.TestCase):
     def test_candidate_research_study_selector_and_pending_guards(self):
         """
         Verifies Candidate Research study choices:
-        - Currently available: US CPI · EURUSD.
+        - Currently available:
+          1. US CPI · EURUSD · A−F Surprise · H24 (Baseline)
+          2. US CPI · EURUSD · A−P Momentum · H60 (Exploratory)
         - Other macro studies are clearly marked Pending.
         - Pending container exists with clear audit guard message and no invented data.
         """
-        # Available study
-        self.assertIn('<option value="US_CPI_EURUSD" selected>US CPI · EURUSD</option>', self.html_content)
+        # Available studies
+        self.assertIn('US CPI · EURUSD · A−F Surprise · H24', self.html_content)
+        self.assertIn('US CPI · EURUSD · A−P Momentum · H60', self.html_content)
 
         # Other studies marked Pending
         self.assertIn('US Labor (NFP) · EURUSD (Pending)', self.html_content)

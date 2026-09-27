@@ -981,10 +981,11 @@
       </div>
     </div>
     <div class="selectors-grid">
-      <div class="control-group" style="max-width: 420px; flex: 2 1 360px;">
+      <div class="control-group" style="max-width: 480px; flex: 2 1 420px;">
         <label for="selResearchStudy">Candidate Research Study</label>
         <select id="selResearchStudy" class="control-select">
-          <option value="US_CPI_EURUSD" selected>US CPI · EURUSD</option>
+          <option value="US_CPI_EURUSD_AF_H24" selected>US CPI · EURUSD · A−F Surprise · H24</option>
+          <option value="US_CPI_EURUSD_AP_H60">US CPI · EURUSD · A−P Momentum · H60</option>
           <option value="US_LABOR_EURUSD">US Labor (NFP) · EURUSD (Pending)</option>
           <option value="US_RETAIL_EURUSD">US Retail Sales · EURUSD (Pending)</option>
           <option value="GERMAN_IFO_EURUSD">German Ifo · EURUSD (Pending)</option>
@@ -994,8 +995,8 @@
     </div>
   </div>
 
-  <!-- Active Study Container: US CPI · EURUSD -->
-  <div id="studyContentCpi" class="study-content-panel">
+  <!-- Active Study Container: US CPI · EURUSD · A-F Surprise · H24 (Baseline) -->
+  <div id="studyContentCpiBaseline" class="study-content-panel">
     <div class="study-scope-notice">
       <strong>Independent Fixed Historical Evaluation:</strong> The candidate setup parameters and historical simulation results below cover their stated full historical evaluation period (2015–2026, 36 Directional Episodes). These fixed audited results are completely independent of any pair, year, or family filters selected on the Event Table tab.
     </div>
@@ -1120,6 +1121,318 @@
 </div>
   </div>
 
+  <!-- Active Study Container: US CPI · EURUSD · A-P Momentum · H60 (Exploratory Trial) -->
+  <div id="studyContentCpiMomentum" class="study-content-panel" style="display: none;">
+    <div class="study-scope-notice" style="background: #fffbeb; border-color: #fde68a; color: #92400e;">
+      <strong>Independent Fixed Historical Evaluation (Exploratory Trial):</strong> The candidate parameter card and historical simulation results below cover their stated full historical evaluation period (2015–2026, 55 Directional Episodes). These fixed exploratory results are completely independent of any pair, year, or family filters selected on the Event Table tab. Do not mix with or directly compare to the A−F baseline.
+    </div>
+
+    <!-- Exploratory Candidate Setup Panel -->
+<div id="momentumCandidateSection" class="forward-test-panel">
+  <div class="forward-test-header">
+    <div class="forward-test-title">
+      <span class="forward-test-tag" style="background: #fee2e2; color: #991b1b; border-color: #fca5a5;">POST-HOC EXPLORATORY — NOT A REGISTERED SETUP</span>
+      <h3>Candidate Exploratory Trial: US CPI on EURUSD (A−P Momentum · H60)</h3>
+    </div>
+    <div class="forward-test-status">
+      <span>Post-Hoc Exploratory Specification &bull; Codex Forensic Audit</span>
+    </div>
+  </div>
+
+  <div class="param-card">
+    <div class="param-card-header">Candidate Parameter Card (A−P Momentum / H60)</div>
+    <table class="param-table">
+      <tr><th>Asset</th><td>EURUSD (Spot FX)</td></tr>
+      <tr><th>Signal Bundle</th><td>USD CPI m/m (840030005) + USD Core CPI m/m (840030006)</td></tr>
+      <tr><th>Direction Rule</th><td>Monthly Momentum (A &minus; P): Both &Delta; &gt; 0 &rarr; SHORT EURUSD; Both &Delta; &lt; 0 &rarr; LONG EURUSD; Mixed signs or &Delta; = 0 &rarr; No Trade</td></tr>
+      <tr><th>Collision Filter</th><td>12 Retail Sales shared timestamps excluded (SHARED_COLLISION); 138 Core PCE only releases excluded (PCE_ONLY)</td></tr>
+      <tr><th>Entry Timing</th><td>OPEN of exact next-hour H1 candle ((ts // 3600 + 1) * 3600; e.g. 16:00:00 for 15:30 release). Search forward across gaps disabled.</td></tr>
+      <tr><th>Volatility Measure</th><td>ATR14 (14 completed H1 TR strictly ending prior to release timestamp: candle_time + 3600 &lt; release_ts; spike bar strictly excluded; requires 15 strictly consecutive completed bars with 0 gaps)</td></tr>
+      <tr><th>Protective Stop</th><td>1.0 &times; ATR14 nominal from entry (fills at worse open if gapping)</td></tr>
+      <tr><th>Profit Target</th><td>1.5 &times; ATR14 nominal (primary trial; sensitivities 1.0x, 2.0x; capped at target price on favorable gap)</td></tr>
+      <tr><th>Max Holding</th><td>60 observed H1 market candles (complete 60-bar path required; exits at close of Bar 60 with TIMEOUT_H60 if neither hit). All 55 trades resolved by Bar 23 (0 timeouts).</td></tr>
+      <tr><th>Touch Precedence</th><td>Conservative (Stop first on same-bar touch; flagged ambiguous; optimistic sensitivity reported)</td></tr>
+      <tr><th>Registration Governance</th><td>POST-HOC EXPLORATORY SPECIFICATION — NOT A REGISTERED SETUP. Must not be traded on live or demo accounts. Zero setups are registered or approved for forward trading.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Historical A-P Momentum Results Section -->
+<div id="historicalCpiMomentumResultsSection" class="historical-results-panel">
+  <div class="results-panel-header">
+    <div class="results-panel-title">
+      <span class="results-panel-tag" style="background: #fee2e2; color: #991b1b; border-color: #fca5a5;">POST-HOC EXPLORATORY — NOT A REGISTERED SETUP</span>
+      <h3>Historical CPI Momentum Results: EURUSD (2015–2026, Partial)</h3>
+    </div>
+    <div class="results-disclaimer" style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px 16px; border-radius: 6px; margin-top: 10px;">
+      <strong style="color: #92400e;">POST-HOC EXPLORATORY — NOT A REGISTERED SETUP</strong><br>
+      Historical candle prices, trade paths, and multiple target variants (1.0x, 1.5x, 2.0x) were inspected prior to drafting the specification protocol. This is a post-hoc exploratory specification, NOT an independently validated or pre-price-frozen hypothesis test. Target sensitivities are descriptive post-hoc parameter variations evaluated on the identical sample. Zero setups are registered or approved for live or demo forward trading. Must not be traded.<br>
+      Sample Period: 2015–2026 Full History (55 Directional Episodes) &bull; Pinned history ends at September 23, 2026 snapshot (2026 is partial). These fixed all-years results do NOT change with the pair, year, or episode selectors on the Event Table tab.
+    </div>
+  </div>
+
+  <!-- N Funnel Accounting -->
+  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; max-width: 900px;">
+    <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">N Funnel Accounting (Universe of 277 Inflation Episodes)</div>
+    <div style="font-family: monospace; font-size: 12px; line-height: 1.6; color: #1e293b;">
+      Total US Inflation Episodes: <strong>277</strong><br>
+      &nbsp;&nbsp;&boxur;&minus; Core PCE Only Releases (840010001): <strong>&minus;138</strong> (PCE_ONLY)<br>
+      &nbsp;&nbsp;&boxur;&minus; Retail Sales Shared Collisions: <strong>&minus;12</strong> (SHARED_COLLISION)<br>
+      &nbsp;&nbsp;= Eligible Unshared CPI Episodes: <strong>127</strong><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&boxur;&minus; Mixed / Equal Momentum Sign: <strong>&minus;72</strong> (MIXED_OR_EQUAL)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;= Total Directional Candidate Trades: <strong>55</strong> (26 Short / 29 Long) (CANDIDATE_TRADE)
+    </div>
+  </div>
+
+  <!-- Results Summary Table -->
+  <div class="compact-table-outer">
+    <table class="compact-results-table">
+      <thead>
+        <tr>
+          <th>Target Multiple</th>
+          <th>Intrabar Touch Precedence</th>
+          <th>Trades N</th>
+          <th>Wins</th>
+          <th>Losses</th>
+          <th>Gross R</th>
+          <th>Mean R</th>
+          <th>Profit Factor</th>
+          <th>Max DD</th>
+          <th>Ambiguous N</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1.0&times; ATR (1:1)</td>
+          <td>Stop-First (Conservative)</td>
+          <td>55</td>
+          <td>24</td>
+          <td>31</td>
+          <td><span class="stat-neg">-7.00 R</span></td>
+          <td>-0.13 R</td>
+          <td>0.77</td>
+          <td>11.00 R</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td>1.0&times; ATR (1:1)</td>
+          <td>Target-First (Optimistic)</td>
+          <td>55</td>
+          <td>29</td>
+          <td>26</td>
+          <td><span class="stat-pos">+3.00 R</span></td>
+          <td>+0.05 R</td>
+          <td>1.12</td>
+          <td>5.00 R</td>
+          <td>5</td>
+        </tr>
+        <tr class="highlight-primary-row">
+          <td><strong>1.5&times; ATR (PRIMARY)</strong></td>
+          <td><strong>Stop-First (Conservative)</strong></td>
+          <td><strong>55</strong></td>
+          <td><strong>23</strong></td>
+          <td><strong>32</strong></td>
+          <td><span class="stat-pos"><strong>+2.50 R</strong></span></td>
+          <td><strong>+0.05 R</strong></td>
+          <td><strong>1.08</strong></td>
+          <td><strong>7.00 R</strong></td>
+          <td><strong>4</strong></td>
+        </tr>
+        <tr class="highlight-primary-row">
+          <td><strong>1.5&times; ATR (PRIMARY)</strong></td>
+          <td>Target-First (Optimistic)</td>
+          <td>55</td>
+          <td>27</td>
+          <td>28</td>
+          <td><span class="stat-pos">+12.50 R</span></td>
+          <td>+0.23 R</td>
+          <td>1.45</td>
+          <td>6.00 R</td>
+          <td>4</td>
+        </tr>
+        <tr>
+          <td>2.0&times; ATR (1:2)</td>
+          <td>Stop-First (Conservative)</td>
+          <td>55</td>
+          <td>20</td>
+          <td>35</td>
+          <td><span class="stat-pos">+5.00 R</span></td>
+          <td>+0.09 R</td>
+          <td>1.14</td>
+          <td>7.00 R</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td>2.0&times; ATR (1:2)</td>
+          <td>Target-First (Optimistic)</td>
+          <td>55</td>
+          <td>23</td>
+          <td>32</td>
+          <td><span class="stat-pos">+14.00 R</span></td>
+          <td>+0.25 R</td>
+          <td>1.44</td>
+          <td>7.00 R</td>
+          <td>3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Primary Splits & Ambiguity Note -->
+  <div class="results-table-note">
+    <p><strong>Primary 1.5&times; Conservative Trial Splits (Descriptive post-hoc observations, NOT new eligibility filters):</strong></p>
+    <ul>
+      <li><strong>Directional Split:</strong> Longs (N=29): <span class="stat-neg">-1.5 R</span> (11 targets / 18 stops) &bull; Shorts (N=26): <span class="stat-pos">+4 R</span> (12 targets / 14 stops)</li>
+      <li><strong>Co-Release Split:</strong> 8 timestamps coinciding with Initial Jobless Claims: <span class="stat-pos">+4.5 R</span> (5 targets / 3 stops) &bull; Remaining 47 timestamps (No Initial Jobless Claims): <span class="stat-neg">-2 R</span> (18 targets / 29 stops)</li>
+      <li><strong>Robustness Check:</strong> Removing single best trade (+1.50 R on 2019.11.13 16:30:00): gross return = +1.00 R</li>
+      <li><strong>Trade-Level Means:</strong> Mean risk: 12.20 pips &bull; Mean gross P&L: +0.74 pips &bull; Total Gross Pips: +40.9 pips</li>
+      <li><strong>Holding Time:</strong> Bar 1: 43 (78.2%), Bar 2: 8 (14.5%), Bar 5: 2 (3.6%), Bar 18: 1 (1.8%), Bar 23: 1 (1.8%). 0 trades reached H60 timeout.</li>
+    </ul>
+
+    <p style="margin-top: 10px;"><strong>4 Ambiguous Intrabar Bars (Same-bar SL and TP touches):</strong></p>
+    <ul style="margin-bottom: 8px;">
+      <li><code>2021.05.12 15:30:00</code> (SHORT): Bar 1 touched SL (1.21400) and TP (1.21137)</li>
+<li><code>2023.02.14 16:30:00</code> (SHORT): Bar 1 touched SL (1.07696) and TP (1.07249)</li>
+<li><code>2024.06.12 15:30:00</code> (LONG): Bar 1 touched SL (1.08195) and TP (1.08363)</li>
+<li><code>2024.07.11 15:30:00</code> (LONG): Bar 1 touched SL (1.08803) and TP (1.08956)</li>
+    </ul>
+    <p style="font-size: 11px; color: #64748b; font-style: italic;">
+      Resolving these 4 ambiguous bars in favor of Target First changes cumulative return from <strong>+2.50 R</strong> to <strong>+12.50 R</strong> (+10.00 R difference, +103.1 pips), illustrating substantial execution-precedence sensitivity.
+    </p>
+
+    <p class="results-friction-warning">Gross mid/bid H1 prices only. Zero broker spread, slippage, commission, or overnight financing modeled. Evaluated on full-history unblinded data; post-hoc exploratory trial only; zero setups are registered or approved for live or demo trading. Historical figures here remain ledger-reconciled exploratory observations and do not constitute independent validation or automatic registration.</p>
+    <p class="ledger-links">
+      Audit Artifacts:
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_trade_ledger.csv</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_decision_ledger.csv</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_trade_ledger.json</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_simulation_report.md</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/protocol.md</code>
+    </p>
+  </div>
+
+  <!-- Yearly Breakdown Table -->
+  <div style="margin-top: 20px;">
+    <h4 style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Yearly Breakdown (Primary 1.5&times; Conservative Trial)</h4>
+    <div class="compact-table-outer">
+      <table class="compact-results-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Trades</th>
+            <th>Longs</th>
+            <th>Shorts</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Gross R</th>
+            <th>Gross Pips</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>2015</td><td>2</td><td>2</td><td>0</td><td>0</td><td>2</td><td><span class="stat-neg">-2.00 R</span></td><td><span class="stat-neg">-35.7</span></td></tr>
+<tr><td>2016</td><td>5</td><td>2</td><td>3</td><td>1</td><td>4</td><td><span class="stat-neg">-2.50 R</span></td><td><span class="stat-neg">-54.1</span></td></tr>
+<tr><td>2017</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+20.4</span></td></tr>
+<tr><td>2018</td><td>2</td><td>1</td><td>1</td><td>1</td><td>1</td><td><span class="stat-pos">+0.50 R</span></td><td><span class="stat-pos">+7.1</span></td></tr>
+<tr><td>2019</td><td>2</td><td>1</td><td>1</td><td>1</td><td>1</td><td><span class="stat-pos">+0.50 R</span></td><td><span class="stat-neg">-0.3</span></td></tr>
+<tr><td>2020</td><td>9</td><td>6</td><td>3</td><td>4</td><td>5</td><td><span class="stat-pos">+1.00 R</span></td><td><span class="stat-pos">+31.5</span></td></tr>
+<tr><td>2021</td><td>11</td><td>5</td><td>6</td><td>4</td><td>7</td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-pos">+9.5</span></td></tr>
+<tr><td>2022</td><td>4</td><td>2</td><td>2</td><td>1</td><td>3</td><td><span class="stat-neg">-1.50 R</span></td><td><span class="stat-neg">-29.1</span></td></tr>
+<tr><td>2023</td><td>5</td><td>2</td><td>3</td><td>3</td><td>2</td><td><span class="stat-pos">+2.50 R</span></td><td><span class="stat-pos">+22.1</span></td></tr>
+<tr><td>2024</td><td>3</td><td>2</td><td>1</td><td>0</td><td>3</td><td><span class="stat-neg">-3.00 R</span></td><td><span class="stat-neg">-20.6</span></td></tr>
+<tr><td>2025</td><td>7</td><td>4</td><td>3</td><td>4</td><td>3</td><td><span class="stat-pos">+3.00 R</span></td><td><span class="stat-pos">+61.1</span></td></tr>
+<tr><td>2026</td><td>4</td><td>2</td><td>2</td><td>3</td><td>1</td><td><span class="stat-pos">+3.50 R</span></td><td><span class="stat-pos">+29.2</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Complete 55 Per-Trade Outcomes Table -->
+  <div style="margin-top: 24px;">
+    <h4 style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">All 55 Historical Trade Outcomes (A−P Momentum / H60)</h4>
+    <div style="max-height: 440px; overflow-y: auto; overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px;">
+      <table class="compact-results-table" style="max-width: 100%; font-size: 11px;">
+        <thead style="position: sticky; top: 0; z-index: 10;">
+          <tr>
+            <th>#</th>
+            <th>Release Time</th>
+            <th>Dir</th>
+            <th>Head A/P (diff)</th>
+            <th>Core A/P (diff)</th>
+            <th>Entry</th>
+            <th>SL</th>
+            <th>TP</th>
+            <th>Exit Time</th>
+            <th>Exit</th>
+            <th>Gross R</th>
+            <th>Gross Pips</th>
+            <th>Bars</th>
+            <th>Ambiguous</th>
+            <th>Co-Releases</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>2015.01.16 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>-0.4 / -0.3 (-0.1)</td><td>0.0 / 0.1 (-0.1)</td><td>1.15497</td><td>1.15261</td><td>1.15851</td><td>2015.01.16 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-23.6</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>2</td><td>2015.08.19 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.1 / 0.3 (-0.2)</td><td>0.1 / 0.2 (-0.1)</td><td>1.10366</td><td>1.10245</td><td>1.10548</td><td>2015.08.19 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-12.1</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>3</td><td>2016.01.20 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>-0.1 / 0.0 (-0.1)</td><td>0.1 / 0.2 (-0.1)</td><td>1.09089</td><td>1.08876</td><td>1.09409</td><td>2016.01.20 21:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-21.3</span></td><td>5</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">14 Co-release(s)</span></td></tr>
+<tr><td>4</td><td>2016.02.19 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.0 / -0.1 (+0.1)</td><td>0.3 / 0.1 (+0.2)</td><td>1.11015</td><td>1.11195</td><td>1.10746</td><td>2016.02.19 18:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-18.0</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">15 Co-release(s)</span></td></tr>
+<tr><td>5</td><td>2016.05.17 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.4 / 0.1 (+0.3)</td><td>0.2 / 0.1 (+0.1)</td><td>1.13108</td><td>1.13212</td><td>1.12951</td><td>2016.05.17 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-10.4</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">13 Co-release(s)</span></td></tr>
+<tr><td>6</td><td>2016.08.16 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.0 / 0.2 (-0.2)</td><td>0.1 / 0.2 (-0.1)</td><td>1.12785</td><td>1.12624</td><td>1.13027</td><td>2016.08.16 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-16.1</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">13 Co-release(s)</span></td></tr>
+<tr><td>7</td><td>2016.09.16 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.2 / 0.0 (+0.2)</td><td>0.3 / 0.1 (+0.2)</td><td>1.11843</td><td>1.11921</td><td>1.11726</td><td>2016.09.16 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+11.7</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">12 Co-release(s)</span></td></tr>
+<tr><td>8</td><td>2017.09.14 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.4 / 0.1 (+0.3)</td><td>0.2 / 0.1 (+0.1)</td><td>1.18924</td><td>1.19060</td><td>1.18720</td><td>2017.09.14 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+20.4</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>9</td><td>2018.03.13 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.2 / 0.5 (-0.3)</td><td>0.2 / 0.3 (-0.1)</td><td>1.23684</td><td>1.23540</td><td>1.23900</td><td>2018.03.13 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-14.4</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>10</td><td>2018.11.14 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.3 / 0.1 (+0.2)</td><td>0.2 / 0.1 (+0.1)</td><td>1.13331</td><td>1.13474</td><td>1.13116</td><td>2018.11.14 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+21.5</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>11</td><td>2019.10.10 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.0 / 0.1 (-0.1)</td><td>0.1 / 0.3 (-0.2)</td><td>1.10228</td><td>1.10124</td><td>1.10384</td><td>2019.10.10 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-10.4</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>12</td><td>2019.11.13 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.4 / 0.0 (+0.4)</td><td>0.2 / 0.1 (+0.1)</td><td>1.10119</td><td>1.10186</td><td>1.10018</td><td>2019.11.13 18:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+10.1</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>13</td><td>2020.01.14 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.2 / 0.3 (-0.1)</td><td>0.1 / 0.2 (-0.1)</td><td>1.11214</td><td>1.11139</td><td>1.11326</td><td>2020.01.14 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-7.5</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>14</td><td>2020.04.10 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>-0.4 / 0.1 (-0.5)</td><td>-0.1 / 0.2 (-0.3)</td><td>1.09422</td><td>1.09319</td><td>1.09576</td><td>2020.04.10 20:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-10.3</span></td><td>5</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>15</td><td>2020.05.12 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>-0.8 / -0.4 (-0.4)</td><td>-0.4 / -0.1 (-0.3)</td><td>1.08589</td><td>1.08456</td><td>1.08788</td><td>2020.05.12 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+19.9</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>16</td><td>2020.06.10 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>-0.1 / -0.8 (+0.7)</td><td>-0.1 / -0.4 (+0.3)</td><td>1.13797</td><td>1.13941</td><td>1.13581</td><td>2020.06.10 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+21.6</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>17</td><td>2020.07.14 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.6 / -0.1 (+0.7)</td><td>0.2 / -0.1 (+0.3)</td><td>1.13715</td><td>1.13843</td><td>1.13523</td><td>2020.07.14 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-12.8</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>18</td><td>2020.09.11 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.4 / 0.6 (-0.2)</td><td>0.4 / 0.6 (-0.2)</td><td>1.18463</td><td>1.18336</td><td>1.18654</td><td>2020.09.11 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-12.7</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">11 Co-release(s)</span></td></tr>
+<tr><td>19</td><td>2020.10.13 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.2 / 0.4 (-0.2)</td><td>0.2 / 0.4 (-0.2)</td><td>1.17910</td><td>1.17813</td><td>1.18056</td><td>2020.10.13 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-9.7</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>20</td><td>2020.11.12 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.0 / 0.2 (-0.2)</td><td>0.0 / 0.2 (-0.2)</td><td>1.17965</td><td>1.17820</td><td>1.18182</td><td>2020.11.13 10:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+21.7</span></td><td>18</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>21</td><td>2020.12.10 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.2 / 0.0 (+0.2)</td><td>0.2 / 0.0 (+0.2)</td><td>1.21518</td><td>1.21660</td><td>1.21305</td><td>2020.12.10 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+21.3</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>22</td><td>2021.02.10 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.3 / 0.4 (-0.1)</td><td>0.0 / 0.1 (-0.1)</td><td>1.21239</td><td>1.21128</td><td>1.21405</td><td>2021.02.11 15:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+16.6</span></td><td>23</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>23</td><td>2021.03.10 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.4 / 0.3 (+0.1)</td><td>0.1 / 0.0 (+0.1)</td><td>1.19126</td><td>1.19251</td><td>1.18938</td><td>2021.03.10 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+18.8</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>24</td><td>2021.04.13 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.6 / 0.4 (+0.2)</td><td>0.3 / 0.1 (+0.2)</td><td>1.19242</td><td>1.19340</td><td>1.19094</td><td>2021.04.13 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-9.8</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>25</td><td>2021.05.12 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.8 / 0.6 (+0.2)</td><td>0.9 / 0.3 (+0.6)</td><td>1.21295</td><td>1.21400</td><td>1.21137</td><td>2021.05.12 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-10.5</span></td><td>1</td><td><span class="badge badge-amber">AMBIGUOUS</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>26</td><td>2021.06.10 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.6 / 0.8 (-0.2)</td><td>0.7 / 0.9 (-0.2)</td><td>1.21867</td><td>1.21775</td><td>1.22005</td><td>2021.06.10 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-9.2</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>27</td><td>2021.07.13 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.9 / 0.6 (+0.3)</td><td>0.9 / 0.7 (+0.2)</td><td>1.17984</td><td>1.18081</td><td>1.17839</td><td>2021.07.13 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-9.7</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>28</td><td>2021.08.11 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.5 / 0.9 (-0.4)</td><td>0.3 / 0.9 (-0.6)</td><td>1.17344</td><td>1.17272</td><td>1.17452</td><td>2021.08.11 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-7.2</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>29</td><td>2021.09.14 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.3 / 0.5 (-0.2)</td><td>0.1 / 0.3 (-0.2)</td><td>1.18412</td><td>1.18327</td><td>1.18540</td><td>2021.09.14 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-8.5</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>30</td><td>2021.10.13 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.4 / 0.3 (+0.1)</td><td>0.2 / 0.1 (+0.1)</td><td>1.15425</td><td>1.15498</td><td>1.15315</td><td>2021.10.13 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-7.3</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>31</td><td>2021.11.10 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.9 / 0.4 (+0.5)</td><td>0.6 / 0.2 (+0.4)</td><td>1.15609</td><td>1.15738</td><td>1.15416</td><td>2021.11.10 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+19.3</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>32</td><td>2021.12.10 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.8 / 0.9 (-0.1)</td><td>0.5 / 0.6 (-0.1)</td><td>1.12856</td><td>1.12743</td><td>1.13026</td><td>2021.12.10 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+17.0</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>33</td><td>2022.07.13 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>1.3 / 1.0 (+0.3)</td><td>0.7 / 0.6 (+0.1)</td><td>1.00199</td><td>1.00382</td><td>0.99924</td><td>2022.07.13 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-18.3</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>34</td><td>2022.08.10 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.0 / 1.3 (-1.3)</td><td>0.3 / 0.7 (-0.4)</td><td>1.03240</td><td>1.03124</td><td>1.03414</td><td>2022.08.10 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-11.6</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>35</td><td>2022.09.13 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.1 / 0.0 (+0.1)</td><td>0.6 / 0.3 (+0.3)</td><td>1.00368</td><td>1.00521</td><td>1.00139</td><td>2022.09.13 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+22.9</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>36</td><td>2022.12.13 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.1 / 0.4 (-0.3)</td><td>0.2 / 0.3 (-0.1)</td><td>1.06448</td><td>1.06227</td><td>1.06780</td><td>2022.12.13 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-22.1</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>37</td><td>2023.02.14 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.5 / -0.1 (+0.6)</td><td>0.4 / 0.3 (+0.1)</td><td>1.07517</td><td>1.07696</td><td>1.07249</td><td>2023.02.14 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-17.9</span></td><td>1</td><td><span class="badge badge-amber">AMBIGUOUS</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>38</td><td>2023.04.12 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.1 / 0.4 (-0.3)</td><td>0.4 / 0.5 (-0.1)</td><td>1.09635</td><td>1.09532</td><td>1.09790</td><td>2023.04.12 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+15.5</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>39</td><td>2023.09.13 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.6 / 0.2 (+0.4)</td><td>0.3 / 0.2 (+0.1)</td><td>1.07473</td><td>1.07577</td><td>1.07317</td><td>2023.09.13 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+15.6</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>40</td><td>2023.11.14 16:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.0 / 0.4 (-0.4)</td><td>0.2 / 0.3 (-0.1)</td><td>1.08329</td><td>1.08184</td><td>1.08547</td><td>2023.11.14 18:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+21.8</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>41</td><td>2023.12.12 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.1 / 0.0 (+0.1)</td><td>0.3 / 0.2 (+0.1)</td><td>1.07740</td><td>1.07869</td><td>1.07546</td><td>2023.12.12 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-12.9</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>42</td><td>2024.06.12 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.0 / 0.3 (-0.3)</td><td>0.2 / 0.3 (-0.1)</td><td>1.08262</td><td>1.08195</td><td>1.08363</td><td>2024.06.12 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-6.7</span></td><td>1</td><td><span class="badge badge-amber">AMBIGUOUS</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>43</td><td>2024.07.11 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>-0.1 / 0.0 (-0.1)</td><td>0.1 / 0.2 (-0.1)</td><td>1.08864</td><td>1.08803</td><td>1.08956</td><td>2024.07.11 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-6.1</span></td><td>1</td><td><span class="badge badge-amber">AMBIGUOUS</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>44</td><td>2024.08.14 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.2 / -0.1 (+0.3)</td><td>0.2 / 0.1 (+0.1)</td><td>1.10164</td><td>1.10242</td><td>1.10047</td><td>2024.08.14 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-7.8</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>45</td><td>2025.02.12 16:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.5 / 0.4 (+0.1)</td><td>0.4 / 0.2 (+0.2)</td><td>1.03496</td><td>1.03620</td><td>1.03310</td><td>2025.02.12 17:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-12.4</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>46</td><td>2025.03.12 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.2 / 0.5 (-0.3)</td><td>0.2 / 0.4 (-0.2)</td><td>1.08818</td><td>1.08667</td><td>1.09045</td><td>2025.03.12 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+22.7</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>47</td><td>2025.04.10 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>-0.1 / 0.2 (-0.3)</td><td>0.1 / 0.2 (-0.1)</td><td>1.10972</td><td>1.10726</td><td>1.11340</td><td>2025.04.10 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+36.8</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span></td></tr>
+<tr><td>48</td><td>2025.05.13 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.2 / -0.1 (+0.3)</td><td>0.2 / 0.1 (+0.1)</td><td>1.11304</td><td>1.11429</td><td>1.11116</td><td>2025.05.13 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-12.5</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>49</td><td>2025.06.11 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.1 / 0.2 (-0.1)</td><td>0.1 / 0.2 (-0.1)</td><td>1.14604</td><td>1.14468</td><td>1.14807</td><td>2025.06.11 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+20.3</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+<tr><td>50</td><td>2025.07.15 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.3 / 0.1 (+0.2)</td><td>0.2 / 0.1 (+0.1)</td><td>1.16778</td><td>1.16881</td><td>1.16623</td><td>2025.07.15 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+15.5</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">18 Co-release(s)</span></td></tr>
+<tr><td>51</td><td>2025.10.24 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.3 / 0.4 (-0.1)</td><td>0.2 / 0.3 (-0.1)</td><td>1.16340</td><td>1.16247</td><td>1.16479</td><td>2025.10.24 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-9.3</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>52</td><td>2026.06.10 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>0.5 / 0.6 (-0.1)</td><td>0.2 / 0.4 (-0.2)</td><td>1.15477</td><td>1.15386</td><td>1.15614</td><td>2026.06.10 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+13.7</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>53</td><td>2026.07.14 15:30:00</td><td><span class="badge badge-primary">LONG</span></td><td>-0.4 / 0.5 (-0.9)</td><td>0.0 / 0.2 (-0.2)</td><td>1.14452</td><td>1.14361</td><td>1.14589</td><td>2026.07.14 17:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+13.7</span></td><td>2</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">9 Co-release(s)</span></td></tr>
+<tr><td>54</td><td>2026.08.12 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.1 / -0.4 (+0.5)</td><td>0.2 / 0.0 (+0.2)</td><td>1.15594</td><td>1.15652</td><td>1.15507</td><td>2026.08.12 16:00:00</td><td><span class="stat-pos"><strong>TARGET</strong></span></td><td><span class="stat-pos">+1.50 R</span></td><td><span class="stat-pos">+8.7</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">11 Co-release(s)</span></td></tr>
+<tr><td>55</td><td>2026.09.11 15:30:00</td><td><span class="badge badge-purple">SHORT</span></td><td>0.4 / 0.1 (+0.3)</td><td>0.3 / 0.2 (+0.1)</td><td>1.16023</td><td>1.16092</td><td>1.15919</td><td>2026.09.11 16:00:00</td><td><span class="stat-neg"><strong>STOP</strong></span></td><td><span class="stat-neg">-1.00 R</span></td><td><span class="stat-neg">-6.9</span></td><td>1</td><td><span style="color:#94a3b8;">--</span></td><td><span class="badge badge-secondary">10 Co-release(s)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+  </div>
+
   <!-- Pending Study Container (Shown when a pending study is selected) -->
   <div id="studyContentPending" class="study-content-panel" style="display: none;">
     <div class="empty-state" style="padding: 40px 20px;">
@@ -1181,7 +1494,8 @@
   const tabButtons = [tabBtnEventTable, tabBtnCandidateResearch];
 
   const selResearchStudy = document.getElementById('selResearchStudy');
-  const studyContentCpi = document.getElementById('studyContentCpi');
+  const studyContentCpiBaseline = document.getElementById('studyContentCpiBaseline');
+  const studyContentCpiMomentum = document.getElementById('studyContentCpiMomentum');
   const studyContentPending = document.getElementById('studyContentPending');
   const pendingStudyTitle = document.getElementById('pendingStudyTitle');
   const pendingStudyDesc = document.getElementById('pendingStudyDesc');
@@ -1798,11 +2112,17 @@
   function updateResearchStudy() {
     if (!selResearchStudy) return;
     const study = selResearchStudy.value;
-    if (study === 'US_CPI_EURUSD') {
-      if (studyContentCpi) studyContentCpi.style.display = 'block';
+    if (study === 'US_CPI_EURUSD_AF_H24' || study === 'US_CPI_EURUSD') {
+      if (studyContentCpiBaseline) studyContentCpiBaseline.style.display = 'block';
+      if (studyContentCpiMomentum) studyContentCpiMomentum.style.display = 'none';
+      if (studyContentPending) studyContentPending.style.display = 'none';
+    } else if (study === 'US_CPI_EURUSD_AP_H60') {
+      if (studyContentCpiBaseline) studyContentCpiBaseline.style.display = 'none';
+      if (studyContentCpiMomentum) studyContentCpiMomentum.style.display = 'block';
       if (studyContentPending) studyContentPending.style.display = 'none';
     } else {
-      if (studyContentCpi) studyContentCpi.style.display = 'none';
+      if (studyContentCpiBaseline) studyContentCpiBaseline.style.display = 'none';
+      if (studyContentCpiMomentum) studyContentCpiMomentum.style.display = 'none';
       if (studyContentPending) {
         studyContentPending.style.display = 'block';
         const optText = selResearchStudy.options[selResearchStudy.selectedIndex].text;

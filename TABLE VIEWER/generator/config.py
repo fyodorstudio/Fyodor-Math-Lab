@@ -27,6 +27,12 @@ OUTPUT_HTML_PATH = os.path.join(VIEWER_DIR, "table_viewer.html")
 CPI_SETUP_DIR = os.path.join(VIEWER_DIR, "cpi_setup")
 CPI_LEDGER_PATH = os.path.join(CPI_SETUP_DIR, "cpi_trade_ledger.json")
 
+# Candidate Trial: US CPI on EURUSD (A-P Momentum, H60 Expiry)
+CPI_MOMENTUM_DIR = os.path.join(BASE_DIR, "evidence", "candidate_trials", "us_cpi_eurusd", "a_minus_p_h60_v1")
+CPI_MOMENTUM_LEDGER_PATH = os.path.join(CPI_MOMENTUM_DIR, "cpi_momentum_trade_ledger.json")
+CPI_MOMENTUM_DECISION_PATH = os.path.join(CPI_MOMENTUM_DIR, "cpi_momentum_decision_ledger.csv")
+CPI_MOMENTUM_TRADE_CSV_PATH = os.path.join(CPI_MOMENTUM_DIR, "cpi_momentum_trade_ledger.csv")
+
 # The 19 full-history FX pairs
 PAIRS = [
     "EURUSD", "USDJPY", "GBPUSD", "AUDUSD", "USDCAD", "USDCHF", "NZDUSD",

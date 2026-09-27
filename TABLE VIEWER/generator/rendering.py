@@ -17,7 +17,10 @@ from .config import (
 from .cpi_ledger import (
     load_cpi_ledger_data,
     prepare_cpi_presentation_data,
-    render_cpi_section
+    render_cpi_section,
+    load_cpi_momentum_ledger_data,
+    prepare_cpi_momentum_presentation_data,
+    render_cpi_momentum_section
 )
 
 TEMPLATE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
@@ -27,15 +30,21 @@ def build_html(
     episodes_data: List[Dict[str, Any]],
     codex_display_approved: bool = CODEX_DISPLAY_APPROVED,
     ledger_data: Optional[Dict[str, Any]] = None,
+    momentum_ledger_data: Optional[Dict[str, Any]] = None,
     output_path: str = OUTPUT_HTML_PATH
 ) -> str:
     """Generates the clean Light Mode standalone HTML table viewer."""
     print("Generating HTML table viewer...")
 
-    # Load dynamic CPI simulation ledger data and prepare presentation strings
+    # Load dynamic CPI simulation ledger data and prepare presentation strings (A-F / H24 Baseline)
     cpi_ledger_data = load_cpi_ledger_data(ledger_data)
     cpi_pres = prepare_cpi_presentation_data(cpi_ledger_data)
-    cpi_section_html = render_cpi_section(cpi_pres, codex_display_approved)
+    cpi_baseline_section_html = render_cpi_section(cpi_pres, codex_display_approved)
+
+    # Load dynamic CPI momentum ledger data and prepare presentation strings (A-P / H60 Exploratory)
+    cpi_momentum_data = load_cpi_momentum_ledger_data(momentum_ledger_data)
+    cpi_momentum_pres = prepare_cpi_momentum_presentation_data(cpi_momentum_data)
+    cpi_momentum_section_html = render_cpi_momentum_section(cpi_momentum_pres)
 
     # Compact JSON data
     data_json = json.dumps({
@@ -60,7 +69,9 @@ def build_html(
 
     # Assemble HTML
     html_content = html_template.replace("__CSS__", css_content)
-    html_content = html_content.replace("__CPI_SECTION__", cpi_section_html)
+    html_content = html_content.replace("__CPI_BASELINE_SECTION__", cpi_baseline_section_html)
+    html_content = html_content.replace("__CPI_SECTION__", cpi_baseline_section_html)
+    html_content = html_content.replace("__CPI_MOMENTUM_SECTION__", cpi_momentum_section_html)
     html_content = html_content.replace("__JS__", js_content)
 
     with open(output_path, "w", encoding="utf-8") as f:

@@ -199,10 +199,11 @@ __CSS__</style>
       </div>
     </div>
     <div class="selectors-grid">
-      <div class="control-group" style="max-width: 420px; flex: 2 1 360px;">
+      <div class="control-group" style="max-width: 480px; flex: 2 1 420px;">
         <label for="selResearchStudy">Candidate Research Study</label>
         <select id="selResearchStudy" class="control-select">
-          <option value="US_CPI_EURUSD" selected>US CPI · EURUSD</option>
+          <option value="US_CPI_EURUSD_AF_H24" selected>US CPI · EURUSD · A−F Surprise · H24</option>
+          <option value="US_CPI_EURUSD_AP_H60">US CPI · EURUSD · A−P Momentum · H60</option>
           <option value="US_LABOR_EURUSD">US Labor (NFP) · EURUSD (Pending)</option>
           <option value="US_RETAIL_EURUSD">US Retail Sales · EURUSD (Pending)</option>
           <option value="GERMAN_IFO_EURUSD">German Ifo · EURUSD (Pending)</option>
@@ -212,13 +213,22 @@ __CSS__</style>
     </div>
   </div>
 
-  <!-- Active Study Container: US CPI · EURUSD -->
-  <div id="studyContentCpi" class="study-content-panel">
+  <!-- Active Study Container: US CPI · EURUSD · A-F Surprise · H24 (Baseline) -->
+  <div id="studyContentCpiBaseline" class="study-content-panel">
     <div class="study-scope-notice">
       <strong>Independent Fixed Historical Evaluation:</strong> The candidate setup parameters and historical simulation results below cover their stated full historical evaluation period (2015–2026, 36 Directional Episodes). These fixed audited results are completely independent of any pair, year, or family filters selected on the Event Table tab.
     </div>
 
-    __CPI_SECTION__
+    __CPI_BASELINE_SECTION__
+  </div>
+
+  <!-- Active Study Container: US CPI · EURUSD · A-P Momentum · H60 (Exploratory Trial) -->
+  <div id="studyContentCpiMomentum" class="study-content-panel" style="display: none;">
+    <div class="study-scope-notice" style="background: #fffbeb; border-color: #fde68a; color: #92400e;">
+      <strong>Independent Fixed Historical Evaluation (Exploratory Trial):</strong> The candidate parameter card and historical simulation results below cover their stated full historical evaluation period (2015–2026, 55 Directional Episodes). These fixed exploratory results are completely independent of any pair, year, or family filters selected on the Event Table tab. Do not mix with or directly compare to the A−F baseline.
+    </div>
+
+    __CPI_MOMENTUM_SECTION__
   </div>
 
   <!-- Pending Study Container (Shown when a pending study is selected) -->

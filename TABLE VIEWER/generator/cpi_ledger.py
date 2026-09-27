@@ -6,9 +6,32 @@ Never uses silent zero/empty numeric fallbacks.
 
 import json
 import os
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 
-from .config import CPI_LEDGER_PATH
+from .config import (
+    CPI_LEDGER_PATH,
+    CPI_MOMENTUM_LEDGER_PATH,
+    CPI_MOMENTUM_DECISION_PATH,
+    CPI_MOMENTUM_TRADE_CSV_PATH
+)
+
+
+def parse_co_releases(val: Any) -> List[str]:
+    """Parses semicolon-separated string or sequence of co-releases into trimmed entries."""
+    if isinstance(val, str):
+        return [entry.strip() for entry in val.split(";") if entry.strip()]
+    elif isinstance(val, (list, tuple)):
+        return [str(entry).strip() for entry in val if str(entry).strip()]
+    return []
+
+
+def has_jobless_claims(val: Any) -> bool:
+    """Checks whether 840140001 (US Initial Jobless Claims) is present in co_releases."""
+    if isinstance(val, str):
+        return "840140001" in val
+    elif isinstance(val, (list, tuple)):
+        return any("840140001" in str(x) for x in val)
+    return False
 
 
 def get_r_stat_class(val: float) -> str:
@@ -486,6 +509,543 @@ def render_cpi_section(cpi_pres: Dict[str, Any], codex_display_approved: bool) -
         <code>cpi_setup/cpi_trade_ledger.json</code> &bull;
         <code>cpi_setup/cpi_simulation_report.md</code>
       </p>
+    </div>
+  </div>
+</div>"""
+
+
+def load_cpi_momentum_ledger_data(
+    ledger_data: Optional[Dict[str, Any]] = None,
+    ledger_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Loads dynamic CPI momentum simulation ledger data from disk or provided dictionary.
+    Fails closed if the ledger file is absent; never silently reruns the simulation.
+    """
+    if ledger_data is not None:
+        return ledger_data
+
+    path = ledger_path or CPI_MOMENTUM_LEDGER_PATH
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            f"CPI momentum trade ledger not found at '{path}'. The viewer generator will not silently "
+            f"rerun the simulation. Please execute 'python \"TABLE VIEWER/cpi_momentum_simulation.py\"' "
+            f"explicitly to generate the exploratory ledger."
+        )
+
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def prepare_cpi_momentum_presentation_data(momentum_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Extracts, validates, and formats all presentation metrics for the A-P Momentum study.
+    Fails closed on missing, malformed, or inconsistent ledger data.
+    Never uses hardcoded numeric fallbacks; directly derives from validated evidence.
+    """
+    if not isinstance(momentum_data, dict) or not momentum_data:
+        raise ValueError("CPI momentum ledger data must be a non-empty dictionary.")
+
+    if "trials" not in momentum_data or not isinstance(momentum_data["trials"], dict):
+        raise ValueError("CPI momentum ledger data missing required 'trials' dictionary.")
+
+    trials = momentum_data["trials"]
+    required_trials = [
+        "primary_1.5x_conservative",
+        "primary_1.5x_optimistic",
+        "sensitivity_1.0x_conservative",
+        "sensitivity_1.0x_optimistic",
+        "sensitivity_2.0x_conservative",
+        "sensitivity_2.0x_optimistic"
+    ]
+    for t_name in required_trials:
+        if t_name not in trials:
+            raise ValueError(f"Missing required trial '{t_name}' in CPI momentum ledger.")
+        t_dict = trials[t_name]
+        if not isinstance(t_dict, dict):
+            raise ValueError(f"Trial '{t_name}' must be a dictionary.")
+        if "metrics" not in t_dict or not isinstance(t_dict["metrics"], dict):
+            raise ValueError(f"Trial '{t_name}' missing 'metrics' dictionary.")
+        if "trades" not in t_dict or not isinstance(t_dict["trades"], list):
+            raise ValueError(f"Trial '{t_name}' missing 'trades' list.")
+
+        met = t_dict["metrics"]
+        required_metrics = [
+            "total_trades", "wins", "losses", "total_gross_r", "mean_gross_r",
+            "profit_factor", "max_drawdown_r", "ambiguous_trades"
+        ]
+        for m_key in required_metrics:
+            if m_key not in met or met[m_key] is None:
+                raise ValueError(f"Trial '{t_name}' missing required metric '{m_key}'.")
+
+        trades = t_dict["trades"]
+        total_trades = met["total_trades"]
+        if len(trades) != total_trades:
+            raise ValueError(
+                f"Trial '{t_name}' trade count mismatch: len(trades) ({len(trades)}) != total_trades ({total_trades})."
+            )
+
+        ties = met.get("ties", 0)
+        timeouts = met.get("timeouts", 0)
+        if met["wins"] + met["losses"] + ties + timeouts != total_trades:
+            raise ValueError(
+                f"Trial '{t_name}' outcome reconciliation failure: wins ({met['wins']}) + "
+                f"losses ({met['losses']}) + ties ({ties}) + timeouts ({timeouts}) != total_trades ({total_trades})."
+            )
+
+        trade_r_sum = sum(tr["gross_r_multiple"] for tr in trades)
+        if abs(trade_r_sum - met["total_gross_r"]) > 1e-3:
+            raise ValueError(
+                f"Trial '{t_name}' gross R reconciliation failure: sum of trade gross_r_multiple ({trade_r_sum:.4f}) != "
+                f"total_gross_r ({met['total_gross_r']:.4f})."
+            )
+
+    p_trial = trials["primary_1.5x_conservative"]
+    p_opt = trials["primary_1.5x_optimistic"]
+    s1_cons = trials["sensitivity_1.0x_conservative"]
+    s1_opt = trials["sensitivity_1.0x_optimistic"]
+    s2_cons = trials["sensitivity_2.0x_conservative"]
+    s2_opt = trials["sensitivity_2.0x_optimistic"]
+
+    p_met = p_trial["metrics"]
+    p_trades = p_trial["trades"]
+
+    # Funnel validation
+    dec_counts = momentum_data.get("decision_counts", {})
+    if not isinstance(dec_counts, dict):
+        raise ValueError("Momentum ledger missing valid 'decision_counts' dictionary.")
+    total_episodes = sum(dec_counts.values())
+    if total_episodes != 277:
+        raise ValueError(f"Momentum decision counts sum ({total_episodes}) != 277.")
+    if dec_counts.get("CANDIDATE_TRADE", 0) != p_met["total_trades"]:
+        raise ValueError(
+            f"Decision counts CANDIDATE_TRADE ({dec_counts.get('CANDIDATE_TRADE')}) != primary total_trades ({p_met['total_trades']})."
+        )
+
+    # Direction splits validation
+    dir_splits = p_met.get("direction_splits", {})
+    long_count = dir_splits.get("long_count", 0)
+    short_count = dir_splits.get("short_count", 0)
+    long_gross_r = dir_splits.get("long_gross_r", 0.0)
+    short_gross_r = dir_splits.get("short_gross_r", 0.0)
+    if long_count + short_count != p_met["total_trades"]:
+        raise ValueError("Momentum direction splits sum != total_trades.")
+    if abs((long_gross_r + short_gross_r) - p_met["total_gross_r"]) > 1e-3:
+        raise ValueError("Momentum direction splits gross R != total_gross_r.")
+
+    p_longs = [t for t in p_trades if t.get("direction") == "LONG"]
+    p_shorts = [t for t in p_trades if t.get("direction") == "SHORT"]
+    p_long_targets = sum(1 for t in p_longs if t.get("exit_reason") == "TARGET")
+    p_long_stops = sum(1 for t in p_longs if t.get("exit_reason") == "STOP")
+    p_short_targets = sum(1 for t in p_shorts if t.get("exit_reason") == "TARGET")
+    p_short_stops = sum(1 for t in p_shorts if t.get("exit_reason") == "STOP")
+
+    # Co-release splits validation
+    co_splits = p_met.get("co_release_splits", {})
+    jobless_count = co_splits.get("jobless_claims_count", 0)
+    jobless_gross_r = co_splits.get("jobless_claims_gross_r", 0.0)
+    other_count = co_splits.get("other_co_releases_count", 0)
+    other_gross_r = co_splits.get("other_co_releases_gross_r", 0.0)
+    if jobless_count + other_count != p_met["total_trades"]:
+        raise ValueError("Momentum co-release splits sum != total_trades.")
+    if abs((jobless_gross_r + other_gross_r) - p_met["total_gross_r"]) > 1e-3:
+        raise ValueError("Momentum co-release splits gross R != total_gross_r.")
+
+    p_jobless = [t for t in p_trades if has_jobless_claims(t.get("co_releases"))]
+    p_other = [t for t in p_trades if not has_jobless_claims(t.get("co_releases"))]
+    p_jobless_targets = sum(1 for t in p_jobless if t.get("exit_reason") == "TARGET")
+    p_jobless_stops = sum(1 for t in p_jobless if t.get("exit_reason") == "STOP")
+    p_other_targets = sum(1 for t in p_other if t.get("exit_reason") == "TARGET")
+    p_other_stops = sum(1 for t in p_other if t.get("exit_reason") == "STOP")
+
+    # Ambiguous trades
+    ambig_trades = [t for t in p_trades if t.get("ambiguous_flag", False)]
+    if len(ambig_trades) != p_met["ambiguous_trades"]:
+        raise ValueError(f"Ambiguous trades count mismatch: {len(ambig_trades)} != {p_met['ambiguous_trades']}.")
+
+    # Format bars held
+    bars_dist = p_met.get("bars_held_distribution", {})
+    bars_items = sorted(bars_dist.items(), key=lambda x: int(x[0]))
+    denom = p_met["total_trades"] if p_met["total_trades"] > 0 else 1
+    bars_held_strs = [
+        f"Bar {b}: {cnt} ({(cnt / denom) * 100:.1f}%)"
+        for b, cnt in bars_items
+    ]
+    bars_str_html = ", ".join(bars_held_strs)
+
+    # Dynamic holding resolution
+    max_bars_held = max((t.get("bars_held", 0) for t in p_trades), default=0)
+    timeout_count = sum(1 for t in p_trades if "TIMEOUT" in t.get("exit_reason", ""))
+    total_trades_cnt = p_met["total_trades"]
+    holding_resolution_desc = f"All {total_trades_cnt} trades resolved by Bar {max_bars_held} ({timeout_count} timeouts)."
+
+    # Dynamic funnel calculations
+    pce_only = dec_counts.get("PCE_ONLY", 0)
+    shared_collision = dec_counts.get("SHARED_COLLISION", 0)
+    unshared_cpi = total_episodes - pce_only - shared_collision
+
+    # Dynamic ambiguity sensitivity
+    ambig_count = len(ambig_trades)
+    p_cons_r = p_met["total_gross_r"]
+    p_opt_r = p_opt["metrics"]["total_gross_r"]
+    r_diff = p_opt_r - p_cons_r
+    p_cons_pips = p_met.get("total_gross_pnl_pips", 0.0)
+    p_opt_pips = p_opt["metrics"].get("total_gross_pnl_pips", 0.0)
+    pips_diff = p_opt_pips - p_cons_pips
+
+    # Annual breakdown table rows
+    annual_breakdown = p_met.get("annual_breakdown", {})
+    annual_rows = []
+    for yr in sorted(annual_breakdown.keys()):
+        yd = annual_breakdown[yr]
+        r_html = format_trial_r_html(yd["gross_r"])
+        p_cls = get_r_stat_class(yd["gross_pips"])
+        pips_html = f'<span class="{p_cls}">{yd["gross_pips"]:+.1f}</span>'
+        annual_rows.append(
+            f"<tr><td>{yr}</td><td>{yd['total_trades']}</td><td>{yd['longs']}</td><td>{yd['shorts']}</td>"
+            f"<td>{yd['wins']}</td><td>{yd['losses']}</td><td>{r_html}</td><td>{pips_html}</td></tr>"
+        )
+    annual_table_rows_html = "\n".join(annual_rows)
+
+    # Per-trade outcomes rows
+    trade_rows_html = []
+    for i, t in enumerate(p_trades, 1):
+        d_cls = "badge-primary" if t["direction"] == "LONG" else "badge-purple"
+        dir_badge = f'<span class="badge {d_cls}">{t["direction"]}</span>'
+
+        ex_cls = "stat-pos" if t["exit_reason"] == "TARGET" else "stat-neg"
+        ex_badge = f'<span class="{ex_cls}"><strong>{t["exit_reason"]}</strong></span>'
+
+        r_cls = get_r_stat_class(t["gross_r_multiple"])
+        r_badge = f'<span class="{r_cls}">{t["gross_r_multiple"]:+.2f} R</span>'
+
+        p_cls = get_r_stat_class(t["gross_pnl_pips"])
+        p_badge = f'<span class="{p_cls}">{t["gross_pnl_pips"]:+.1f}</span>'
+
+        amb_badge = '<span class="badge badge-amber">AMBIGUOUS</span>' if t.get("ambiguous_flag") else '<span style="color:#94a3b8;">--</span>'
+
+        co_entries = parse_co_releases(t.get("co_releases"))
+        if has_jobless_claims(t.get("co_releases")):
+            co_badge = '<span class="badge badge-secondary" title="US Initial Jobless Claims">Jobless Claims</span>'
+        elif co_entries:
+            co_badge = f'<span class="badge badge-secondary">{len(co_entries)} Co-release(s)</span>'
+        else:
+            co_badge = '<span style="color:#94a3b8;">None</span>'
+
+        head_info = f'{t.get("head_a", "")} / {t.get("head_p", "")} ({t.get("head_diff", 0):+.1f})'
+        core_info = f'{t.get("core_a", "")} / {t.get("core_p", "")} ({t.get("core_diff", 0):+.1f})'
+
+        trade_rows_html.append(
+            f'<tr><td>{i}</td><td>{t["release_time_server"]}</td><td>{dir_badge}</td><td>{head_info}</td><td>{core_info}</td>'
+            f'<td>{t["entry_price"]:.5f}</td><td>{t["sl_price"]:.5f}</td><td>{t["tp_price"]:.5f}</td>'
+            f'<td>{t["exit_time_server"]}</td><td>{ex_badge}</td><td>{r_badge}</td><td>{p_badge}</td>'
+            f'<td>{t["bars_held"]}</td><td>{amb_badge}</td><td>{co_badge}</td></tr>'
+        )
+    trades_table_html = "\n".join(trade_rows_html)
+
+    return {
+        "p_met": p_met,
+        "p_opt_met": p_opt["metrics"],
+        "s1_cons_met": s1_cons["metrics"],
+        "s1_opt_met": s1_opt["metrics"],
+        "s2_cons_met": s2_cons["metrics"],
+        "s2_opt_met": s2_opt["metrics"],
+        "total_episodes": total_episodes,
+        "pce_only": pce_only,
+        "shared_collision": shared_collision,
+        "unshared_cpi": unshared_cpi,
+        "mixed_or_equal": dec_counts.get("MIXED_OR_EQUAL", 0),
+        "candidate_trades": dec_counts.get("CANDIDATE_TRADE", 0),
+        "long_count": long_count,
+        "short_count": short_count,
+        "max_bars_held": max_bars_held,
+        "timeout_count": timeout_count,
+        "holding_resolution_desc": holding_resolution_desc,
+        "ambig_count": ambig_count,
+        "p_cons_gross_r_str": f"{p_cons_r:+.2f} R",
+        "p_opt_gross_r_str": f"{p_opt_r:+.2f} R",
+        "ambig_r_diff_str": f"{r_diff:+.2f} R difference",
+        "ambig_pips_diff_str": f"{pips_diff:+.1f} pips",
+        "long_gross_r_html": format_subgroup_r_html(long_gross_r),
+        "short_gross_r_html": format_subgroup_r_html(short_gross_r),
+        "p_long_targets": p_long_targets,
+        "p_long_stops": p_long_stops,
+        "p_short_targets": p_short_targets,
+        "p_short_stops": p_short_stops,
+        "jobless_count": jobless_count,
+        "jobless_gross_r_html": format_subgroup_r_html(jobless_gross_r),
+        "p_jobless_targets": p_jobless_targets,
+        "p_jobless_stops": p_jobless_stops,
+        "other_count": other_count,
+        "other_gross_r_html": format_subgroup_r_html(other_gross_r),
+        "p_other_targets": p_other_targets,
+        "p_other_stops": p_other_stops,
+        "bars_str_html": bars_str_html,
+        "ambig_trades": ambig_trades,
+        "annual_table_rows_html": annual_table_rows_html,
+        "trades_table_html": trades_table_html,
+        "s1_cons_gross_r_html": format_trial_r_html(s1_cons["metrics"]["total_gross_r"]),
+        "s1_opt_gross_r_html": format_trial_r_html(s1_opt["metrics"]["total_gross_r"]),
+        "p_cons_gross_r_html": format_trial_r_html(p_met["total_gross_r"], is_bold=True),
+        "p_opt_gross_r_html": format_trial_r_html(p_opt["metrics"]["total_gross_r"]),
+        "s2_cons_gross_r_html": format_trial_r_html(s2_cons["metrics"]["total_gross_r"]),
+        "s2_opt_gross_r_html": format_trial_r_html(s2_opt["metrics"]["total_gross_r"]),
+    }
+
+
+
+def render_cpi_momentum_section(pres: Dict[str, Any]) -> str:
+    """
+    Renders Candidate Parameter Card, Post-Hoc Exploratory Notice, Funnel Accounting,
+    Results Summary Table, Yearly Breakdown, Ambiguous Bars, and Per-Trade Outcomes.
+    """
+    p_met = pres["p_met"]
+    p_opt = pres["p_opt_met"]
+    s1_cons = pres["s1_cons_met"]
+    s1_opt = pres["s1_opt_met"]
+    s2_cons = pres["s2_cons_met"]
+    s2_opt = pres["s2_opt_met"]
+
+    ambig_html_items = []
+    for at in pres["ambig_trades"]:
+        ambig_html_items.append(
+            f"<li><code>{at['release_time_server']}</code> ({at['direction']}): Bar {at['bars_held']} touched SL ({at['sl_price']:.5f}) and TP ({at['tp_price']:.5f})</li>"
+        )
+    ambig_list_html = "\n".join(ambig_html_items)
+
+    return f"""<!-- Exploratory Candidate Setup Panel -->
+<div id="momentumCandidateSection" class="forward-test-panel">
+  <div class="forward-test-header">
+    <div class="forward-test-title">
+      <span class="forward-test-tag" style="background: #fee2e2; color: #991b1b; border-color: #fca5a5;">POST-HOC EXPLORATORY — NOT A REGISTERED SETUP</span>
+      <h3>Candidate Exploratory Trial: US CPI on EURUSD (A−P Momentum · H60)</h3>
+    </div>
+    <div class="forward-test-status">
+      <span>Post-Hoc Exploratory Specification &bull; Codex Forensic Audit</span>
+    </div>
+  </div>
+
+  <div class="param-card">
+    <div class="param-card-header">Candidate Parameter Card (A−P Momentum / H60)</div>
+    <table class="param-table">
+      <tr><th>Asset</th><td>EURUSD (Spot FX)</td></tr>
+      <tr><th>Signal Bundle</th><td>USD CPI m/m (840030005) + USD Core CPI m/m (840030006)</td></tr>
+      <tr><th>Direction Rule</th><td>Monthly Momentum (A &minus; P): Both &Delta; &gt; 0 &rarr; SHORT EURUSD; Both &Delta; &lt; 0 &rarr; LONG EURUSD; Mixed signs or &Delta; = 0 &rarr; No Trade</td></tr>
+      <tr><th>Collision Filter</th><td>12 Retail Sales shared timestamps excluded (SHARED_COLLISION); 138 Core PCE only releases excluded (PCE_ONLY)</td></tr>
+      <tr><th>Entry Timing</th><td>OPEN of exact next-hour H1 candle ((ts // 3600 + 1) * 3600; e.g. 16:00:00 for 15:30 release). Search forward across gaps disabled.</td></tr>
+      <tr><th>Volatility Measure</th><td>ATR14 (14 completed H1 TR strictly ending prior to release timestamp: candle_time + 3600 &lt; release_ts; spike bar strictly excluded; requires 15 strictly consecutive completed bars with 0 gaps)</td></tr>
+      <tr><th>Protective Stop</th><td>1.0 &times; ATR14 nominal from entry (fills at worse open if gapping)</td></tr>
+      <tr><th>Profit Target</th><td>1.5 &times; ATR14 nominal (primary trial; sensitivities 1.0x, 2.0x; capped at target price on favorable gap)</td></tr>
+      <tr><th>Max Holding</th><td>60 observed H1 market candles (complete 60-bar path required; exits at close of Bar 60 with TIMEOUT_H60 if neither hit). {pres['holding_resolution_desc']}</td></tr>
+      <tr><th>Touch Precedence</th><td>Conservative (Stop first on same-bar touch; flagged ambiguous; optimistic sensitivity reported)</td></tr>
+      <tr><th>Registration Governance</th><td>POST-HOC EXPLORATORY SPECIFICATION — NOT A REGISTERED SETUP. Must not be traded on live or demo accounts. Zero setups are registered or approved for forward trading.</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Historical A-P Momentum Results Section -->
+<div id="historicalCpiMomentumResultsSection" class="historical-results-panel">
+  <div class="results-panel-header">
+    <div class="results-panel-title">
+      <span class="results-panel-tag" style="background: #fee2e2; color: #991b1b; border-color: #fca5a5;">POST-HOC EXPLORATORY — NOT A REGISTERED SETUP</span>
+      <h3>Historical CPI Momentum Results: EURUSD (2015–2026, Partial)</h3>
+    </div>
+    <div class="results-disclaimer" style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px 16px; border-radius: 6px; margin-top: 10px;">
+      <strong style="color: #92400e;">POST-HOC EXPLORATORY — NOT A REGISTERED SETUP</strong><br>
+      Historical candle prices, trade paths, and multiple target variants (1.0x, 1.5x, 2.0x) were inspected prior to drafting the specification protocol. This is a post-hoc exploratory specification, NOT an independently validated or pre-price-frozen hypothesis test. Target sensitivities are descriptive post-hoc parameter variations evaluated on the identical sample. Zero setups are registered or approved for live or demo forward trading. Must not be traded.<br>
+      Sample Period: 2015–2026 Full History ({pres['candidate_trades']} Directional Episodes) &bull; Pinned history ends at September 23, 2026 snapshot (2026 is partial). These fixed all-years results do NOT change with the pair, year, or episode selectors on the Event Table tab.
+    </div>
+  </div>
+
+  <!-- N Funnel Accounting -->
+  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; max-width: 900px;">
+    <div style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">N Funnel Accounting (Universe of 277 Inflation Episodes)</div>
+    <div style="font-family: monospace; font-size: 12px; line-height: 1.6; color: #1e293b;">
+      Total US Inflation Episodes: <strong>{pres['total_episodes']}</strong><br>
+      &nbsp;&nbsp;&boxur;&minus; Core PCE Only Releases (840010001): <strong>&minus;{pres['pce_only']}</strong> (PCE_ONLY)<br>
+      &nbsp;&nbsp;&boxur;&minus; Retail Sales Shared Collisions: <strong>&minus;{pres['shared_collision']}</strong> (SHARED_COLLISION)<br>
+      &nbsp;&nbsp;= Eligible Unshared CPI Episodes: <strong>{pres['unshared_cpi']}</strong><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&boxur;&minus; Mixed / Equal Momentum Sign: <strong>&minus;{pres['mixed_or_equal']}</strong> (MIXED_OR_EQUAL)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;= Total Directional Candidate Trades: <strong>{pres['candidate_trades']}</strong> ({pres['short_count']} Short / {pres['long_count']} Long) (CANDIDATE_TRADE)
+    </div>
+  </div>
+
+  <!-- Results Summary Table -->
+  <div class="compact-table-outer">
+    <table class="compact-results-table">
+      <thead>
+        <tr>
+          <th>Target Multiple</th>
+          <th>Intrabar Touch Precedence</th>
+          <th>Trades N</th>
+          <th>Wins</th>
+          <th>Losses</th>
+          <th>Gross R</th>
+          <th>Mean R</th>
+          <th>Profit Factor</th>
+          <th>Max DD</th>
+          <th>Ambiguous N</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1.0&times; ATR (1:1)</td>
+          <td>Stop-First (Conservative)</td>
+          <td>{s1_cons['total_trades']}</td>
+          <td>{s1_cons['wins']}</td>
+          <td>{s1_cons['losses']}</td>
+          <td>{pres['s1_cons_gross_r_html']}</td>
+          <td>{s1_cons['mean_gross_r']:+.2f} R</td>
+          <td>{s1_cons['profit_factor']:.2f}</td>
+          <td>{s1_cons['max_drawdown_r']:.2f} R</td>
+          <td>{s1_cons['ambiguous_trades']}</td>
+        </tr>
+        <tr>
+          <td>1.0&times; ATR (1:1)</td>
+          <td>Target-First (Optimistic)</td>
+          <td>{s1_opt['total_trades']}</td>
+          <td>{s1_opt['wins']}</td>
+          <td>{s1_opt['losses']}</td>
+          <td>{pres['s1_opt_gross_r_html']}</td>
+          <td>{s1_opt['mean_gross_r']:+.2f} R</td>
+          <td>{s1_opt['profit_factor']:.2f}</td>
+          <td>{s1_opt['max_drawdown_r']:.2f} R</td>
+          <td>{s1_opt['ambiguous_trades']}</td>
+        </tr>
+        <tr class="highlight-primary-row">
+          <td><strong>1.5&times; ATR (PRIMARY)</strong></td>
+          <td><strong>Stop-First (Conservative)</strong></td>
+          <td><strong>{p_met['total_trades']}</strong></td>
+          <td><strong>{p_met['wins']}</strong></td>
+          <td><strong>{p_met['losses']}</strong></td>
+          <td>{pres['p_cons_gross_r_html']}</td>
+          <td><strong>{p_met['mean_gross_r']:+.2f} R</strong></td>
+          <td><strong>{p_met['profit_factor']:.2f}</strong></td>
+          <td><strong>{p_met['max_drawdown_r']:.2f} R</strong></td>
+          <td><strong>{p_met['ambiguous_trades']}</strong></td>
+        </tr>
+        <tr class="highlight-primary-row">
+          <td><strong>1.5&times; ATR (PRIMARY)</strong></td>
+          <td>Target-First (Optimistic)</td>
+          <td>{p_opt['total_trades']}</td>
+          <td>{p_opt['wins']}</td>
+          <td>{p_opt['losses']}</td>
+          <td>{pres['p_opt_gross_r_html']}</td>
+          <td>{p_opt['mean_gross_r']:+.2f} R</td>
+          <td>{p_opt['profit_factor']:.2f}</td>
+          <td>{p_opt['max_drawdown_r']:.2f} R</td>
+          <td>{p_opt['ambiguous_trades']}</td>
+        </tr>
+        <tr>
+          <td>2.0&times; ATR (1:2)</td>
+          <td>Stop-First (Conservative)</td>
+          <td>{s2_cons['total_trades']}</td>
+          <td>{s2_cons['wins']}</td>
+          <td>{s2_cons['losses']}</td>
+          <td>{pres['s2_cons_gross_r_html']}</td>
+          <td>{s2_cons['mean_gross_r']:+.2f} R</td>
+          <td>{s2_cons['profit_factor']:.2f}</td>
+          <td>{s2_cons['max_drawdown_r']:.2f} R</td>
+          <td>{s2_cons['ambiguous_trades']}</td>
+        </tr>
+        <tr>
+          <td>2.0&times; ATR (1:2)</td>
+          <td>Target-First (Optimistic)</td>
+          <td>{s2_opt['total_trades']}</td>
+          <td>{s2_opt['wins']}</td>
+          <td>{s2_opt['losses']}</td>
+          <td>{pres['s2_opt_gross_r_html']}</td>
+          <td>{s2_opt['mean_gross_r']:+.2f} R</td>
+          <td>{s2_opt['profit_factor']:.2f}</td>
+          <td>{s2_opt['max_drawdown_r']:.2f} R</td>
+          <td>{s2_opt['ambiguous_trades']}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Primary Splits & Ambiguity Note -->
+  <div class="results-table-note">
+    <p><strong>Primary 1.5&times; Conservative Trial Splits (Descriptive post-hoc observations, NOT new eligibility filters):</strong></p>
+    <ul>
+      <li><strong>Directional Split:</strong> Longs (N={pres['long_count']}): {pres['long_gross_r_html']} ({pres['p_long_targets']} targets / {pres['p_long_stops']} stops) &bull; Shorts (N={pres['short_count']}): {pres['short_gross_r_html']} ({pres['p_short_targets']} targets / {pres['p_short_stops']} stops)</li>
+      <li><strong>Co-Release Split:</strong> {pres['jobless_count']} timestamps coinciding with Initial Jobless Claims: {pres['jobless_gross_r_html']} ({pres['p_jobless_targets']} targets / {pres['p_jobless_stops']} stops) &bull; Remaining {pres['other_count']} timestamps (No Initial Jobless Claims): {pres['other_gross_r_html']} ({pres['p_other_targets']} targets / {pres['p_other_stops']} stops)</li>
+      <li><strong>Robustness Check:</strong> Removing single best trade ({p_met['best_trade']['gross_r_multiple']:+.2f} R on {p_met['best_trade']['release_time_server']}): gross return = {p_met['gross_r_without_best_trade']:+.2f} R</li>
+      <li><strong>Trade-Level Means:</strong> Mean risk: {p_met['mean_risk_pips']:.2f} pips &bull; Mean gross P&L: {p_met['mean_gross_pnl_pips']:+.2f} pips &bull; Total Gross Pips: {p_met['total_gross_pnl_pips']:+.1f} pips</li>
+      <li><strong>Holding Time:</strong> {pres['bars_str_html']}. {pres['timeout_count']} trades reached H60 timeout.</li>
+    </ul>
+
+    <p style="margin-top: 10px;"><strong>{pres['ambig_count']} Ambiguous Intrabar Bars (Same-bar SL and TP touches):</strong></p>
+    <ul style="margin-bottom: 8px;">
+      {ambig_list_html}
+    </ul>
+    <p style="font-size: 11px; color: #64748b; font-style: italic;">
+      Resolving these {pres['ambig_count']} ambiguous bars in favor of Target First changes cumulative return from <strong>{pres['p_cons_gross_r_str']}</strong> to <strong>{pres['p_opt_gross_r_str']}</strong> ({pres['ambig_r_diff_str']}, {pres['ambig_pips_diff_str']}), illustrating substantial execution-precedence sensitivity.
+    </p>
+
+    <p class="results-friction-warning">Gross mid/bid H1 prices only. Zero broker spread, slippage, commission, or overnight financing modeled. Evaluated on full-history unblinded data; post-hoc exploratory trial only; zero setups are registered or approved for live or demo trading. Historical figures here remain ledger-reconciled exploratory observations and do not constitute independent validation or automatic registration.</p>
+    <p class="ledger-links">
+      Audit Artifacts:
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_trade_ledger.csv</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_decision_ledger.csv</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_trade_ledger.json</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/cpi_momentum_simulation_report.md</code> &bull;
+      <code>evidence/candidate_trials/us_cpi_eurusd/a_minus_p_h60_v1/protocol.md</code>
+    </p>
+  </div>
+
+  <!-- Yearly Breakdown Table -->
+  <div style="margin-top: 20px;">
+    <h4 style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Yearly Breakdown (Primary 1.5&times; Conservative Trial)</h4>
+    <div class="compact-table-outer">
+      <table class="compact-results-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Trades</th>
+            <th>Longs</th>
+            <th>Shorts</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Gross R</th>
+            <th>Gross Pips</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pres['annual_table_rows_html']}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Complete 55 Per-Trade Outcomes Table -->
+  <div style="margin-top: 24px;">
+    <h4 style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">All 55 Historical Trade Outcomes (A−P Momentum / H60)</h4>
+    <div style="max-height: 440px; overflow-y: auto; overflow-x: auto; border: 1px solid #cbd5e1; border-radius: 6px;">
+      <table class="compact-results-table" style="max-width: 100%; font-size: 11px;">
+        <thead style="position: sticky; top: 0; z-index: 10;">
+          <tr>
+            <th>#</th>
+            <th>Release Time</th>
+            <th>Dir</th>
+            <th>Head A/P (diff)</th>
+            <th>Core A/P (diff)</th>
+            <th>Entry</th>
+            <th>SL</th>
+            <th>TP</th>
+            <th>Exit Time</th>
+            <th>Exit</th>
+            <th>Gross R</th>
+            <th>Gross Pips</th>
+            <th>Bars</th>
+            <th>Ambiguous</th>
+            <th>Co-Releases</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pres['trades_table_html']}
+        </tbody>
+      </table>
     </div>
   </div>
 </div>"""
