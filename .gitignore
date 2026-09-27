@@ -9,3 +9,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+
+# Local MetaEditor build outputs; source code remains tracked.
+/Docs/MT5_EXPORTER_SCRIPT/new/*.ex5
+/Docs/MT5_EXPORTER_SCRIPT/new/*.log

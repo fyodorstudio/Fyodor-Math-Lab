@@ -1,6 +1,6 @@
 # Expanded Macro Research
 
-An isolated workspace for researching economic-release reactions across a fixed FX universe. This repository currently contains a **plan and an empty viewer shell**, not a verified dataset, profitable result, or registered trading setup. Start with [the expansion plan](Docs/MAJOR%20EXPANSION%20PLAN.MD); unresolved stop/target-grid choices remain open for a separate Q&A.
+An isolated workspace for researching economic-release reactions across a fixed FX universe. This repository currently contains **plans, a calculation contract, and a pending-state research viewer**, not a verified dataset, profitable result, or registered trading setup. Start with [the expansion plan](Docs/CONTRACT%20AND%20PLANNING/MAJOR%20EXPANSION%20PLAN.MD), then [the calculation and candidate contract](Docs/CONTRACT%20AND%20PLANNING/CALCULATION_AND_CANDIDATE_CONTRACT.md). The exploratory ATR grid and H60/H120/H240 expiries are specified there; family signals and eligibility rules remain open.
 
 ## Working layout
 
@@ -8,13 +8,14 @@ An isolated workspace for researching economic-release reactions across a fixed 
 Expanded Macro Research/
 ├── README.MD                         tracked navigation and 28-pair whitelist
 ├── Docs/
-│   ├── MAJOR EXPANSION PLAN.MD       tracked research design and open decisions
-│   ├── MT5_EXPORTER_SCRIPT/          reserved for the generic MT5 exporter
+│   ├── CONTRACT AND PLANNING/        research design and calculation contract
+│   ├── MT5_EXPORTER_SCRIPT/          old V3 reference and new V4 exporter
 │   └── SYMBOL_PLACEHOLDER_FOLDER/    local, Git-ignored symbol wish list
 ├── HTML Viewer/
-│   ├── table_viewer.html             standalone, double-clickable HTML shell
+│   ├── table_viewer.html             standalone viewer with pending-state grids
 │   └── Python Calculator/           Python calculation/build source only
 ├── Research Candidate/              versioned evidence, grouped by family/trial
+│   ├── README.md                    tracked folder purpose and evidence boundary
 │   ├── CPI/                         empty until an audited CPI study exists
 │   └── NFP/                         empty until an audited NFP study exists
 └── raw_data/                        local, Git-ignored MT5 exports
@@ -22,7 +23,7 @@ Expanded Macro Research/
     └── raw_economic_calendar_data_2015-2025/  current local placeholder name
 ```
 
-Empty folders are local placeholders and may not appear in a Git clone until they contain tracked files. The calendar folder's `2015-2025` name is **not** the research cutoff: the planned full-year release core is 2015–2025, with January–August 2026 shown separately, and candle data must extend beyond those release dates to evaluate H240. A year-neutral raw calendar folder should be used when the actual export is established.
+Empty folders are local placeholders and may not appear in a Git clone until they contain tracked files. The tracked `Research Candidate/README.md` makes that parent folder visible, but empty `CPI/` and `NFP/` still will not appear. The calendar folder's `2015-2025` name is **not** the research cutoff: the planned full-year release core is 2015–2025, with January–August 2026 shown separately, and candle data must extend beyond those release dates to evaluate H240. A year-neutral raw calendar folder should be used when the actual export is established.
 
 The Python code may sit under `HTML Viewer/Python Calculator/` for tidy local organization, but its **calculation output is evidence in `Research Candidate/`**, not numbers typed into HTML. The HTML file only displays audited evidence. It opens locally without a web server. No old viewer, calculations, or CPI/NFP ledgers have been imported from the previous repository.
 
