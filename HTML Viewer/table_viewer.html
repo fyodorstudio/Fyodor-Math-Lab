@@ -105,7 +105,7 @@
         <span>240 observed H1 market-bar columns; entry bar is H1. Scroll sideways or jump to a milestone.</span>
         <div class="event-jumps" aria-label="Jump to path horizon"><button type="button" data-jump-h="1">H1</button><button type="button" data-jump-h="60">H60</button><button type="button" data-jump-h="120">H120</button><button type="button" data-jump-h="240">H240</button></div>
       </div>
-      <div class="event-empty"><strong>No audited episodes yet</strong>The exporter and calculator have not run in this repository; these are column labels only.</div>
+      <div class="event-empty"><strong>No audited episodes yet</strong>The V4 exporter has run, but no CPI/NFP eligibility or price-path calculator has run in this repository; these are column labels only.</div>
       <div class="table-wrap event-scroll" id="event-scroll">
         <table id="event-table" aria-label="Economic-release episodes with H1 through H240 path columns">
           <thead><tr id="event-head"><th scope="col">Release</th><th scope="col">Family</th><th scope="col">Pair</th><th scope="col">A / F / P</th><th scope="col">Coverage</th></tr></thead>
@@ -125,7 +125,7 @@
           <div class="field"><label for="candidate-pair">Impacted FX pair</label><select id="candidate-pair"></select></div>
           <div class="field"><label for="candidate-signal">Signal view</label><select id="candidate-signal"><option value="af">A − F (surprise)</option><option value="ap">A − P (momentum)</option><option value="both">A − F and A − P</option></select></div>
         </div>
-        <p class="info-strip">No price trials or registered setups exist in this new repository. The selectors and ATR rows below show the <em>planned comparison space</em>; dashes mean no audited outcome, not zero trades or zero return. Event Table filters, when implemented, will be independent of these research controls.</p>
+        <p class="info-strip">The active scope contains 19 FX pairs; nine truncated-history pairs are explicitly excluded. US CPI and NFP each have seven directly relevant USD pairs. No price trials or registered setups exist in this repository. The selectors and ATR rows below show the <em>planned comparison space</em>; dashes mean no audited outcome, not zero trades or zero return. Event Table filters, when implemented, will be independent of these research controls.</p>
       </div>
 
       <div class="panel">
@@ -205,12 +205,12 @@
     });
 
     // Research metadata only. These arrays are not evidence or performance results.
-    // Keep the 28-pair universe synchronized with the root README contract.
+    // Active research pairs only. The V4 export contains 28, but nine truncated-history
+    // pairs are globally excluded by the root README and calculation contract.
     const pairUniverse = [
       'AUDUSD', 'EURUSD', 'GBPUSD', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY',
-      'AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDNZD', 'CADCHF', 'CADJPY', 'CHFJPY',
-      'EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURNZD', 'GBPAUD',
-      'GBPCAD', 'GBPCHF', 'GBPJPY', 'GBPNZD', 'NZDCAD', 'NZDCHF', 'NZDJPY'
+      'AUDCAD', 'AUDCHF', 'AUDJPY', 'AUDNZD', 'CHFJPY',
+      'EURAUD', 'EURCAD', 'EURCHF', 'EURGBP', 'EURJPY', 'EURNZD', 'GBPCHF'
     ];
     const familyMeta = {
       CPI: { label: 'US CPI', currency: 'USD' },

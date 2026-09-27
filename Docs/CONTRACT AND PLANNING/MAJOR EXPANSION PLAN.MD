@@ -1,20 +1,20 @@
 # Expanded Macro Research — working plan
 
-**Status:** planning contract for a new, isolated repository. It is not a frozen trading rule, backtest result, or authorization to trade. The old Macro Research repository remains historical reference; none of its results or code are silently imported into this one.
+**Status:** planning contract for an isolated repository with one audited raw-export snapshot. It is not a frozen trading rule, backtest result, or authorization to trade. The old Macro Research repository remains historical reference; none of its results or code are silently imported into this one.
 
 ## 1. Decisions fixed for this repository
 
 | Topic | Current contract |
 | --- | --- |
-| Asset universe | The **28 FX pairs** in the seven “Forex Major” and 21 “Forex Extended” local placeholders. Their eight currencies are AUD, CAD, CHF, EUR, GBP, JPY, NZD and USD. Crypto, energy and metals are future wishes, **not** in this pass. |
-| Pair relevance | For a release associated with currency X, the primary study includes listed FX pairs with X as base or quote. Test all relevant pairs in **one family-level calculation pass**, not by repeatedly redesigning the event study for each pair. Indirect spillovers to pairs without X require a separate named study. |
+| Asset universe | The exporter requested the **28 FX pairs** in the root README. The active first-pass research set is **19 pairs**; nine truncated-history pairs are excluded by name in the README and calculation contract. Their eight currencies are AUD, CAD, CHF, EUR, GBP, JPY, NZD and USD. Crypto, energy and metals are future wishes, **not** in this pass. |
+| Pair relevance | For a release associated with currency X, the primary study includes active FX pairs with X as base or quote. US CPI and US NFP therefore use the same **seven USD pairs**. Test all relevant active pairs in **one family-level calculation pass**, not by repeatedly redesigning the event study for each pair. Indirect spillovers to pairs without X require a separate named study. |
 | Price resolution | **H1 candles only.** No M15, M30, M1 or tick export in this pass. Entry is the open of the first H1 bar **strictly after** the release timestamp; record the actual wait. Do not call this an at-release fill. |
 | Holding horizons | H60, H120 and H240 mean 60, 120 and 240 **observed H1 market bars starting with the entry bar as H1**. Rough intuition: 2.5, 5 and 10 trading days; exact elapsed calendar time varies. |
-| Exporter | The new V4 MT5 source under `Docs/MT5_EXPORTER_SCRIPT/new/` accepts an explicit broker-symbol list and requires the exact 28 canonical FX pairs by default. Its first configured run requests H1 candles and calendar records for the eight currencies. It compiles locally, but broker-runtime coverage and exported data remain **unverified** until the first MT5 run is audited. |
+| Exporter | The V4 MT5 source under `Docs/MT5_EXPORTER_SCRIPT/new/` exported 28 H1 pairs and calendar records for all eight currencies in snapshot `FyodorResearchExport_v4_20260928_021936_79538281_server`. File counts and transfer integrity were checked; nine pair files have only late-2025 onward coverage and are globally excluded from this first research pass. This does not certify every event path in the remaining 19 pairs. |
 | Data completeness | Export whatever the broker truly supplies, with per-symbol/calendar coverage, missing intervals, errors and hashes. Never invent bars or backfill missing A/F/P values. A case lacking the data required by its declared rule is excluded with a reason, not counted as a loss. |
 | Evidence and presentation | Python source lives in `HTML Viewer/Python Calculator/`; calculated, versioned ledgers/reports live in `Research Candidate/`; `HTML Viewer/table_viewer.html` is a standalone local presentation artifact. The viewer never supplies or changes research numbers. |
 
-The pair whitelist is preserved in the root README because ignored empty placeholder directories do not survive a Git clone. A listed pair is an **allowed candidate**, not a claim that a particular announcement moved its price.
+The exported whitelist and active/excluded distinction are preserved in the root README because ignored raw data and empty placeholder directories do not survive a Git clone. A listed pair is not automatically an eligible observation or evidence that a particular announcement moved its price.
 
 ## 2. Time boundary, especially partial 2026
 
@@ -47,8 +47,8 @@ Stability matters more than a precise-looking summary from a small monthly sampl
 
 ## 5. Delivery order and evidence boundary
 
-1. **Repository and data contract:** commit this plan and README as the navigational baseline; keep raw exports and local symbol-placeholder folders out of Git. Build and version the generic H1/calendar exporter, then document exact per-file schema, broker/server identity, export date range, timestamp convention, row counts, gaps and SHA-256 hashes. Stop on unresolved timestamp or data-integrity errors.
-2. **Auditable calculator:** implement a shared Python engine for the 28-pair universe, with family-specific event rules supplied as explicit configuration rather than duplicated simulators. Unit-test base/quote sign, missing forecasts/previous values, exact next-H1 entry, ATR lookahead, weekend gaps, full H240 coverage, ambiguous TP/SL touches, and calendar collisions. Do not run price outcomes until the corresponding rule and grid are frozen.
+1. **Repository and data contract:** the V4 export is copied unchanged into ignored `raw_data/`; preserve the 28-pair export while enforcing the 19-pair active boundary. Before calculation, create a tracked provenance index with per-file schema, broker/server identity, export date range, timestamp convention, row counts, gaps and SHA-256 hashes. Stop on unresolved timestamp or data-integrity errors.
+2. **Auditable calculator:** implement a shared Python engine for the active 19-pair universe, with family-specific event rules supplied as explicit configuration rather than duplicated simulators. The first CPI/NFP passes have seven relevant USD pairs. Unit-test excluded-pair rejection, base/quote sign, missing forecasts/previous values, exact next-H1 entry, ATR lookahead, weekend gaps, full H240 coverage, ambiguous TP/SL touches, and calendar collisions. Do not run price outcomes until the corresponding rule and grid are frozen.
 3. **Evidence, then viewer:** write versioned per-event and per-trial evidence under `Research Candidate/`; independently reconcile representative cases from raw inputs. Generate the standalone HTML only from validated evidence. Its selector may show pending families/pairs, but must never invent N or results.
 4. **Candidate registration:** after inspecting the disclosed search and stability checks, write at most a small number of simple, exact demo rules. A registration card must name event IDs, pair/direction, data fields and point-in-time caveats, entry, ATR, stop/target, expiry, collision/censor policy, ambiguity assumption, full historical N and failures, hashes, protocol/code versions, and a prospective no-retuning evaluation schedule. If nothing survives, record that negative result and move to the next family rather than widening the search until something wins.
 

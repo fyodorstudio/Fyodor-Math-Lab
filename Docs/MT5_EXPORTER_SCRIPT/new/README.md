@@ -1,4 +1,4 @@
-# Fyodor Research Exporter V4 — pre-export checklist
+# Fyodor Research Exporter V4 — usage and first-export audit
 
 `FyodorResearchExporterV4.mq5` is the source for the expanded H1/28-pair data export. It was built from the V3 reference in `../old/`, which is preserved unchanged. MetaEditor compiled V4 locally with **0 errors, 0 warnings** on 2026-09-28. Compilation does **not** verify that this broker supplies the requested history.
 
@@ -22,3 +22,19 @@ Copy the **entire newly named export folder** unchanged into `raw_data/`. Do not
 The script retries `CopyRates` when a positive response still appears short of the requested boundaries, because MT5 can return available bars while older history continues downloading. After bounded retries it may export the best observed partial history **with warnings**; it never fabricates missing bars. A clean compile or an output file alone is **not** evidence of complete 2015–2026 coverage. Per-event H60/H120/H240 and ATR eligibility are decided later by the independent calculator.
 
 For the first handoff, bring back the export-folder path and the four summary fields above. Do not run the research calculator yet.
+
+## First export: 28 September 2026
+
+Snapshot `FyodorResearchExport_v4_20260928_021936_79538281_server` was copied **unchanged** into ignored `raw_data/`. All 34 copied files matched their MT5 originals by SHA-256. The run reported 28 exported pairs, zero missing requested pairs, 1,452,398 H1 bars, eight successful calendar-currency queries, 1,051 calendar event definitions and 123,256 release rows. Independent streaming checks found no out-of-order candle timestamps or invalid OHLC rows and reconciled file row counts to the manifest. This is a structural audit, **not** a claim that all release inputs or H240 paths are complete.
+
+The nine truncated-history pairs are `CADCHF`, `CADJPY`, `GBPAUD`, `GBPCAD`, `GBPJPY`, `GBPNZD`, `NZDCAD`, `NZDCHF`, `NZDJPY`. They begin on 25–26 November 2025. The Director checked MT5 and attributed the bottleneck to MT5/broker data rather than exporter code, then chose to **exclude these nine from all first-pass research** rather than pursue another broker. Their raw files remain preserved. The 19 remaining pairs still need per-event coverage checks; `EURCHF` has a known 437-hour gap from 31 December 2014 to 19 January 2015.
+
+Three anchor file hashes for identifying this local snapshot (SHA-256):
+
+| File | SHA-256 |
+| --- | --- |
+| `manifest.csv` | `1E7C8A5047BDEDAF0F66DE23F5E6CC382C29EA839B9E07A911789BBFFC548A6F` |
+| `calendar_releases.csv` | `FCB68E1C2A6269D98287F4BEDBEE1F3BCB5A8C99379502782359EDFD20E83D6F` |
+| `candle_symbols.csv` | `876495CC3FCD0B4E88CB1412E6DF154CF8813B5DF7CC5EC57A8F74C57BD7475D` |
+
+The calculator's tracked provenance index must compute and retain hashes for **all 34 raw files** before producing trial outcomes. Do not interpret `candles_completed=true` as complete historical coverage.
