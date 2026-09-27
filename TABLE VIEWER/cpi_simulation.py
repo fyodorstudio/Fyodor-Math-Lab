@@ -37,8 +37,19 @@ import json
 from collections import defaultdict
 from typing import Dict, List, Any, Tuple, Optional
 
+def find_repo_root(start_dir: Optional[str] = None) -> str:
+    """Finds the Macro Research repo root by walking upwards until data/pinned exists."""
+    curr = os.path.abspath(start_dir or os.path.dirname(__file__))
+    while True:
+        if os.path.exists(os.path.join(curr, "data", "pinned")):
+            return curr
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            raise FileNotFoundError("Could not locate Macro Research repo root containing data/pinned")
+        curr = parent
+
 # Paths
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+BASE_DIR = find_repo_root(os.path.dirname(os.path.abspath(__file__)))
 CALENDAR_PATH = os.path.join(BASE_DIR, "data", "pinned", "FyodorResearchExport_v3_20260923_234930_server", "calendar_releases.csv")
 CANDLES_PATH = os.path.join(BASE_DIR, "data", "pinned", "FyodorResearchExport_v3_20260923_234930_server", "candles", "candles_EURUSD_H1.csv")
 SETUP_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cpi_setup")

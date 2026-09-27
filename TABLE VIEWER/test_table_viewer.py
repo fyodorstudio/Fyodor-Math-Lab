@@ -28,8 +28,18 @@ import json
 from collections import defaultdict
 from datetime import datetime, timezone
 
+def find_repo_root(start_dir=None):
+    curr = os.path.abspath(start_dir or os.path.dirname(__file__))
+    while True:
+        if os.path.exists(os.path.join(curr, "data", "pinned")):
+            return curr
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            raise FileNotFoundError("Could not locate Macro Research repo root containing data/pinned")
+        curr = parent
+
 VIEWER_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = os.path.abspath(os.path.join(VIEWER_DIR, "..", ".."))
+BASE_DIR = find_repo_root(VIEWER_DIR)
 HTML_PATH = os.path.join(VIEWER_DIR, "table_viewer.html")
 CALENDAR_PATH = os.path.join(BASE_DIR, "data", "pinned", "FyodorResearchExport_v3_20260923_234930_server", "calendar_releases.csv")
 

@@ -1,0 +1,782 @@
+  /* --- Reset & Base Typography --- */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 24px;
+    min-width: 1200px;
+  }
+
+  /* --- Top Header Card --- */
+  .header-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+  }
+
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 14px;
+    margin-bottom: 18px;
+  }
+
+  .title-group h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+
+  .title-group p {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .view-controls-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .mode-toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .mode-btn {
+    background: none;
+    border: none;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mode-btn.active {
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  }
+
+  /* --- Selectors Grid --- */
+  .selectors-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: flex-end;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 170px;
+    flex: 1 1 180px;
+  }
+
+  .reset-group {
+    flex: 0 0 auto;
+  }
+
+  .control-group label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+  }
+
+  .control-select {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #0f172a;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+
+  .control-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  .control-select:disabled {
+    background-color: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+  }
+
+  .reset-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    height: 38px;
+  }
+
+  .reset-btn:hover {
+    background: #fee2e2;
+  }
+
+  /* --- Status / Accounting Banner --- */
+  .status-banner {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .status-badges {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .badge-primary { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .badge-secondary { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+  .badge-green { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-purple { background: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .badge-amber { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+
+  .accounting-note {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .box-green { background-color: #dcfce7; }
+  .box-red { background-color: #fee2e2; }
+  .box-gray { background-color: #f1f5f9; }
+
+  /* --- Empty State Prompt --- */
+  .empty-state {
+    background: #ffffff;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 60px 30px;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .empty-state h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+  }
+
+  .empty-state p {
+    font-size: 13px;
+    color: #64748b;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* --- Table Container & Styling --- */
+  .table-outer {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: auto;
+    max-height: calc(100vh - 250px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+  }
+
+  /* Sticky Headers */
+  thead th {
+    position: sticky;
+    top: 0;
+    background: #f8fafc;
+    color: #475569;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 10px 8px;
+    border-bottom: 2px solid #cbd5e1;
+    border-right: 1px solid #e2e8f0;
+    z-index: 10;
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #f1f5f9;
+    white-space: nowrap;
+  }
+
+  tbody tr:hover {
+    filter: brightness(0.97);
+  }
+
+  /* Sticky Left Columns */
+  .sticky-col-1 {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: #ffffff;
+    text-align: center;
+    width: 42px;
+    min-width: 42px;
+    font-weight: 600;
+    color: #64748b;
+    border-right: 1px solid #cbd5e1 !important;
+  }
+
+  .sticky-col-2 {
+    position: sticky;
+    left: 42px;
+    z-index: 5;
+    background: #ffffff;
+    text-align: left;
+    width: 130px;
+    min-width: 130px;
+    font-weight: 600;
+    color: #0f172a;
+    border-right: 1px solid #cbd5e1 !important;
+  }
+
+  .sticky-col-3 {
+    position: sticky;
+    left: 172px;
+    z-index: 5;
+    background: #ffffff;
+    text-align: left;
+    min-width: 220px;
+    border-right: 1px solid #cbd5e1 !important;
+  }
+
+  .sticky-col-afpsm {
+    position: sticky;
+    z-index: 5;
+    background: #ffffff;
+    border-right: 1px solid #cbd5e1 !important;
+  }
+
+  .sticky-col-4 { left: 392px; width: 65px; min-width: 65px; } /* A */
+  .sticky-col-5 { left: 457px; width: 65px; min-width: 65px; } /* F */
+  .sticky-col-6 { left: 522px; width: 65px; min-width: 65px; } /* P */
+  .sticky-col-7 { left: 587px; width: 65px; min-width: 65px; } /* S */
+  .sticky-col-8 { left: 652px; width: 65px; min-width: 65px; border-right: 2px solid #94a3b8 !important; } /* M */
+
+  /* Header sticky left priority */
+  thead th.sticky-col-1, thead th.sticky-col-2, thead th.sticky-col-3,
+  thead th.sticky-col-4, thead th.sticky-col-5, thead th.sticky-col-6,
+  thead th.sticky-col-7, thead th.sticky-col-8 {
+    z-index: 20;
+    background: #f1f5f9;
+  }
+
+  /* Stacked components inside rows */
+  .stacked-row {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .stacked-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Data Value Cells */
+  .pip-cell {
+    min-width: 58px;
+    font-weight: 500;
+  }
+
+  .cell-pos {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  .cell-neg {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .cell-zero {
+    background-color: #f1f5f9;
+    color: #64748b;
+  }
+
+  .cell-na {
+    background-color: #f8fafc;
+    color: #94a3b8;
+    text-align: center;
+  }
+
+  /* Sticky Footer / Median & Conditioned Summary Rows */
+  tfoot tr {
+    background: #f1f5f9;
+  }
+
+  tfoot td {
+    position: sticky;
+    bottom: 0;
+    background: #f1f5f9;
+    font-weight: 700;
+    color: #0f172a;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: none;
+    z-index: 10;
+  }
+
+  tfoot tr.foot-single-median td {
+    bottom: 0;
+    border-top: 2px solid #94a3b8;
+  }
+
+  tfoot tr.foot-cpi-p10 td {
+    bottom: 112px;
+    border-top: 2px solid #94a3b8;
+  }
+  tfoot tr.foot-cpi-p50 td {
+    bottom: 84px;
+    border-top: 1px solid #cbd5e1;
+  }
+  tfoot tr.foot-cpi-p90 td {
+    bottom: 56px;
+    border-top: 1px solid #cbd5e1;
+  }
+  tfoot tr.foot-cpi-pos td {
+    bottom: 28px;
+    border-top: 1px solid #cbd5e1;
+  }
+  tfoot tr.foot-cpi-n td {
+    bottom: 0;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 2px solid #94a3b8;
+  }
+
+  tfoot td.sticky-col-1, tfoot td.sticky-col-2, tfoot td.sticky-col-3,
+  tfoot td.sticky-col-4, tfoot td.sticky-col-5, tfoot td.sticky-col-6,
+  tfoot td.sticky-col-7, tfoot td.sticky-col-8 {
+    z-index: 25;
+    background: #e2e8f0;
+  }
+
+  /* Methodology / Restrained Sample Note */
+  .methodology-note {
+    margin-top: 14px;
+    padding: 12px 18px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #334155;
+    line-height: 1.5;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  .methodology-note.small-n {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+  }
+
+  /* --- Forward-Test Setup Panel (Under Audit) --- */
+  .forward-test-panel {
+    margin-top: 20px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .forward-test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .forward-test-title h3 {
+    margin: 4px 0 0 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .forward-test-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 4px;
+  }
+
+  .forward-test-status {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .param-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+
+  .param-card-header {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .param-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    text-align: left;
+  }
+
+  .param-table th {
+    width: 32%;
+    padding: 6px 8px;
+    color: #64748b;
+    font-weight: 600;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+  }
+
+  .param-table td {
+    padding: 6px 8px;
+    color: #0f172a;
+    font-weight: 500;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  /* Historical CPI Results Section (Separate Panel) */
+  .historical-results-panel {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .results-panel-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+  }
+
+  .results-panel-title h3 {
+    margin: 4px 0 0 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .results-panel-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+    border-radius: 4px;
+  }
+
+  .results-disclaimer {
+    margin-top: 8px;
+    font-size: 11px;
+    color: #475569;
+    line-height: 1.4;
+  }
+
+  .results-audit-gate-card {
+    background: #f8fafc;
+    border: 1px dashed #94a3b8;
+    border-radius: 6px;
+    padding: 24px;
+    text-align: center;
+    margin-top: 12px;
+    max-width: 900px;
+  }
+
+  .audit-gate-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  .results-audit-gate-card h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+  }
+
+  .results-audit-gate-card p {
+    font-size: 12px;
+    color: #64748b;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  .gate-governance-note {
+    margin-top: 8px !important;
+    font-size: 11px !important;
+    color: #94a3b8 !important;
+    font-style: italic;
+  }
+
+  .compact-table-outer {
+    overflow-x: auto;
+    margin-top: 12px;
+  }
+
+  .compact-results-table {
+    width: 100%;
+    max-width: 900px;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .compact-results-table th {
+    background: #f1f5f9;
+    color: #334155;
+    padding: 8px 12px;
+    font-weight: 600;
+    border-bottom: 2px solid #cbd5e1;
+    font-size: 11px;
+  }
+
+  .compact-results-table th:first-child {
+    text-align: left;
+  }
+
+  .compact-results-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #0f172a;
+  }
+
+  .compact-results-table td:first-child {
+    text-align: left;
+  }
+
+  .highlight-primary-row {
+    background: #f8fafc;
+    font-weight: 600;
+  }
+
+  .stat-pos {
+    color: #166534;
+    font-weight: 600;
+  }
+
+  .stat-neg {
+    color: #991b1b;
+    font-weight: 600;
+  }
+
+  .stat-zero {
+    color: #475569;
+    font-weight: 600;
+  }
+
+  .results-table-note {
+    margin-top: 16px;
+    font-size: 11px;
+    color: #475569;
+    line-height: 1.5;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 16px;
+    max-width: 900px;
+  }
+
+  .results-table-note ul {
+    margin: 6px 0 8px 18px;
+  }
+
+  .results-table-note li {
+    margin-bottom: 4px;
+  }
+
+  .results-friction-warning {
+    margin-top: 8px;
+    color: #64748b;
+    font-style: italic;
+  }
+
+  /* --- Top Tab Navigation --- */
+  .tab-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 0;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 22px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: all 0.15s ease;
+    outline: none;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .tab-btn:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+  }
+
+  .tab-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 1px;
+  }
+
+  .tab-btn.active {
+    color: #1d4ed8;
+    border-bottom-color: #2563eb;
+    background: #ffffff;
+    font-weight: 700;
+  }
+
+  /* --- Candidate Research Panel Styles --- */
+  .tab-panel {
+    width: 100%;
+  }
+
+  .study-scope-notice {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 12px 18px;
+    font-size: 12px;
+    color: #1e40af;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    max-width: 900px;
+  }
+
+  .study-content-panel {
+    width: 100%;
+  }
+

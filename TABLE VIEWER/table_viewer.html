@@ -515,7 +515,9 @@
     border: 1px solid #e2e8f0;
     border-radius: 6px;
     padding: 14px;
-    max-width: 900px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
   }
 
   .param-card-header {
@@ -720,178 +722,286 @@
     color: #64748b;
     font-style: italic;
   }
+
+  /* --- Top Tab Navigation --- */
+  .tab-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 0;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 10px 22px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    margin-bottom: -1px;
+    transition: all 0.15s ease;
+    outline: none;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .tab-btn:hover {
+    color: #0f172a;
+    background: #f1f5f9;
+  }
+
+  .tab-btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 1px;
+  }
+
+  .tab-btn.active {
+    color: #1d4ed8;
+    border-bottom-color: #2563eb;
+    background: #ffffff;
+    font-weight: 700;
+  }
+
+  /* --- Candidate Research Panel Styles --- */
+  .tab-panel {
+    width: 100%;
+  }
+
+  .study-scope-notice {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    padding: 12px 18px;
+    font-size: 12px;
+    color: #1e40af;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    max-width: 900px;
+  }
+
+  .study-content-panel {
+    width: 100%;
+  }
+
 </style>
 </head>
 <body>
 
-<div class="header-card">
-  <div class="header-top">
-    <div class="title-group">
-      <h1>Macroeconomic Event Displacement Table</h1>
-      <p id="subTitleText">H1–H60 Signed Pip Displacements from Entry Open &bull; Base Good = Green</p>
+<!-- Tab Navigation -->
+<nav class="tab-nav" role="tablist" aria-label="Research Workspace Tabs">
+  <button id="tabBtnEventTable" class="tab-btn active" role="tab" aria-selected="true" aria-controls="tabPanelEventTable" tabindex="0">
+    Event Table
+  </button>
+  <button id="tabBtnCandidateResearch" class="tab-btn" role="tab" aria-selected="false" aria-controls="tabPanelCandidateResearch" tabindex="-1">
+    Candidate Research
+  </button>
+</nav>
+
+<!-- Tab 1: Event Table Panel -->
+<div id="tabPanelEventTable" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnEventTable">
+  <div class="header-card">
+    <div class="header-top">
+      <div class="title-group">
+        <h1>Macroeconomic Event Displacement Table</h1>
+        <p id="subTitleText">H1–H60 Signed Pip Displacements from Entry Open &bull; Base Good = Green</p>
+      </div>
+      <div class="view-controls-right">
+        <div class="mode-toggle-group">
+          <button id="btnModeBase" class="mode-btn active" title="BASE mode: signed pips = (Hn close - entry open) / pip size. Price up is positive (Green).">
+            BASE GOOD = GREEN
+          </button>
+          <button id="btnModeQuote" class="mode-btn" title="QUOTE mode: signed pips = -(Hn close - entry open) / pip size. Price down is positive (Green).">
+            QUOTE GOOD = GREEN
+          </button>
+        </div>
+      </div>
     </div>
-    <div class="view-controls-right">
-      <div class="mode-toggle-group">
-        <button id="btnModeBase" class="mode-btn active" title="BASE mode: signed pips = (Hn close - entry open) / pip size. Price up is positive (Green).">
-          BASE GOOD = GREEN
-        </button>
-        <button id="btnModeQuote" class="mode-btn" title="QUOTE mode: signed pips = -(Hn close - entry open) / pip size. Price down is positive (Green).">
-          QUOTE GOOD = GREEN
-        </button>
+
+    <div class="selectors-grid">
+      <!-- Pair Selector -->
+      <div class="control-group">
+        <label for="selPair">Currency Pair</label>
+        <select id="selPair" class="control-select">
+          <option value="">-- Select Pair --</option>
+        </select>
+      </div>
+
+      <!-- Year Selector -->
+      <div class="control-group">
+        <label for="selYear">Release Year</label>
+        <select id="selYear" class="control-select">
+          <option value="">-- Select Year --</option>
+          <option value="ALL">All Years (2015–2026)</option>
+          <option value="2026">2026 (Partial to Sept 23)</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+          <option value="2019">2019</option>
+          <option value="2018">2018</option>
+          <option value="2017">2017</option>
+          <option value="2016">2016</option>
+          <option value="2015">2015</option>
+        </select>
+      </div>
+
+      <!-- Event Family Selector -->
+      <div class="control-group">
+        <label for="selFamily">Event Family</label>
+        <select id="selFamily" class="control-select">
+          <option value="">-- Select Event Family --</option>
+        </select>
+      </div>
+
+      <!-- CPI Response Selector (EURUSD & US_INFLATION only) -->
+      <div class="control-group" id="cpiResponseGroup">
+        <label for="selCpiResponse">CPI Response (EURUSD Only)</label>
+        <select id="selCpiResponse" class="control-select" disabled>
+          <option value="ALL">All inflation episodes</option>
+          <option value="BOTH_ABOVE">CPI, both above forecast (A−F &gt; 0)</option>
+          <option value="BOTH_BELOW">CPI, both below forecast (A−F &lt; 0)</option>
+          <option value="MIXED_ZERO">CPI, mixed or zero</option>
+        </select>
+        <span id="cpiSelectorInfo" style="font-size: 11px; font-weight: 600; color: #2563eb; margin-top: 3px; display: none;"></span>
+      </div>
+
+      <!-- Episode (N) Selector -->
+      <div class="control-group">
+        <label for="selEpisode">Episode Filter</label>
+        <select id="selEpisode" class="control-select" disabled>
+          <option value="ALL">Select filters first</option>
+        </select>
+      </div>
+
+      <!-- Median Population Option -->
+      <div class="control-group">
+        <label for="selMedianPop">Median Basis</label>
+        <select id="selMedianPop" class="control-select">
+          <option value="COMPLETE_AFP">Complete A/F/P only (default)</option>
+          <option value="ALL_PRICED">All priced releases (descriptive)</option>
+        </select>
+      </div>
+
+      <!-- Reset -->
+      <div class="reset-group">
+        <button id="btnReset" class="reset-btn">Reset</button>
       </div>
     </div>
   </div>
 
-  <div class="selectors-grid">
-    <!-- Pair Selector -->
-    <div class="control-group">
-      <label for="selPair">Currency Pair</label>
-      <select id="selPair" class="control-select">
-        <option value="">-- Select Pair --</option>
-      </select>
+  <!-- Status / Accounting Banner -->
+  <div id="statusBanner" class="status-banner" style="display: none;">
+    <div>
+      <div class="status-badges">
+        <span id="badgePair" class="badge badge-primary">Pair</span>
+        <span id="badgeFamily" class="badge badge-secondary">Family</span>
+        <span id="badgeYear" class="badge badge-secondary">Year</span>
+        <span id="badgeCalendarN" class="badge badge-purple">Calendar N = 0</span>
+        <span id="badgeCompleteAfpN" class="badge badge-green">Complete A/F/P = 0</span>
+        <span id="badgePricedN" class="badge badge-amber">Priced N = 0</span>
+        <span id="badgeCpiCondition" class="badge badge-purple" style="display: none;"></span>
+        <span id="badgeCpiSharedExcl" class="badge badge-secondary" style="display: none;"></span>
+        <span id="badgeSmallNSample" class="badge badge-amber" style="display: none;">Small N (&lt;10)</span>
+      </div>
+      <div class="accounting-note">
+        Direct CSV accounting: Counts obtained by directly parsing the pinned calendar CSV (not by inference). Pinned dataset: 839 family episodes across 825 distinct timestamps for the 5 studied families (out of 40,202 distinct timestamps across all revision-0 calendar records; 14 cross-family collisions: 12 Inflation + Retail, 2 Labor + Retail). F = Forecast; -- = absent in the pinned source. All release rows remain visible.
+      </div>
     </div>
+    <div class="legend">
+      <div class="legend-item">
+        <span class="legend-box box-green"></span>
+        <span id="legendGreenText">Positive (+Pips)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-box box-red"></span>
+        <span id="legendRedText">Negative (-Pips)</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-box box-gray"></span>
+        <span>0.0 Neutral</span>
+      </div>
+      <div class="legend-item">
+        <span style="font-weight:700; color:#94a3b8;">--</span>
+        <span>Unpriced / Missing</span>
+      </div>
+    </div>
+  </div>
 
-    <!-- Year Selector -->
-    <div class="control-group">
-      <label for="selYear">Release Year</label>
-      <select id="selYear" class="control-select">
-        <option value="">-- Select Year --</option>
-        <option value="ALL">All Years (2015–2026)</option>
-        <option value="2026">2026 (Partial to Sept 23)</option>
-        <option value="2025">2025</option>
-        <option value="2024">2024</option>
-        <option value="2023">2023</option>
-        <option value="2022">2022</option>
-        <option value="2021">2021</option>
-        <option value="2020">2020</option>
-        <option value="2019">2019</option>
-        <option value="2018">2018</option>
-        <option value="2017">2017</option>
-        <option value="2016">2016</option>
-        <option value="2015">2015</option>
-      </select>
-    </div>
+  <!-- Empty State Display -->
+  <div id="emptyState" class="empty-state">
+    <h3>Select Pair, Year, and Event Family Above</h3>
+    <p>The table remains clean and hidden until all three selectors are chosen. Once selected, exact N accounting (Calendar, Complete A/F/P, Priced) and H1–H60 pip displacements will render immediately.</p>
+  </div>
 
-    <!-- Event Family Selector -->
-    <div class="control-group">
-      <label for="selFamily">Event Family</label>
-      <select id="selFamily" class="control-select">
-        <option value="">-- Select Event Family --</option>
-      </select>
-    </div>
+  <!-- Data Table Container -->
+  <div id="tableContainer" class="table-outer" style="display: none;">
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th class="sticky-col-1">#</th>
+          <th class="sticky-col-2">Date / Time</th>
+          <th class="sticky-col-3">Indicator(s)</th>
+          <th class="sticky-col-afpsm sticky-col-4">A</th>
+          <th class="sticky-col-afpsm sticky-col-5" title="F = Forecast; -- = absent in the pinned source.">F</th>
+          <th class="sticky-col-afpsm sticky-col-6">P</th>
+          <th class="sticky-col-afpsm sticky-col-7">S</th>
+          <th class="sticky-col-afpsm sticky-col-8">M</th>
+          <!-- H1..H60 headers will be dynamically inserted here -->
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Data rows inserted here -->
+      </tbody>
+      <tfoot id="tableFoot">
+        <!-- Median summary row inserted here -->
+      </tfoot>
+    </table>
+  </div>
 
-    <!-- CPI Response Selector (EURUSD & US_INFLATION only) -->
-    <div class="control-group" id="cpiResponseGroup">
-      <label for="selCpiResponse">CPI Response (EURUSD Only)</label>
-      <select id="selCpiResponse" class="control-select" disabled>
-        <option value="ALL">All inflation episodes</option>
-        <option value="BOTH_ABOVE">CPI, both above forecast (A−F &gt; 0)</option>
-        <option value="BOTH_BELOW">CPI, both below forecast (A−F &lt; 0)</option>
-        <option value="MIXED_ZERO">CPI, mixed or zero</option>
-      </select>
-      <span id="cpiSelectorInfo" style="font-size: 11px; font-weight: 600; color: #2563eb; margin-top: 3px; display: none;"></span>
-    </div>
-
-    <!-- Episode (N) Selector -->
-    <div class="control-group">
-      <label for="selEpisode">Episode Filter</label>
-      <select id="selEpisode" class="control-select" disabled>
-        <option value="ALL">Select filters first</option>
-      </select>
-    </div>
-
-    <!-- Median Population Option -->
-    <div class="control-group">
-      <label for="selMedianPop">Median Basis</label>
-      <select id="selMedianPop" class="control-select">
-        <option value="COMPLETE_AFP">Complete A/F/P only (default)</option>
-        <option value="ALL_PRICED">All priced releases (descriptive)</option>
-      </select>
-    </div>
-
-    <!-- Reset -->
-    <div class="reset-group">
-      <button id="btnReset" class="reset-btn">Reset</button>
-    </div>
+  <!-- Descriptive Methodology & Restrained Sample Note -->
+  <div id="cpiMethodologyNote" class="methodology-note" style="display: none;">
+    <p id="cpiMethodologyText"></p>
   </div>
 </div>
 
-<!-- Status / Accounting Banner -->
-<div id="statusBanner" class="status-banner" style="display: none;">
-  <div>
-    <div class="status-badges">
-      <span id="badgePair" class="badge badge-primary">Pair</span>
-      <span id="badgeFamily" class="badge badge-secondary">Family</span>
-      <span id="badgeYear" class="badge badge-secondary">Year</span>
-      <span id="badgeCalendarN" class="badge badge-purple">Calendar N = 0</span>
-      <span id="badgeCompleteAfpN" class="badge badge-green">Complete A/F/P = 0</span>
-      <span id="badgePricedN" class="badge badge-amber">Priced N = 0</span>
-      <span id="badgeCpiCondition" class="badge badge-purple" style="display: none;"></span>
-      <span id="badgeCpiSharedExcl" class="badge badge-secondary" style="display: none;"></span>
-      <span id="badgeSmallNSample" class="badge badge-amber" style="display: none;">Small N (&lt;10)</span>
+<!-- Tab 2: Candidate Research Panel -->
+<div id="tabPanelCandidateResearch" class="tab-panel" role="tabpanel" aria-labelledby="tabBtnCandidateResearch" style="display: none;">
+  <!-- Candidate Research Header & Study Selector Card -->
+  <div class="header-card">
+    <div class="header-top">
+      <div class="title-group">
+        <h1>Candidate Research</h1>
+        <p>Pre-Registration Exploratory Studies &bull; Audited Historical Simulations</p>
+      </div>
     </div>
-    <div class="accounting-note">
-      Direct CSV accounting: Counts obtained by directly parsing the pinned calendar CSV (not by inference). Pinned dataset: 839 family episodes across 825 distinct timestamps for the 5 studied families (out of 40,202 distinct timestamps across all revision-0 calendar records; 14 cross-family collisions: 12 Inflation + Retail, 2 Labor + Retail). F = Forecast; -- = absent in the pinned source. All release rows remain visible.
-    </div>
-  </div>
-  <div class="legend">
-    <div class="legend-item">
-      <span class="legend-box box-green"></span>
-      <span id="legendGreenText">Positive (+Pips)</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-box box-red"></span>
-      <span id="legendRedText">Negative (-Pips)</span>
-    </div>
-    <div class="legend-item">
-      <span class="legend-box box-gray"></span>
-      <span>0.0 Neutral</span>
-    </div>
-    <div class="legend-item">
-      <span style="font-weight:700; color:#94a3b8;">--</span>
-      <span>Unpriced / Missing</span>
+    <div class="selectors-grid">
+      <div class="control-group" style="max-width: 420px; flex: 2 1 360px;">
+        <label for="selResearchStudy">Candidate Research Study</label>
+        <select id="selResearchStudy" class="control-select">
+          <option value="US_CPI_EURUSD" selected>US CPI · EURUSD</option>
+          <option value="US_LABOR_EURUSD">US Labor (NFP) · EURUSD (Pending)</option>
+          <option value="US_RETAIL_EURUSD">US Retail Sales · EURUSD (Pending)</option>
+          <option value="GERMAN_IFO_EURUSD">German Ifo · EURUSD (Pending)</option>
+          <option value="US_ISM_EURUSD">US ISM PMI · EURUSD (Pending)</option>
+        </select>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Empty State Display -->
-<div id="emptyState" class="empty-state">
-  <h3>Select Pair, Year, and Event Family Above</h3>
-  <p>The table remains clean and hidden until all three selectors are chosen. Once selected, exact N accounting (Calendar, Complete A/F/P, Priced) and H1–H60 pip displacements will render immediately.</p>
-</div>
+  <!-- Active Study Container: US CPI · EURUSD -->
+  <div id="studyContentCpi" class="study-content-panel">
+    <div class="study-scope-notice">
+      <strong>Independent Fixed Historical Evaluation:</strong> The candidate setup parameters and historical simulation results below cover their stated full historical evaluation period (2015–2026, 36 Directional Episodes). These fixed audited results are completely independent of any pair, year, or family filters selected on the Event Table tab.
+    </div>
 
-<!-- Data Table Container -->
-<div id="tableContainer" class="table-outer" style="display: none;">
-  <table id="dataTable">
-    <thead>
-      <tr>
-        <th class="sticky-col-1">#</th>
-        <th class="sticky-col-2">Date / Time</th>
-        <th class="sticky-col-3">Indicator(s)</th>
-        <th class="sticky-col-afpsm sticky-col-4">A</th>
-        <th class="sticky-col-afpsm sticky-col-5" title="F = Forecast; -- = absent in the pinned source.">F</th>
-        <th class="sticky-col-afpsm sticky-col-6">P</th>
-        <th class="sticky-col-afpsm sticky-col-7">S</th>
-        <th class="sticky-col-afpsm sticky-col-8">M</th>
-        <!-- H1..H60 headers will be dynamically inserted here -->
-      </tr>
-    </thead>
-    <tbody id="tableBody">
-      <!-- Data rows inserted here -->
-    </tbody>
-    <tfoot id="tableFoot">
-      <!-- Median summary row inserted here -->
-    </tfoot>
-  </table>
-</div>
-
-<!-- Descriptive Methodology & Restrained Sample Note -->
-<div id="cpiMethodologyNote" class="methodology-note" style="display: none;">
-  <p id="cpiMethodologyText"></p>
-</div>
-
-<!-- Forward-Test Setup Section (Under Audit) -->
-<div id="forwardTestSection" class="forward-test-panel" style="display: none;">
+    <!-- Forward-Test Setup Section (Under Audit) -->
+<div id="forwardTestSection" class="forward-test-panel">
   <div class="forward-test-header">
     <div class="forward-test-title">
       <span class="forward-test-tag">UNDER AUDIT — NO REGISTERED SETUP</span>
@@ -921,15 +1031,15 @@
 </div>
 
 <!-- Separate Historical CPI Results Section (Audit Gated) -->
-<div id="historicalCpiResultsSection" class="historical-results-panel" style="display: none;">
+<div id="historicalCpiResultsSection" class="historical-results-panel">
   <div class="results-panel-header">
     <div class="results-panel-title">
       <span class="results-panel-tag">EXPLORATORY HISTORICAL SIMULATION — NO REGISTERED SETUP</span>
-      <h3>Historical CPI Results: EURUSD (2015–2026)</h3>
+      <h3>Historical CPI Results: EURUSD (2015–2026, Partial)</h3>
     </div>
     <div class="results-disclaimer">
       <strong>Exploratory historical OHLC simulation; no registered setup.</strong>
-      <br>Sample Period: 2015–2026 Full History (36 Directional Episodes). These fixed all-years results do NOT change with the pair, year, or episode selectors above.
+      <br>Sample Period: 2015–2026 Full History (36 Directional Episodes) &bull; Pinned history ends at September 23, 2026 snapshot (2026 is partial). These figures are ledger-reconciled exploratory historical results, not evidence that a setup is registered or independently validated. These fixed all-years results do NOT change with the pair, year, or episode selectors on the Event Table tab.
     </div>
   </div>
 
@@ -997,7 +1107,7 @@
         <li><strong>Trade-Level Means:</strong> Mean risk: 13.30 pips &bull; Mean gross P&L: +1.89 pips</li>
         <li><strong>Holding Time:</strong> Bar 1: 26 (72.2%), Bar 2: 6 (16.7%), Bar 3: 2 (5.6%), Bar 5: 1 (2.8%), Bar 18: 1 (2.8%). Zero trades reached H24 timeout.</li>
       </ul>
-      <p class="results-friction-warning">Gross mid/bid H1 prices only. Zero broker spread, slippage, commission, or overnight financing modeled. Evaluated on full-history unblinded data; a setup may be explicitly registered FOR prospective demo forward testing upon Project Director / Codex authorization, with prospective evaluation occurring AFTER registration. Historical results here remain exploratory and do not automatically trigger registration.</p>
+      <p class="results-friction-warning">Gross mid/bid H1 prices only. Zero broker spread, slippage, commission, or overnight financing modeled. Evaluated on full-history unblinded data; a setup may be explicitly registered FOR prospective demo forward testing upon Project Director / Codex authorization, with prospective evaluation occurring AFTER registration. Historical figures here remain ledger-reconciled exploratory observations and do not constitute independent validation or automatic registration.</p>
       <p class="ledger-links">
         Audit Artifacts:
         <code>TABLE VIEWER/NEW/cpi_setup/cpi_trade_ledger.csv</code> &bull;
@@ -1005,6 +1115,17 @@
         <code>cpi_trade_ledger.json</code> &bull;
         <code>cpi_simulation_report.md</code>
       </p>
+    </div>
+  </div>
+</div>
+  </div>
+
+  <!-- Pending Study Container (Shown when a pending study is selected) -->
+  <div id="studyContentPending" class="study-content-panel" style="display: none;">
+    <div class="empty-state" style="padding: 40px 20px;">
+      <span class="badge badge-amber" style="font-size: 11px; margin-bottom: 12px; padding: 4px 10px;">STUDY PENDING AUDIT</span>
+      <h3 id="pendingStudyTitle">Study Pending Audit</h3>
+      <p id="pendingStudyDesc">No candidate parameter card or simulation ledger is available in this viewer for this study. Zero setups are registered for demo forward testing. To inspect raw price paths, use the Event Table tab.</p>
     </div>
   </div>
 </div>
@@ -1051,6 +1172,19 @@
   const cpiMethodologyText = document.getElementById('cpiMethodologyText');
   const forwardTestSection = document.getElementById('forwardTestSection');
   const historicalCpiResultsSection = document.getElementById('historicalCpiResultsSection');
+
+  // Tab & Candidate Research Elements
+  const tabBtnEventTable = document.getElementById('tabBtnEventTable');
+  const tabBtnCandidateResearch = document.getElementById('tabBtnCandidateResearch');
+  const tabPanelEventTable = document.getElementById('tabPanelEventTable');
+  const tabPanelCandidateResearch = document.getElementById('tabPanelCandidateResearch');
+  const tabButtons = [tabBtnEventTable, tabBtnCandidateResearch];
+
+  const selResearchStudy = document.getElementById('selResearchStudy');
+  const studyContentCpi = document.getElementById('studyContentCpi');
+  const studyContentPending = document.getElementById('studyContentPending');
+  const pendingStudyTitle = document.getElementById('pendingStudyTitle');
+  const pendingStudyDesc = document.getElementById('pendingStudyDesc');
 
   // Type-7 Linear Interpolation Percentile: pos = (n - 1) * p
   function computeType7Percentile(sortedVals, p) {
@@ -1176,8 +1310,6 @@
       selCpiResponse.disabled = true;
       cpiSelectorInfo.style.display = 'none';
       cpiMethodologyNote.style.display = 'none';
-      forwardTestSection.style.display = 'none';
-      historicalCpiResultsSection.style.display = 'none';
       return;
     }
 
@@ -1185,13 +1317,9 @@
     const isCpiApplicable = (pair === 'EURUSD' && family === 'US_INFLATION');
     if (isCpiApplicable) {
       selCpiResponse.disabled = false;
-      forwardTestSection.style.display = 'block';
-      historicalCpiResultsSection.style.display = 'block';
     } else {
       selCpiResponse.disabled = true;
       selCpiResponse.value = 'ALL';
-      forwardTestSection.style.display = 'none';
-      historicalCpiResultsSection.style.display = 'none';
     }
 
     const cpiResp = selCpiResponse.value;
@@ -1207,8 +1335,6 @@
       selEpisode.disabled = true;
       selEpisode.innerHTML = '<option value="ALL">0 Episodes Found</option>';
       cpiMethodologyNote.style.display = 'none';
-      forwardTestSection.style.display = 'none';
-      historicalCpiResultsSection.style.display = 'none';
       return;
     }
 
@@ -1615,9 +1741,88 @@
     render();
   });
 
+  // Tab Switching Logic
+  function switchTab(targetTab) {
+    if (targetTab === 'eventTable') {
+      tabBtnEventTable.classList.add('active');
+      tabBtnEventTable.setAttribute('aria-selected', 'true');
+      tabBtnEventTable.setAttribute('tabindex', '0');
+
+      tabBtnCandidateResearch.classList.remove('active');
+      tabBtnCandidateResearch.setAttribute('aria-selected', 'false');
+      tabBtnCandidateResearch.setAttribute('tabindex', '-1');
+
+      tabPanelEventTable.style.display = 'block';
+      tabPanelCandidateResearch.style.display = 'none';
+    } else if (targetTab === 'candidateResearch') {
+      tabBtnCandidateResearch.classList.add('active');
+      tabBtnCandidateResearch.setAttribute('aria-selected', 'true');
+      tabBtnCandidateResearch.setAttribute('tabindex', '0');
+
+      tabBtnEventTable.classList.remove('active');
+      tabBtnEventTable.setAttribute('aria-selected', 'false');
+      tabBtnEventTable.setAttribute('tabindex', '-1');
+
+      tabPanelCandidateResearch.style.display = 'block';
+      tabPanelEventTable.style.display = 'none';
+    }
+  }
+
+  if (tabBtnEventTable && tabBtnCandidateResearch) {
+    tabBtnEventTable.addEventListener('click', () => switchTab('eventTable'));
+    tabBtnCandidateResearch.addEventListener('click', () => switchTab('candidateResearch'));
+
+    tabButtons.forEach((btn, idx) => {
+      btn.addEventListener('keydown', (e) => {
+        let targetIdx = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+          targetIdx = (idx + 1) % tabButtons.length;
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+          targetIdx = (idx - 1 + tabButtons.length) % tabButtons.length;
+        } else if (e.key === 'Home') {
+          targetIdx = 0;
+        } else if (e.key === 'End') {
+          targetIdx = tabButtons.length - 1;
+        }
+
+        if (targetIdx !== null) {
+          e.preventDefault();
+          tabButtons[targetIdx].focus();
+          switchTab(targetIdx === 0 ? 'eventTable' : 'candidateResearch');
+        }
+      });
+    });
+  }
+
+  // Candidate Research Study Selector Logic
+  function updateResearchStudy() {
+    if (!selResearchStudy) return;
+    const study = selResearchStudy.value;
+    if (study === 'US_CPI_EURUSD') {
+      if (studyContentCpi) studyContentCpi.style.display = 'block';
+      if (studyContentPending) studyContentPending.style.display = 'none';
+    } else {
+      if (studyContentCpi) studyContentCpi.style.display = 'none';
+      if (studyContentPending) {
+        studyContentPending.style.display = 'block';
+        const optText = selResearchStudy.options[selResearchStudy.selectedIndex].text;
+        if (pendingStudyTitle) pendingStudyTitle.textContent = optText + ' — Pending Pre-Registration Audit';
+        if (pendingStudyDesc) {
+          pendingStudyDesc.textContent = 'No candidate parameter card or simulation ledger is available in this viewer for ' + optText + '. Zero setups are registered for demo forward testing. To inspect raw price paths, use the Event Table tab.';
+        }
+      }
+    }
+  }
+
+  if (selResearchStudy) {
+    selResearchStudy.addEventListener('change', updateResearchStudy);
+  }
+
   // Initial Run
   initSelectors();
   render();
+  updateResearchStudy();
+
 </script>
 </body>
 </html>

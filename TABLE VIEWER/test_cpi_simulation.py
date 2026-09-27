@@ -671,10 +671,17 @@ class TestCpiSimulation(unittest.TestCase):
                         "gross_r_without_best_trade": 5.77
                     },
                     "trades": [
-                        {"ambiguous_flag": True, "direction": "LONG", "exit_reason": "TARGET", "co_releases": ["840140001"]},
-                        {"ambiguous_flag": True, "direction": "LONG", "exit_reason": "STOP", "co_releases": []},
-                        {"ambiguous_flag": True, "direction": "SHORT", "exit_reason": "STOP", "co_releases": []},
-                        {"ambiguous_flag": True, "direction": "SHORT", "exit_reason": "TARGET", "co_releases": ["840140001"]},
+                        # 10 Jobless Longs (TARGET, R=0.60): 1 ambiguous
+                        {"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 0.60, "co_releases": ["840140001"], "ambiguous_flag": True},
+                        *[{"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 0.60, "co_releases": ["840140001"], "ambiguous_flag": False}] * 9,
+                        # 10 Other Longs (TARGET, R=0.51): 1 ambiguous
+                        {"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 0.51, "co_releases": [], "ambiguous_flag": True},
+                        *[{"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 0.51, "co_releases": [], "ambiguous_flag": False}] * 9,
+                        # 16 Other Shorts: 1 TARGET (R=0.67), 15 STOP (R=-0.26666666666666666): 2 ambiguous
+                        {"direction": "SHORT", "exit_reason": "TARGET", "gross_r_multiple": 0.67, "co_releases": [], "ambiguous_flag": False},
+                        {"direction": "SHORT", "exit_reason": "STOP", "gross_r_multiple": -0.26666666666666666, "co_releases": [], "ambiguous_flag": True},
+                        {"direction": "SHORT", "exit_reason": "STOP", "gross_r_multiple": -0.26666666666666666, "co_releases": [], "ambiguous_flag": True},
+                        *[{"direction": "SHORT", "exit_reason": "STOP", "gross_r_multiple": -0.26666666666666666, "co_releases": [], "ambiguous_flag": False}] * 13,
                     ]
                 },
                 "sensitivity_1.0x_conservative": {
@@ -685,7 +692,11 @@ class TestCpiSimulation(unittest.TestCase):
                         "total_gross_r": -12.34,
                         "mean_gross_r": -0.34
                     },
-                    "trades": [{"ambiguous_flag": True}] * 5
+                    "trades": [
+                        *[{"gross_r_multiple": 1.00, "exit_reason": "TARGET", "ambiguous_flag": True}] * 5,
+                        *[{"gross_r_multiple": 1.00, "exit_reason": "TARGET", "ambiguous_flag": False}] * 7,
+                        *[{"gross_r_multiple": -24.34 / 24, "exit_reason": "STOP", "ambiguous_flag": False}] * 24,
+                    ]
                 },
                 "sensitivity_2.0x_conservative": {
                     "metrics": {
@@ -695,7 +706,11 @@ class TestCpiSimulation(unittest.TestCase):
                         "total_gross_r": 9.99,
                         "mean_gross_r": 0.28
                     },
-                    "trades": [{"ambiguous_flag": True}] * 8
+                    "trades": [
+                        *[{"gross_r_multiple": 2.00, "exit_reason": "TARGET", "ambiguous_flag": True}] * 8,
+                        *[{"gross_r_multiple": 2.00, "exit_reason": "TARGET", "ambiguous_flag": False}] * 7,
+                        *[{"gross_r_multiple": -20.01 / 21, "exit_reason": "STOP", "ambiguous_flag": False}] * 21,
+                    ]
                 }
             }
         }
@@ -757,15 +772,19 @@ class TestCpiSimulation(unittest.TestCase):
                         "best_trade": {"release_time_server": "2024.04.10 15:30"},
                         "gross_r_without_best_trade": 96.25
                     },
-                    "trades": []
+                    "trades": [
+                        *[{"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 2.75, "co_releases": ["840140001"], "ambiguous_flag": False}] * 11,
+                        *[{"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 2.75, "co_releases": [], "ambiguous_flag": False}] * 7,
+                        *[{"direction": "SHORT", "exit_reason": "TARGET", "gross_r_multiple": 2.75, "co_releases": [], "ambiguous_flag": False}] * 18,
+                    ]
                 },
                 "sensitivity_1.0x_conservative": {
                     "metrics": {"total_trades": 36, "wins": 36, "losses": 0, "total_gross_r": 36.00, "mean_gross_r": 1.00},
-                    "trades": []
+                    "trades": [{"gross_r_multiple": 1.00, "exit_reason": "TARGET", "ambiguous_flag": False}] * 36
                 },
                 "sensitivity_2.0x_conservative": {
                     "metrics": {"total_trades": 36, "wins": 36, "losses": 0, "total_gross_r": 72.00, "mean_gross_r": 2.00},
-                    "trades": []
+                    "trades": [{"gross_r_multiple": 2.00, "exit_reason": "TARGET", "ambiguous_flag": False}] * 36
                 }
             }
         }
@@ -811,11 +830,12 @@ class TestCpiSimulation(unittest.TestCase):
                         "total_trades": 40,
                         "wins": 18,
                         "losses": 19,
+                        "ties": 3,
                         "total_gross_r": -1.50,  # Inverted: positive (+4.00) -> negative (-1.50)
                         "mean_gross_r": -0.04,
                         "mean_risk_pips": 12.50,
                         "mean_gross_pnl_pips": -0.50,
-                        "bars_held_distribution": {"1": 25, "2": 8, "5": 4},
+                        "bars_held_distribution": {"1": 25, "2": 8, "5": 7},
                         "direction_splits": {
                             "long_count": 15,
                             "long_gross_r": -5.50,  # Inverted: positive (+4.5) -> negative (-5.5)
@@ -837,14 +857,22 @@ class TestCpiSimulation(unittest.TestCase):
                         "gross_r_without_best_trade": -3.00
                     },
                     "trades": [
-                        # 15 Longs: 5 targets, 9 stops, 1 timeout
-                        *[{"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 1.5, "co_releases": ["840140001"]}] * 5,
-                        *[{"direction": "LONG", "exit_reason": "STOP", "gross_r_multiple": -1.0, "co_releases": ["840140001"]}] * 9,
-                        {"direction": "LONG", "exit_reason": "TIMEOUT_H24", "gross_r_multiple": -0.5, "co_releases": []},
-                        # 25 Shorts: 13 targets, 10 stops, 2 timeouts
-                        *[{"direction": "SHORT", "exit_reason": "TARGET", "gross_r_multiple": 1.5, "co_releases": []}] * 13,
-                        *[{"direction": "SHORT", "exit_reason": "STOP", "gross_r_multiple": -1.0, "co_releases": []}] * 10,
-                        *[{"direction": "SHORT", "exit_reason": "TIMEOUT_H24", "gross_r_multiple": 0.25, "co_releases": []}] * 2,
+                        # 5 Long Jobless Targets: 5 * 0.5 = 2.50
+                        *[{"direction": "LONG", "exit_reason": "TARGET", "gross_r_multiple": 0.50, "co_releases": ["840140001"], "ambiguous_flag": False}] * 5,
+                        # 5 Long Jobless Stops: 5 * -0.90 = -4.50
+                        *[{"direction": "LONG", "exit_reason": "STOP", "gross_r_multiple": -0.90, "co_releases": ["840140001"], "ambiguous_flag": False}] * 5,
+                        # 4 Long Other Stops: 4 * -0.75 = -3.00
+                        *[{"direction": "LONG", "exit_reason": "STOP", "gross_r_multiple": -0.75, "co_releases": [], "ambiguous_flag": False}] * 4,
+                        # 1 Long Other Timeout: -0.50
+                        {"direction": "LONG", "exit_reason": "TIMEOUT_H24", "gross_r_multiple": -0.50, "co_releases": [], "ambiguous_flag": False},
+                        # 4 Short Jobless Targets: 4 * 0.00 = 0.00
+                        *[{"direction": "SHORT", "exit_reason": "TARGET", "gross_r_multiple": 0.00, "co_releases": ["840140001"], "ambiguous_flag": False}] * 4,
+                        # 9 Short Other Targets: 9 * 1.00 = 9.00
+                        *[{"direction": "SHORT", "exit_reason": "TARGET", "gross_r_multiple": 1.00, "co_releases": [], "ambiguous_flag": False}] * 9,
+                        # 10 Short Other Stops: 10 * -0.80 = -8.00
+                        *[{"direction": "SHORT", "exit_reason": "STOP", "gross_r_multiple": -0.80, "co_releases": [], "ambiguous_flag": False}] * 10,
+                        # 2 Short Other Timeouts: 2 * 1.50 = 3.00
+                        *[{"direction": "SHORT", "exit_reason": "TIMEOUT_H24", "gross_r_multiple": 1.50, "co_releases": [], "ambiguous_flag": False}] * 2,
                     ]
                 },
                 "sensitivity_1.0x_conservative": {
@@ -855,7 +883,11 @@ class TestCpiSimulation(unittest.TestCase):
                         "total_gross_r": 10.00,  # Inverted: negative (-4.00) -> positive (+10.00)
                         "mean_gross_r": 0.25
                     },
-                    "trades": [{"ambiguous_flag": True}] * 4
+                    "trades": [
+                        *[{"gross_r_multiple": 1.00, "exit_reason": "TARGET", "ambiguous_flag": True}] * 4,
+                        *[{"gross_r_multiple": 1.00, "exit_reason": "TARGET", "ambiguous_flag": False}] * 21,
+                        *[{"gross_r_multiple": -1.00, "exit_reason": "STOP", "ambiguous_flag": False}] * 15,
+                    ]
                 },
                 "sensitivity_2.0x_conservative": {
                     "metrics": {
@@ -865,7 +897,11 @@ class TestCpiSimulation(unittest.TestCase):
                         "total_gross_r": -10.00,  # Inverted: positive (+3.00) -> negative (-10.00)
                         "mean_gross_r": -0.25
                     },
-                    "trades": [{"ambiguous_flag": True}] * 1
+                    "trades": [
+                        *[{"gross_r_multiple": 2.00, "exit_reason": "TARGET", "ambiguous_flag": True}] * 1,
+                        *[{"gross_r_multiple": 2.00, "exit_reason": "TARGET", "ambiguous_flag": False}] * 9,
+                        *[{"gross_r_multiple": -1.00, "exit_reason": "STOP", "ambiguous_flag": False}] * 30,
+                    ]
                 }
             }
         }
