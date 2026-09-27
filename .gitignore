@@ -1,0 +1,11 @@
+# Large, broker-specific research inputs stay local.
+/raw_data/
+
+# Local symbol wish list; the tracked 28-pair whitelist is in README.MD.
+/Docs/SYMBOL_PLACEHOLDER_FOLDER/
+
+# Python runtime and local environments.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/

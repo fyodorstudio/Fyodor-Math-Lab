@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expanded Macro Research — Viewer</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, "Segoe UI", Arial, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f4f7fb; color: #17243a; }
+    .page { max-width: 1180px; margin: 0 auto; padding: 36px 22px 72px; }
+    header { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; justify-content: space-between; margin-bottom: 26px; }
+    h1 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.035em; margin: 0 0 8px; }
+    p { line-height: 1.55; }
+    .subtitle { color: #52627a; margin: 0; max-width: 740px; }
+    .status { background: #fff8e8; color: #835807; border: 1px solid #f2d69a; border-radius: 999px; padding: 9px 14px; font-size: 12px; font-weight: 750; letter-spacing: .06em; white-space: nowrap; }
+    .tabs { display: flex; gap: 7px; border-bottom: 1px solid #d9e2ee; margin-bottom: 20px; }
+    .tab { appearance: none; border: 0; background: transparent; color: #60718a; cursor: pointer; font: inherit; font-weight: 650; padding: 14px 18px; border-bottom: 3px solid transparent; }
+    .tab:hover, .tab:focus-visible { color: #1a4d9d; }
+    .tab[aria-selected="true"] { color: #1654a9; border-bottom-color: #3578d6; }
+    .tab:focus-visible { outline: 2px solid #3578d6; outline-offset: -2px; }
+    .panel { background: white; border: 1px solid #dce5ef; border-radius: 14px; box-shadow: 0 8px 30px rgba(22, 52, 96, .045); overflow: hidden; }
+    .panel-head { padding: 25px 28px 17px; }
+    h2 { font-size: 19px; margin: 0 0 7px; }
+    .panel-head p { color: #60718a; font-size: 14px; margin: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 620px; }
+    th { background: #f7f9fc; color: #52627a; font-size: 11px; letter-spacing: .07em; text-align: left; text-transform: uppercase; }
+    th, td { border-top: 1px solid #e8edf4; padding: 13px 18px; }
+    .empty { padding: 54px 24px; text-align: center; color: #61728a; }
+    .empty strong { display: block; color: #273b57; font-size: 16px; margin-bottom: 5px; }
+    .note { background: #edf4ff; border: 1px solid #cbdff9; border-radius: 10px; color: #30547e; font-size: 13px; line-height: 1.5; margin-top: 19px; padding: 14px 17px; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <h1>Expanded Macro Research</h1>
+        <p class="subtitle">A local viewer for audited economic-release episodes and candidate studies. Results will appear only after their underlying evidence has been generated and checked.</p>
+      </div>
+      <span class="status">NO DATA LOADED</span>
+    </header>
+
+    <nav class="tabs" aria-label="Research views">
+      <button class="tab" id="tab-events" type="button" role="tab" aria-selected="true" aria-controls="panel-events">Event Table</button>
+      <button class="tab" id="tab-candidates" type="button" role="tab" aria-selected="false" aria-controls="panel-candidates">Candidate Research</button>
+    </nav>
+
+    <section class="panel" id="panel-events" role="tabpanel" aria-labelledby="tab-events">
+      <div class="panel-head">
+        <h2>Event Table</h2>
+        <p>Release timestamps, A/F/P inputs, relevant FX pairs, coverage and H1 paths will be displayed here.</p>
+      </div>
+      <div class="table-wrap">
+        <table aria-label="Economic-release episodes">
+          <thead><tr><th>Release</th><th>Family</th><th>Pair</th><th>A / F / P</th><th>Coverage</th><th>H1 path</th></tr></thead>
+          <tbody><tr><td colspan="6" class="empty"><strong>No audited episodes yet</strong>The exporter and calculator have not run in this repository.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-candidates" role="tabpanel" aria-labelledby="tab-candidates" hidden>
+      <div class="panel-head">
+        <h2>Candidate Research</h2>
+        <p>Versioned rules and per-trade evidence will be shown here after a study passes its audit.</p>
+      </div>
+      <div class="empty"><strong>No registered or calculated candidates</strong>Old-repository outcomes have not been imported as results in this new study.</div>
+    </section>
+
+    <p class="note">This page is a fresh interface shell, not a backtest. Its empty states are intentional: zero records shown does not mean zero qualifying events or zero trades.</p>
+  </main>
+  <script>
+    const tabs = [document.getElementById('tab-events'), document.getElementById('tab-candidates')];
+    const panels = [document.getElementById('panel-events'), document.getElementById('panel-candidates')];
+    function selectTab(index) {
+      tabs.forEach((tab, i) => {
+        const selected = i === index;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        panels[i].hidden = !selected;
+      });
+      tabs[index].focus();
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => selectTab(index));
+      tab.addEventListener('keydown', event => {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+          event.preventDefault();
+          selectTab((index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
