@@ -1,6 +1,6 @@
 """
 Auditable CPI Exploratory Historical Simulation Runner & Decision Ledger (EURUSD)
-Location: TABLE VIEWER/NEW/cpi_simulation.py
+Location: TABLE VIEWER/cpi_simulation.py
 
 Implements ONE fixed rule bundle for US CPI on EURUSD:
 1. Signal Bundle:
@@ -24,7 +24,7 @@ Implements ONE fixed rule bundle for US CPI on EURUSD:
    - Gap fill: Fills at worse open if bar opens beyond stop; capped at target price for favorable target gaps.
    - Cost model: Gross metrics reported with explicit zero-friction disclaimer.
 
-Outputs generated in TABLE VIEWER/NEW/cpi_setup/:
+Outputs generated in TABLE VIEWER/cpi_setup/:
 - cpi_decision_ledger.csv (complete accounting of all 277 inflation episodes)
 - cpi_trade_ledger.csv (36 trade execution records)
 - cpi_trade_ledger.json (full structured trial metrics and decision data)
@@ -847,7 +847,7 @@ Total Distinct Timestamps across the 5 Studied Families:               825 (14 c
 ```
 
 ### Complete Decision Ledger Funnel Closure
-Every single one of the 277 inflation episodes is recorded in [`cpi_decision_ledger.csv`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/TABLE%20VIEWER/NEW/cpi_setup/cpi_decision_ledger.csv):
+Every single one of the 277 inflation episodes is recorded in [`cpi_decision_ledger.csv`](cpi_decision_ledger.csv):
 - `PCE_ONLY`: {decision_counts.get('PCE_ONLY', 0)}
 - `SHARED_COLLISION`: {decision_counts.get('SHARED_COLLISION', 0)}
 - `MISSING_AF`: {decision_counts.get('MISSING_AF', 0)}

@@ -1,6 +1,6 @@
 """
 Unit Tests for CPI Exploratory Historical Simulation & Decision Ledger
-Location: TABLE VIEWER/NEW/test_cpi_simulation.py
+Location: TABLE VIEWER/test_cpi_simulation.py
 
 Independent Synthetic Fixtures & Audit Verifications:
 1. Pinned input SHA-256 cryptographic provenance.

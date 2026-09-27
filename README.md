@@ -2,6 +2,17 @@
 
 Repository for macroeconomic release displacement analysis and candidate setup evaluation.
 
+## Where to look
+
+| Location | Role |
+| --- | --- |
+| [US CPI on EURUSD](docs/candidate%20research/US%20CPI%20on%20EURUSD.md) | Maintained study narrative: baseline, separately named candidate variants, results, and open questions. This is the human-readable research record. |
+| [Director's notes](docs/director's%20note/notes.md) | Ideas and possible later work; not an approved trading rule or evidence ledger. |
+| [`TABLE VIEWER/cpi_setup/`](TABLE%20VIEWER/cpi_setup/) | Generated CPI decision/trade ledgers and calculation report: the per-episode evidence behind the study narrative. New variants must have distinct outputs, not overwrite the baseline. |
+| [Research viewer](TABLE%20VIEWER/table_viewer.html) | Generated inspection screen for episodes and candidate results; not a second manually maintained research document. |
+
+The pinned MT5 export lives under `data/pinned/` locally and is Git-ignored. Edit the source files under `TABLE VIEWER/generator/`, then regenerate the standalone HTML rather than editing its embedded data by hand.
+
 ## Research Table Viewer
 
 The approved research viewer is a self-contained, light-mode HTML artifact located at:

@@ -44,7 +44,7 @@ Total Distinct Timestamps across the 5 Studied Families:               825 (14 c
 ```
 
 ### Complete Decision Ledger Funnel Closure
-Every single one of the 277 inflation episodes is recorded in [`cpi_decision_ledger.csv`](file:///c:/dev/Fyodor%20Math%20Lab/Macro%20Research/TABLE%20VIEWER/NEW/cpi_setup/cpi_decision_ledger.csv):
+Every single one of the 277 inflation episodes is recorded in [`cpi_decision_ledger.csv`](cpi_decision_ledger.csv):
 - `PCE_ONLY`: 138
 - `SHARED_COLLISION`: 12
 - `MISSING_AF`: 26
