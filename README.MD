@@ -1,6 +1,6 @@
 # Expanded Macro Research
 
-An isolated workspace for researching economic-release reactions across a fixed FX universe. This repository contains **an audited raw-export snapshot, plans, a calculation contract, and a pending-state research viewer**; it has no calculated CPI/NFP trial, profitable result, or registered trading setup. Start with [the expansion plan](Docs/CONTRACT%20AND%20PLANNING/MAJOR%20EXPANSION%20PLAN.MD), then [the calculation and candidate contract](Docs/CONTRACT%20AND%20PLANNING/CALCULATION_AND_CANDIDATE_CONTRACT.md). The exploratory ATR grid and H60/H120/H240 expiries are specified there; family signals and eligibility rules remain open.
+An isolated workspace for researching economic-release reactions across a fixed FX universe. It now has **verified local CPI and NFP V2 exploratory results** and a standalone [HTML evidence viewer](HTML%20Viewer/table_viewer.html). No trading setup is registered or shown to be profitable after costs. Start with [the local results index](Research%20Candidate/README.md), [the expansion plan](Docs/CONTRACT%20AND%20PLANNING/MAJOR%20EXPANSION%20PLAN.MD), and [the calculation contract](Docs/CONTRACT%20AND%20PLANNING/CALCULATION_AND_CANDIDATE_CONTRACT.md).
 
 ## Working layout
 
@@ -12,19 +12,19 @@ Expanded Macro Research/
 │   ├── MT5_EXPORTER_SCRIPT/          old V3 reference and new V4 exporter
 │   └── SYMBOL_PLACEHOLDER_FOLDER/    local, Git-ignored symbol wish list
 ├── HTML Viewer/
-│   ├── table_viewer.html             standalone viewer with pending-state grids
+│   ├── table_viewer.html             standalone CPI/NFP evidence snapshot
 │   └── Python Calculator/           Python calculation/build source only
 ├── Research Candidate/              versioned evidence, grouped by family/trial
 │   ├── README.md                    tracked folder purpose and evidence boundary
-│   ├── CPI/                         empty until an audited CPI study exists
-│   └── NFP/                         empty until an audited NFP study exists
+│   ├── CPI/                         local, ignored V2 exploration packages
+│   └── NFP/                         local, ignored V2 exploration packages
 └── raw_data/                        local, Git-ignored MT5 exports
     └── FyodorResearchExport_v4_20260928_021936_79538281_server/
 ```
 
-Empty folders are local placeholders and may not appear in a Git clone until they contain tracked files. The tracked `Research Candidate/README.md` makes that parent folder visible, but empty `CPI/` and `NFP/` still will not appear. The V4 export folder is local and ignored by Git. The planned full-year release core is 2015–2025, with January–August 2026 shown separately; candle data must extend beyond those release dates to evaluate H240.
+The V4 export and large V2 output packages are local and ignored by Git; see the [results index](Research%20Candidate/README.md) before opening a package. The full-year release core is 2015–2025, with January–August 2026 shown separately; candle data extends beyond those release dates to evaluate H240.
 
-The Python code may sit under `HTML Viewer/Python Calculator/` for tidy local organization, but its **calculation output is evidence in `Research Candidate/`**, not numbers typed into HTML. The HTML file only displays audited evidence. It opens locally without a web server. No old viewer, calculations, or CPI/NFP ledgers have been imported from the previous repository.
+The Python code sits under `HTML Viewer/Python Calculator/`, but its **calculation output is evidence in `Research Candidate/`**, not numbers typed into HTML. The viewer is generated from the pinned final CPI/NFP V2 release paths and summary grids by `python "HTML Viewer/Python Calculator/build_viewer.py"`; `--check` confirms it matches those packages. The generated HTML opens locally without a web server and includes both source digests and an explicit no-registration warning. It does not embed the 200 MB trial ledgers; use the local packages for deeper audits. No old viewer, calculations, or CPI/NFP ledgers have been imported from the previous repository.
 
 ## Allowed FX universe
 
@@ -46,7 +46,9 @@ For an event associated with one of AUD, CAD, CHF, EUR, GBP, JPY, NZD or USD, th
 - Export all broker-available data, record exact coverage and SHA-256 hashes, and exclude missing or incomplete event/pair/horizon cases with reasons. Never synthesize missing prices or calendar values.
 - The V4 exporter has been compiled and run. Its first snapshot is identified above; see the [export audit and usage note](Docs/MT5_EXPORTER_SCRIPT/new/README.md). `candles_completed=true` means the run finished, **not** that all pairs have full history.
 
-Raw data and the local symbol-placeholder tree are ignored by Git. The exported whitelist and active/excluded decision are repeated here deliberately so a GitHub clone preserves the research boundary. Neither CPI nor NFP has a frozen family protocol or calculated outcome in this repository yet.
+Raw data, local exploration packages, and the symbol-placeholder tree are ignored by Git. The exported whitelist and active/excluded decision are repeated here deliberately so a GitHub clone preserves the research boundary. CPI and NFP V2 have calculated gross OHLC outcomes, but no rule has been selected or registered for forward testing.
+
+The publishable `EXPANDED` branch is a clean snapshot based on the existing remote branch. The original local sequence of research commits, including invalidated V1 output blobs and the historical commit IDs cited by the local V2 manifests, is preserved on `archive/EXPANDED-before-size-cleanup` **only on this computer**. That archive branch cannot be pushed to ordinary GitHub Git because of the V1 file-size limit. Keep it and the Git-ignored final V2 packages for exact provenance.
 
 ## Git handoff
 

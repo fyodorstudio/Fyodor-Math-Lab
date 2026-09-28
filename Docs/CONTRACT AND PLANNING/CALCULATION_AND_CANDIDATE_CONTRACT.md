@@ -102,3 +102,13 @@ If a direction permutation is used, preserve release dates, market paths and eli
 ## Minimum acceptance tests
 
 Synthetic cases must cover: explicit nine-pair global rejection; release exactly on an H1 open and inside a bar; weekend entry; base/quote sign inversion; zero versus missing A/F/P; revised P separation; same-time release bundles; pre-release ATR despite extreme release candle; insufficient warmup; duplicate/out-of-order/missing candles; H60/H120/H240 boundaries; stop-only, target-only, timeout, opening gap, dual touch under both bounds, censor before/after entry; short gross R; MFE/MAE exit-bar bounds; even-N median and nearest-rank quantiles; and count reconciliation. Then independently hand-recompute representative real rows from hashed inputs. Passing tests alone does not validate broker data or establish an edge.
+
+---
+
+## Amendment 2026-09-28: Exploratory Research Exemption (selection_policy = NONE)
+
+For descriptive historical exploration passes (specifically `CPI_EXPLORATION_V1` and `NFP_EXPLORATION_V1`):
+1. **Explicit Setting:** `selection_policy = NONE`.
+2. **Descriptive Scope:** All 52 grid cells across the 3 horizons (156 cell-horizon evaluations) are fully reported across all active USD pairs and signals, including all losing, stagnant, and empty cells.
+3. **Zero Winner Selection or Registration:** Zero candidate ranking, zero optimization metric, and zero winner selection or setup registration are permitted under this exploration mode.
+4. **Preservation of Registration Standards:** Any future setup registration or live demo deployment remains strictly bound by the formal multi-year candidate selection criteria and out-of-sample validation rules specified in this contract.
