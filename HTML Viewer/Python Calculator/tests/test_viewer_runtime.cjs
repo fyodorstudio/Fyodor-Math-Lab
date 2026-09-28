@@ -49,9 +49,12 @@ const document = {
 };
 vm.runInNewContext(scripts.at(-1)[1], { document, console }, { timeout: 10000 });
 
-function selectedCell() {
+function gridTable() {
   const card = get('result-tables').children[0];
-  const table = card.children.find(child => child.tag === 'div' && child.className === 'grid-scroll').children[0];
+  return card.children.find(child => child.tag === 'div' && child.className === 'grid-scroll').children[0];
+}
+function selectedCell() {
+  const table = gridTable();
   const body = table.children.find(child => child.tag === 'tbody');
   assert.equal(body.children.length, 52);
   return body.children.find(row => row.children[0].textContent === '2.00' && row.children[1].textContent === '2.00');
@@ -87,4 +90,13 @@ get('event-year').value = '2026';
 get('event-year').dispatch('change');
 assert.ok(get('event-count').textContent.includes('partial'));
 assert.ok(get('event-rows').children.length > 0);
+gridTable().children[0].children[0].children[9].children[0].dispatch('click');
+let sortedRows = gridTable().children[1].children;
+assert.ok(Number(sortedRows[0].children[9].textContent) >= Number(sortedRows.at(-1).children[9].textContent));
+gridTable().children[0].children[0].children[9].children[0].dispatch('click');
+sortedRows = gridTable().children[1].children;
+assert.ok(Number(sortedRows[0].children[9].textContent) <= Number(sortedRows.at(-1).children[9].textContent));
+get('result-tables').children[0].children[0].children.find(child => child.className === 'sort-reset').dispatch('click');
+assert.equal(gridTable().children[1].children[0].children[0].textContent, '1.00');
+assert.equal(gridTable().children[1].children[0].children[1].textContent, '1.00');
 console.log('Viewer DOM smoke test passed: CPI/NFP selectors, 52-cell grids, H1 event rows');

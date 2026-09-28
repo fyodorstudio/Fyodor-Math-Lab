@@ -49,6 +49,11 @@
     .grid-table { min-width: 970px; font-variant-numeric: tabular-nums; }
     .grid-table th { position: sticky; top: 0; z-index: 1; background: #f2f6fb; }
     .grid-table th, .grid-table td { padding: 9px 13px; }
+    .grid-table th { white-space: nowrap; }
+    .grid-sort { appearance: none; border: 0; background: transparent; color: inherit; cursor: pointer; font: inherit; font-weight: inherit; letter-spacing: inherit; padding: 2px 0; text-align: left; text-transform: inherit; white-space: nowrap; }
+    .grid-sort:hover, .grid-sort:focus-visible { color: #1654a9; text-decoration: underline; }
+    .grid-sort:focus-visible { outline: 2px solid #3578d6; outline-offset: 3px; }
+    .sort-reset { border: 1px solid #cbd8e8; border-radius: 6px; background: #fff; color: #28558e; cursor: pointer; font: inherit; font-size: 12px; padding: 6px 9px; }
     .grid-table tbody tr:nth-child(even) { background: #fafcff; }
     .grid-table .stop-start td { border-top: 2px solid #ccdbea; }
     .grid-table td.positive { color: #13734b; font-weight: 700; }
@@ -175,10 +180,10 @@
         <div class="result-controls">
           <div class="field"><label for="candidate-horizon">Expiry horizon</label><select id="candidate-horizon"><option value="60">H60 — about 2.5 trading days</option><option value="120">H120 — about 5 trading days</option><option value="240">H240 — about 10 trading days</option></select></div>
           <div class="field"><label for="candidate-cohort">Path cohort</label><select id="candidate-cohort"><option value="ALL_ELIGIBLE">Eligible per horizon</option><option value="COMMON_H240">Same H240-complete cases</option></select></div>
-          <span class="result-note">Full 2015–2025 history plus partial 2026; H60/H120/H240 count observed market bars.</span>
+          <span class="result-note">Click any result-column heading to sort. Full 2015–2025 history plus partial 2026; horizons count observed H1 bars.</span>
         </div>
         <div id="result-tables"></div>
-        <p class="footnote">Each signal has 4 stop widths × 13 target widths = 52 comparisons per horizon. 4:4 means SL=4 ATR and TP=4 ATR. TP/SL are stop-first H1-bar outcomes; “dual” counts bars touching both. R is gross and excludes costs. LOYO folds overlap, and positive cells discovered in this large grid are not validated edges. Combined-pair counts, if shown in source reports, are correlated expressions of the same releases; this viewer shows individual pairs.</p>
+        <p class="footnote">Sorting is for inspection, not parameter selection or setup registration. Each signal has 4 stop widths × 13 target widths = 52 comparisons per horizon. 4:4 means SL=4 ATR and TP=4 ATR. TP/SL are stop-first H1-bar outcomes; “dual” counts bars touching both. R is gross and excludes costs. LOYO folds overlap, and positive cells discovered in this large grid are not validated edges. Combined-pair counts, if shown in source reports, are correlated expressions of the same releases; this viewer shows individual pairs.</p>
       </div>
     </section>
 
@@ -237,6 +242,30 @@
       NFP: { label: 'US NFP', anchor: 'Nonfarm Payrolls (thousands) · MT5 event 840030016' }
     };
     const signalLabels = { af: 'A − F (surprise)', ap: 'A − P (momentum)' };
+    const metric = (row, index) => row[index] === '' ? null : Number(row[index]);
+    const sortColumns = [
+      { label: 'SL ATR', value: row => metric(row, 5), first: 'asc' },
+      { label: 'TP ATR', value: row => metric(row, 6), first: 'asc' },
+      { label: 'R:R', value: row => Number(row[6]) / Number(row[5]), first: 'desc' },
+      { label: 'Bundles', value: row => metric(row, 7), first: 'desc' },
+      { label: 'Trades', value: row => metric(row, 8), first: 'desc' },
+      { label: 'TP first', value: row => metric(row, 9), first: 'desc' },
+      { label: 'SL first', value: row => metric(row, 10), first: 'asc' },
+      { label: 'Timeout', value: row => metric(row, 11), first: 'asc' },
+      { label: 'TP %', value: row => Number(row[8]) ? Number(row[9]) / Number(row[8]) : null, first: 'desc' },
+      { label: 'Mean R', value: row => metric(row, 13), first: 'desc' },
+      { label: 'Gross R', value: row => metric(row, 14), first: 'desc' },
+      { label: 'Dual N', value: row => metric(row, 12), first: 'asc' },
+      { label: 'TP med H', value: row => metric(row, 15), first: 'asc' },
+      { label: 'SL med H', value: row => metric(row, 16), first: 'asc' },
+      { label: 'All P90 H', value: row => metric(row, 18), first: 'asc' },
+      { label: 'LOYO + / N', value: row => {
+        const [positive, total] = row[19].split('/').map(Number);
+        return total ? positive / total : null;
+      }, first: 'desc' },
+      { label: 'Adj. mean R', value: row => metric(row, 21), first: 'desc' }
+    ];
+    let gridSort = null;
     const panelLabels = {
       FULL_PANEL: 'Full panel · no collision exclusion',
       JOBLESS_CLAIMS_CLEAN: 'Exclude same-time US Jobless Claims',
@@ -331,8 +360,19 @@
       const filtered = families[family].summaries.filter(row =>
         row[0] === panelSelect.value && row[1] === pairSelect.value &&
         row[2] === signal && row[3] === cohortSelect.value && row[4] === horizonSelect.value
-      ).sort((a, b) => Number(a[5]) - Number(b[5]) || Number(a[6]) - Number(b[6]));
+      );
       if (filtered.length !== 52) throw new Error(`Missing 52-cell ${family} ${pairSelect.value} ${signal} grid`);
+      const originalOrder = (a, b) => Number(a[5]) - Number(b[5]) || Number(a[6]) - Number(b[6]);
+      filtered.sort((a, b) => {
+        if (!gridSort) return originalOrder(a, b);
+        const getValue = sortColumns[gridSort.column].value;
+        const first = getValue(a);
+        const second = getValue(b);
+        if (first === null) return second === null ? originalOrder(a, b) : 1;
+        if (second === null) return -1;
+        const difference = gridSort.direction === 'asc' ? first - second : second - first;
+        return difference || originalOrder(a, b);
+      });
       const card = document.createElement('section');
       card.className = 'result-card';
       const heading = document.createElement('div');
@@ -343,6 +383,14 @@
       badge.className = 'badge';
       badge.textContent = `${filtered[0][8]} trials · ${filtered[0][7]} bundles`;
       heading.append(title, badge);
+      if (gridSort) {
+        const reset = document.createElement('button');
+        reset.type = 'button';
+        reset.className = 'sort-reset';
+        reset.textContent = 'Reset ATR order';
+        reset.addEventListener('click', () => { gridSort = null; renderCandidateView(); });
+        heading.appendChild(reset);
+      }
       card.appendChild(heading);
       const chips = document.createElement('div');
       chips.className = 'result-summary';
@@ -361,14 +409,30 @@
       table.className = 'grid-table';
       table.setAttribute('aria-label', `${family} ${pairSelect.value} ${signalLabels[signal]} H${horizonSelect.value} ATR results`);
       const header = document.createElement('tr');
-      ['SL ATR', 'TP ATR', 'R:R', 'Bundles', 'Trades', 'TP first', 'SL first', 'Timeout', 'TP %', 'Mean R', 'Gross R', 'Dual N', 'TP med H', 'SL med H', 'All P90 H', 'LOYO + / N', 'Adj. mean R'].forEach(label => makeCell(header, 'th', label));
+      sortColumns.forEach((column, index) => {
+        const th = document.createElement('th');
+        th.scope = 'col';
+        const active = gridSort?.column === index;
+        th.setAttribute('aria-sort', active ? (gridSort.direction === 'asc' ? 'ascending' : 'descending') : 'none');
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'grid-sort';
+        button.textContent = column.label + (active ? (gridSort.direction === 'asc' ? ' ↑' : ' ↓') : '');
+        button.setAttribute('aria-label', `Sort ${column.label} ${active && gridSort.direction === 'desc' ? 'ascending' : active ? 'descending' : column.first === 'asc' ? 'ascending' : 'descending'}`);
+        button.addEventListener('click', () => {
+          gridSort = { column: index, direction: active ? (gridSort.direction === 'asc' ? 'desc' : 'asc') : column.first };
+          renderCandidateView();
+        });
+        th.appendChild(button);
+        header.appendChild(th);
+      });
       const thead = document.createElement('thead');
       thead.appendChild(header);
       table.appendChild(thead);
       const tbody = document.createElement('tbody');
       filtered.forEach((r, index) => {
         const tr = document.createElement('tr');
-        if (index % 13 === 0) tr.className = 'stop-start';
+        if (!gridSort && index % 13 === 0) tr.className = 'stop-start';
         const winPct = Number(r[8]) ? (100 * Number(r[9]) / Number(r[8])).toFixed(1) + '%' : '—';
         const values = [Number(r[5]).toFixed(2), Number(r[6]).toFixed(2),
           (Number(r[6]) / Number(r[5])).toFixed(2), r[7], r[8], r[9], r[10], r[11],
