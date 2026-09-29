@@ -111,8 +111,53 @@ def load_family(family):
             row["is_candidate_eligible_h60_af"] == "True",
             row["is_candidate_eligible_h60_ap"] == "True",
             paths[key],
+            row["bundle_id"], row["entry_server_text"],
+            row["pair_direction_af"], row["pair_direction_ap"],
         ])
     episodes.sort(key=lambda r: (r[0], r[1]))
+    episode_index = {}
+    for index, episode in enumerate(episodes):
+        key = (episode[11], episode[1])
+        if key in episode_index:
+            raise ValueError(f"Duplicate {family} episode key: {key}")
+        episode_index[key] = index
+
+    # Compact, lossless audit view of the pinned trial ledger. Each record is
+    # [episode index, exit kind (TP=0, SL=1, expiry=2), exit H1 bar,
+    #  source gross R, dual-touch flag, common-H240 flag, opening-gap flag]. Panel membership is
+    # derived from the same pinned pre-outcome collision flags as the engine.
+    trades = {}
+    trial_keys = set()
+    trial_count = 0
+    for row in rows(package / "trial_ledger.csv"):
+        episode_key = (row["bundle_id"], row["pair"])
+        if episode_key not in episode_index:
+            raise ValueError(f"Unmatched {family} trade episode: {episode_key}")
+        if row["timestamp_server_text"] != pre[episode_key]["timestamp_server_text"]:
+            raise ValueError(f"Timestamp mismatch in {family} trial ledger: {episode_key}")
+        if row["entry_time_server_text"] != pre[episode_key]["entry_server_text"]:
+            raise ValueError(f"Entry mismatch in {family} trial ledger: {episode_key}")
+        if row["direction_pair"] != pre[episode_key][f"pair_direction_{row['signal_type']}"]:
+            raise ValueError(f"Direction mismatch in {family} trial ledger: {episode_key}")
+        trial_key = (row["observation_id"], row["signal_type"], row["horizon_bars"], row["cell_label"])
+        if trial_key in trial_keys:
+            raise ValueError(f"Duplicate {family} trial: {trial_key}")
+        trial_keys.add(trial_key)
+        trial_count += 1
+        result = {"TARGET": 0, "TARGET_GAP": 0, "STOP": 1, "STOP_GAP": 1, "TIMEOUT": 2}.get(row["exit_reason"])
+        if result is None or int(row["exit_bar_idx"]) != int(row["bars_to_exit"]):
+            raise ValueError(f"Invalid {family} trial exit: {trial_key}")
+        key = "|".join((row["pair"], row["signal_type"], row["horizon_bars"], row["cell_label"]))
+        trades.setdefault(key, []).append([
+            episode_index[episode_key], result, int(row["exit_bar_idx"]), row["gross_r"],
+            int(row["dual_touch"] == "True"), int(row["is_common_h240"] == "True"),
+            int(row["is_opening_gap"] == "True"),
+        ])
+    expected_count = {"CPI": 238680, "NFP": 271596}[family]
+    if trial_count != expected_count:
+        raise ValueError(f"Unexpected {family} trade count: {trial_count} != {expected_count}")
+    for group in trades.values():
+        group.sort(key=lambda item: item[0])
 
     summaries = []
     seen = set()
@@ -131,6 +176,30 @@ def load_family(family):
     if any(count != 52 for count in groups.values()):
         raise ValueError(f"Incomplete {family} summary grid")
 
+    for summary in summaries:
+        panel, pair, signal, cohort, horizon, stop, target = summary[:7]
+        if pair == "ALL_PAIRS_COMBINED":
+            continue  # The viewer drills down to individual pairs only.
+        key = "|".join((pair, signal, horizon, f"{float(stop):g}:{float(target):g}"))
+        selected = []
+        for trade in trades.get(key, []):
+            episode = episodes[trade[0]]
+            if cohort == "COMMON_H240" and not trade[5]:
+                continue
+            if family == "CPI" and panel == "JOBLESS_CLAIMS_CLEAN" and episode[5]:
+                continue
+            if family == "NFP" and panel in ("PRIMARY_PANEL", "USDCAD_CAD_JOBS_CLEAN") and pair == "USDCAD" and episode[6]:
+                continue
+            selected.append(trade)
+        counts = (len({trade[0] for trade in selected}), len(selected),
+                  sum(trade[1] == 0 for trade in selected), sum(trade[1] == 1 for trade in selected),
+                  sum(trade[1] == 2 for trade in selected), sum(trade[4] for trade in selected))
+        if counts != tuple(int(value) for value in (summary[7], summary[8], summary[9], summary[10], summary[11], summary[12])):
+            raise ValueError(f"{family} trade-list count does not reconcile to {panel}/{pair}/{signal}/{cohort}/H{horizon}/{key}")
+        gross = sum(float(trade[3]) for trade in selected)
+        if abs(gross - float(summary[14])) > 0.0002 or abs(gross / len(selected) - float(summary[13])) > 0.000002:
+            raise ValueError(f"{family} trade-list R does not reconcile to {panel}/{pair}/{signal}/{cohort}/H{horizon}/{key}")
+
     return {
         "run": RUN_ID,
         "codeCommit": manifest["code_commit"],
@@ -141,6 +210,7 @@ def load_family(family):
         },
         "episodes": episodes,
         "summaries": summaries,
+        "trades": trades,
     }
 
 

@@ -33,6 +33,34 @@ class FinalViewerSnapshotTests(unittest.TestCase):
             self.assertEqual(len(family["episodes"]), 980)
             self.assertEqual(len(family["summaries"]), count)
             self.assertTrue(all(len(row[10]) == 240 for row in family["episodes"]))
+            self.assertEqual(sum(len(group) for group in family["trades"].values()),
+                             238680 if name == "CPI" else 271596)
+
+    def test_trade_drilldown_reconciles_to_selected_summary_and_annual_rows(self):
+        for family_name, panel, expected_n in (("CPI", "JOBLESS_CLAIMS_CLEAN", 73),
+                                               ("NFP", "PRIMARY_PANEL", 111)):
+            family = self.payload["families"][family_name]
+            episodes = family["episodes"]
+            summary = next(row for row in family["summaries"]
+                           if row[:7] == [panel, "EURUSD", "af", "ALL_ELIGIBLE", "60", "2", "2"])
+            trades = family["trades"]["EURUSD|af|60|2:2"]
+            if family_name == "CPI":
+                trades = [trade for trade in trades if not episodes[trade[0]][5]]
+            self.assertEqual(len(trades), expected_n)
+            self.assertEqual(sum(trade[1] == 0 for trade in trades), int(summary[9]))
+            self.assertEqual(sum(trade[1] == 1 for trade in trades), int(summary[10]))
+            self.assertEqual(sum(trade[4] for trade in trades), int(summary[12]))
+            annual = {(row["year"]): row for row in build_viewer.rows(
+                build_viewer.ROOT / "Research Candidate" / family_name /
+                f"{family_name}_EXPLORATION_V2" / build_viewer.RUN_ID / "annual_breakdown.csv")
+                if [row[field] for field in ("panel", "pair", "signal_type", "cohort_filter", "horizon_bars", "cell_label")]
+                == [panel, "EURUSD", "af", "ALL_ELIGIBLE", "60", "2:2"]}
+            self.assertEqual(set(annual), {episodes[trade[0]][0][:4] for trade in trades})
+            for year, source in annual.items():
+                year_trades = [trade for trade in trades if episodes[trade[0]][0].startswith(year)]
+                self.assertEqual(len(year_trades), int(source["N_trades"]))
+                self.assertAlmostEqual(sum(float(trade[3]) for trade in year_trades),
+                                       float(source["gross_sum_r"]), delta=0.00015)
 
     def test_representative_eurusd_cells_match_ledger_reconciled_summary(self):
         examples = (
