@@ -38,7 +38,7 @@ def generate_payload():
         for _, r in group.iterrows():
             cells.append([
                 int(r['stop_atr']),
-                int(r['target_atr']),
+                float(r['target_atr']),           # float: preserves 1.25, 1.5, 1.75, 2.25, 2.5, 2.75, 3.5, 4.5 etc.
                 str(r['cell_label']),
                 str(r['reward_risk']),
                 int(r['N_bundles']),
@@ -49,14 +49,14 @@ def generate_payload():
                 int(r['N_dual_touch']),
                 round(float(r['win_rate']), 4),
                 round(float(r['gross_mean_r']), 4),
-                round(float(r['gross_sum_r']), 2),
+                round(float(r['gross_sum_r']), 4),     # 4dp — was 2dp
                 round(float(r['tf_gross_mean_r']), 4),
-                round(float(r['tf_gross_sum_r']), 2),
+                round(float(r['tf_gross_sum_r']), 4),  # 4dp — was 2dp
                 str(r['loyo_positive_years']),
                 round(float(r['loyo_min_mean_r']), 4),
                 round(float(r['loyo_max_mean_r']), 4),
-                round(float(r['loyo_min_sum_r']), 2),
-                round(float(r['loyo_max_sum_r']), 2),
+                round(float(r['loyo_min_sum_r']), 4),  # 4dp — was 2dp
+                round(float(r['loyo_max_sum_r']), 4),  # 4dp — was 2dp
                 float(r['tp_bars_median']),
                 float(r['sl_bars_median']),
                 float(r['overall_bars_median']),
@@ -77,18 +77,41 @@ def generate_payload():
                     int(r['N_wins']),
                     int(r['N_losses']),
                     int(r['N_timeouts']),
-                    round(float(r['gross_sum_r']), 2)
+                    round(float(r['gross_sum_r']), 4)   # 4dp — was 2dp
                 ])
             cell_dict[str(cell)] = rows
         payload['annual'][key] = cell_dict
 
     out_file = 'HTML Viewer/cpi_bundle_viewer_payload.json'
     print(f"Writing {out_file}...")
+    payload_str = json.dumps(payload, separators=(',', ':'))
     with open(out_file, 'w', encoding='utf-8') as f:
-        json.dump(payload, f, separators=(',', ':'))
+        f.write(payload_str)
 
     size = os.path.getsize(out_file)
     print(f"Done! Payload written to {out_file} ({size} bytes, {size / (1024*1024):.2f} MB)")
+
+    embed_in_html(payload_str)
+
+def embed_in_html(payload_str, html_path='HTML Viewer/table_viewer.html'):
+    begin_marker = '<!-- CPI_BUNDLE_DATA_BEGIN -->'
+    end_marker = '<!-- CPI_BUNDLE_DATA_END -->'
+    print(f"Embedding payload into {html_path}...")
+    with open(html_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    if begin_marker not in html_content or end_marker not in html_content:
+        raise ValueError(f"Markers {begin_marker} or {end_marker} not found in {html_path}")
+
+    before, rest = html_content.split(begin_marker, 1)
+    _, after = rest.split(end_marker, 1)
+
+    safe_payload = payload_str.replace('<', '\\u003c')
+    embedded_block = f'{begin_marker}\n<script type="application/json" id="cpi-bundle-data">{safe_payload}</script>\n{end_marker}'
+    new_html = before + embedded_block + after
+    with open(html_path, 'w', encoding='utf-8', newline='\n') as f:
+        f.write(new_html)
+    size = os.path.getsize(html_path)
+    print(f"Successfully embedded payload in {html_path} ({size} bytes, {size / (1024*1024):.2f} MB)")
 
 if __name__ == '__main__':
     generate_payload()

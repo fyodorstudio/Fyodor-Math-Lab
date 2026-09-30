@@ -6,8 +6,15 @@ const vm = require('node:vm');
 
 const html = fs.readFileSync(path.resolve(__dirname, '../../table_viewer.html'), 'utf8');
 const data = html.match(/<script type="application\/json" id="viewer-data">([\s\S]*?)<\/script>/);
+const bundleData = html.match(/<script type="application\/json" id="cpi-bundle-data">([\s\S]*?)<\/script>/);
 const scripts = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
-assert.ok(data && scripts.length === 2, 'Embedded evidence and viewer code must exist');
+assert.ok(data && bundleData && scripts.length === 3, 'Embedded legacy and CPI bundle evidence plus viewer code must exist');
+const bundle = JSON.parse(bundleData[1]);
+const bundleRows = bundle.summaries['FULL_PANEL|EURUSD|CANDIDATE_1_HEADLINE_MM|ALL_ELIGIBLE|60'];
+assert.equal(bundleRows.length, 52);
+assert.ok(bundleRows.some((row) => row[2] === '1:1.25' && row[1] === 1.25));
+assert.match(scripts.at(-1)[1], /const totMeanR = sfMean;/);
+assert.match(scripts.at(-1)[1], /\(sfSum >= 0 \? '\+' : ''\) \+ sfSum\.toFixed\(4\)/);
 
 class Element {
   constructor(tag = 'div', value = '') {
